@@ -2,7 +2,7 @@ import codecs
 import copy
 import numpy as np
 import os
-import rnnt.kaldi_io as kaldi_io
+import kaldiio
 
 
 class Dataset:
@@ -65,7 +65,8 @@ class Dataset:
         return feats_list, feats_dict
 
     def get_cmvn_dict(self):
-        cmvn_reader = kaldi_io.read_mat_scp(self.cmvnscp)
+        cmvn_reader = kaldiio.load_scp_sequential(self.cmvnscp)
+
         for spkid, stats in cmvn_reader:
             self.cmvn_stats_dict[spkid] = stats
 
@@ -140,7 +141,7 @@ class AudioDataset(Dataset):
         seq = self.targets_dict[utt_id]
 
         targets = np.array(seq)
-        features = kaldi_io.read_mat(feats_scp)
+        features = kaldiio.load_mat(feats_scp)
         if self.apply_cmvn:
             spk_id = self.utt2spk[utt_id]
             stats = self.cmvn_stats_dict[spk_id]
