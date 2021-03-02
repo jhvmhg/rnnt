@@ -1,0 +1,7 @@
+*.pyc
+egs/*/dump
+egs/*/fbank
+egs/*/exp
+nfs*
+.vscode
+__pycache__
