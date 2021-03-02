@@ -1,0 +1,190 @@
+[2021-03-02 15:09:37,544 INFO] Save config info.
+[2021-03-02 15:13:39,998 INFO] Save config info.
+[2021-03-02 15:18:45,662 INFO] Save config info.
+[2021-03-02 15:32:25,548 INFO] Save config info.
+[2021-03-02 15:36:06,901 INFO] Save config info.
+[2021-03-02 15:39:18,005 INFO] Save config info.
+[2021-03-02 15:39:34,654 INFO] Load Train Set!
+[2021-03-02 15:39:36,408 INFO] Load Dev Set!
+[2021-03-02 15:39:36,437 INFO] Set random seed: 2019
+[2021-03-02 15:39:45,110 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:39:45,110 INFO] # the number of parameters in the whole model: 15553800
+[2021-03-02 15:39:45,110 INFO] # the number of parameters in the Encoder: 8622400
+[2021-03-02 15:39:45,110 INFO] # the number of parameters in the Decoder: 4432192
+[2021-03-02 15:39:45,110 INFO] # the number of parameters in the JointNet: 2499208
+[2021-03-02 15:39:45,111 INFO] Created a sgd optimizer.
+[2021-03-02 15:39:45,114 INFO] Created a visualizer.
+[2021-03-02 15:41:11,471 INFO] Save config info.
+[2021-03-02 15:41:23,697 INFO] Load Train Set!
+[2021-03-02 15:41:24,671 INFO] Load Dev Set!
+[2021-03-02 15:41:24,671 INFO] Set random seed: 2019
+[2021-03-02 15:41:36,529 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:41:36,530 INFO] # the number of parameters in the whole model: 15553800
+[2021-03-02 15:41:36,530 INFO] # the number of parameters in the Encoder: 8622400
+[2021-03-02 15:41:36,530 INFO] # the number of parameters in the Decoder: 4432192
+[2021-03-02 15:41:36,530 INFO] # the number of parameters in the JointNet: 2499208
+[2021-03-02 15:41:36,531 INFO] Created a sgd optimizer.
+[2021-03-02 15:41:36,534 INFO] Created a visualizer.
+[2021-03-02 15:48:05,788 INFO] Save config info.
+[2021-03-02 15:48:07,693 INFO] Load Train Set!
+[2021-03-02 15:48:07,890 INFO] Load Dev Set!
+[2021-03-02 15:48:07,891 INFO] Set random seed: 2019
+[2021-03-02 15:48:22,122 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:48:22,122 INFO] # the number of parameters in the whole model: 15553800
+[2021-03-02 15:48:22,122 INFO] # the number of parameters in the Encoder: 8622400
+[2021-03-02 15:48:22,122 INFO] # the number of parameters in the Decoder: 4432192
+[2021-03-02 15:48:22,122 INFO] # the number of parameters in the JointNet: 2499208
+[2021-03-02 15:48:22,123 INFO] Created a sgd optimizer.
+[2021-03-02 15:48:22,126 INFO] Created a visualizer.
+[2021-03-02 15:51:24,894 INFO] Save config info.
+[2021-03-02 15:51:27,217 INFO] Load Train Set!
+[2021-03-02 15:51:27,468 INFO] Load Dev Set!
+[2021-03-02 15:51:27,469 INFO] Set random seed: 2019
+[2021-03-02 15:51:40,067 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:51:40,068 INFO] # the number of parameters in the whole model: 16170250
+[2021-03-02 15:51:40,068 INFO] # the number of parameters in the Encoder: 9236800
+[2021-03-02 15:51:40,068 INFO] # the number of parameters in the Decoder: 4433216
+[2021-03-02 15:51:40,068 INFO] # the number of parameters in the JointNet: 2500234
+[2021-03-02 15:51:40,069 INFO] Created a sgd optimizer.
+[2021-03-02 15:51:40,072 INFO] Created a visualizer.
+[2021-03-02 15:51:42,616 INFO] -Training-Epoch:0(0.05329%), Global Step:10, Learning Rate:0.000100, Grad Norm:403.31723, Loss:1051.52759, AverageLoss: 1341.07349, Run Time:0.255
+[2021-03-02 15:51:45,083 INFO] -Training-Epoch:0(0.11990%), Global Step:20, Learning Rate:0.000100, Grad Norm:274.70456, Loss:32.34823, AverageLoss: 968.72638, Run Time:0.251
+[2021-03-02 15:51:47,194 INFO] -Training-Epoch:0(0.18651%), Global Step:30, Learning Rate:0.000100, Grad Norm:2.63434, Loss:8.38609, AverageLoss: 637.67151, Run Time:0.162
+[2021-03-02 15:51:49,076 INFO] -Training-Epoch:0(0.25311%), Global Step:40, Learning Rate:0.000100, Grad Norm:2.92491, Loss:8.33396, AverageLoss: 476.30978, Run Time:0.221
+[2021-03-02 15:51:51,459 INFO] -Training-Epoch:0(0.31972%), Global Step:50, Learning Rate:0.000100, Grad Norm:3.03528, Loss:8.25550, AverageLoss: 380.79605, Run Time:0.269
+[2021-03-02 15:51:53,435 INFO] -Training-Epoch:0(0.38633%), Global Step:60, Learning Rate:0.000100, Grad Norm:3.07927, Loss:8.16582, AverageLoss: 317.64538, Run Time:0.195
+[2021-03-02 15:51:55,334 INFO] -Training-Epoch:0(0.45294%), Global Step:70, Learning Rate:0.000100, Grad Norm:3.09998, Loss:8.07226, AverageLoss: 272.78587, Run Time:0.180
+[2021-03-02 15:52:14,657 INFO] Save config info.
+[2021-03-02 15:52:16,793 INFO] Load Train Set!
+[2021-03-02 15:52:17,038 INFO] Load Dev Set!
+[2021-03-02 15:52:17,039 INFO] Set random seed: 2019
+[2021-03-02 15:52:23,634 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:52:23,634 INFO] # the number of parameters in the whole model: 16170250
+[2021-03-02 15:52:23,634 INFO] # the number of parameters in the Encoder: 9236800
+[2021-03-02 15:52:23,634 INFO] # the number of parameters in the Decoder: 4433216
+[2021-03-02 15:52:23,634 INFO] # the number of parameters in the JointNet: 2500234
+[2021-03-02 15:52:23,635 INFO] Created a sgd optimizer.
+[2021-03-02 15:52:23,639 INFO] Created a visualizer.
+[2021-03-02 15:52:25,796 INFO] -Training-Epoch:0(0.05329%), Global Step:10, Learning Rate:0.000100, Grad Norm:409.52557, Loss:1053.64990, AverageLoss: 1344.83141, Run Time:0.213
+[2021-03-02 15:52:27,749 INFO] -Training-Epoch:0(0.11990%), Global Step:20, Learning Rate:0.000100, Grad Norm:263.67776, Loss:31.16250, AverageLoss: 969.20178, Run Time:0.171
+[2021-03-02 15:52:35,034 INFO] Save config info.
+[2021-03-02 15:52:36,993 INFO] Load Train Set!
+[2021-03-02 15:52:37,246 INFO] Load Dev Set!
+[2021-03-02 15:52:37,246 INFO] Set random seed: 2019
+[2021-03-02 15:52:44,096 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:52:44,097 INFO] # the number of parameters in the whole model: 16170250
+[2021-03-02 15:52:44,097 INFO] # the number of parameters in the Encoder: 9236800
+[2021-03-02 15:52:44,097 INFO] # the number of parameters in the Decoder: 4433216
+[2021-03-02 15:52:44,097 INFO] # the number of parameters in the JointNet: 2500234
+[2021-03-02 15:52:44,097 INFO] Created a sgd optimizer.
+[2021-03-02 15:52:44,101 INFO] Created a visualizer.
+[2021-03-02 15:52:46,525 INFO] -Training-Epoch:0(0.05329%), Global Step:10, Learning Rate:0.000100, Grad Norm:374.02689, Loss:1059.08716, AverageLoss: 1342.22270, Run Time:0.282
+[2021-03-02 15:52:48,914 INFO] -Training-Epoch:0(0.11990%), Global Step:20, Learning Rate:0.000100, Grad Norm:513.60150, Loss:61.02956, AverageLoss: 992.93344, Run Time:0.196
+[2021-03-02 15:52:50,714 INFO] -Training-Epoch:0(0.18651%), Global Step:30, Learning Rate:0.000100, Grad Norm:2.70323, Loss:8.28131, AverageLoss: 653.67288, Run Time:0.139
+[2021-03-02 15:52:52,937 INFO] -Training-Epoch:0(0.25311%), Global Step:40, Learning Rate:0.000100, Grad Norm:3.01457, Loss:8.21012, AverageLoss: 488.17829, Run Time:0.193
+[2021-03-02 15:52:55,631 INFO] -Training-Epoch:0(0.31972%), Global Step:50, Learning Rate:0.000100, Grad Norm:3.13826, Loss:8.11974, AverageLoss: 390.21566, Run Time:0.314
+[2021-03-02 15:52:57,833 INFO] -Training-Epoch:0(0.38633%), Global Step:60, Learning Rate:0.000100, Grad Norm:3.19304, Loss:8.02162, AverageLoss: 325.44463, Run Time:0.240
+[2021-03-02 15:52:59,912 INFO] -Training-Epoch:0(0.45294%), Global Step:70, Learning Rate:0.000100, Grad Norm:3.22313, Loss:7.92013, AverageLoss: 279.43326, Run Time:0.186
+[2021-03-02 15:53:02,274 INFO] -Training-Epoch:0(0.51955%), Global Step:80, Learning Rate:0.000100, Grad Norm:3.24722, Loss:7.81676, AverageLoss: 245.05730, Run Time:0.276
+[2021-03-02 15:53:04,774 INFO] -Training-Epoch:0(0.58616%), Global Step:90, Learning Rate:0.000100, Grad Norm:3.27454, Loss:7.71107, AverageLoss: 218.39452, Run Time:0.298
+[2021-03-02 15:53:06,389 INFO] -Training-Epoch:0(0.65277%), Global Step:100, Learning Rate:0.000100, Grad Norm:3.30497, Loss:7.60342, AverageLoss: 197.10737, Run Time:0.125
+[2021-03-02 15:53:08,027 INFO] -Training-Epoch:0(0.71938%), Global Step:110, Learning Rate:0.000100, Grad Norm:3.34100, Loss:7.49354, AverageLoss: 179.71614, Run Time:0.169
+[2021-03-02 15:53:25,849 INFO] Save config info.
+[2021-03-02 15:53:27,564 INFO] Load Train Set!
+[2021-03-02 15:53:27,816 INFO] Load Dev Set!
+[2021-03-02 15:53:27,816 INFO] Set random seed: 2019
+[2021-03-02 15:53:40,562 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:53:40,563 INFO] # the number of parameters in the whole model: 16170250
+[2021-03-02 15:53:40,563 INFO] # the number of parameters in the Encoder: 9236800
+[2021-03-02 15:53:40,563 INFO] # the number of parameters in the Decoder: 4433216
+[2021-03-02 15:53:40,563 INFO] # the number of parameters in the JointNet: 2500234
+[2021-03-02 15:53:40,563 INFO] Created a sgd optimizer.
+[2021-03-02 15:53:40,568 INFO] Created a visualizer.
+[2021-03-02 15:53:42,603 INFO] -Training-Epoch:0(0.05329%), Global Step:10, Learning Rate:0.000100, Grad Norm:346.18896, Loss:1069.92712, AverageLoss: 1346.87008, Run Time:0.218
+[2021-03-02 15:53:44,706 INFO] -Training-Epoch:0(0.11990%), Global Step:20, Learning Rate:0.000100, Grad Norm:882.06049, Loss:131.74042, AverageLoss: 1028.15309, Run Time:0.193
+[2021-03-02 15:53:46,599 INFO] -Training-Epoch:0(0.18651%), Global Step:30, Learning Rate:0.000100, Grad Norm:2.90515, Loss:8.28728, AverageLoss: 677.40639, Run Time:0.161
+[2021-03-02 15:53:49,109 INFO] -Training-Epoch:0(0.25311%), Global Step:40, Learning Rate:0.000100, Grad Norm:3.28866, Loss:8.20099, AverageLoss: 505.82594, Run Time:0.212
+[2021-03-02 15:53:51,025 INFO] -Training-Epoch:0(0.31972%), Global Step:50, Learning Rate:0.000100, Grad Norm:3.45293, Loss:8.09246, AverageLoss: 404.25798, Run Time:0.159
+[2021-03-02 15:53:53,044 INFO] -Training-Epoch:0(0.38633%), Global Step:60, Learning Rate:0.000100, Grad Norm:3.51755, Loss:7.97336, AverageLoss: 337.10029, Run Time:0.196
+[2021-03-02 15:53:54,864 INFO] -Training-Epoch:0(0.45294%), Global Step:70, Learning Rate:0.000100, Grad Norm:3.55902, Loss:7.84939, AverageLoss: 289.39092, Run Time:0.178
+[2021-03-02 15:53:57,068 INFO] -Training-Epoch:0(0.51955%), Global Step:80, Learning Rate:0.000100, Grad Norm:3.59152, Loss:7.72320, AverageLoss: 253.74397, Run Time:0.181
+[2021-03-02 15:53:59,875 INFO] -Training-Epoch:0(0.58616%), Global Step:90, Learning Rate:0.000100, Grad Norm:3.62882, Loss:7.59379, AverageLoss: 226.09317, Run Time:0.274
+[2021-03-02 15:54:01,928 INFO] -Training-Epoch:0(0.65277%), Global Step:100, Learning Rate:0.000100, Grad Norm:3.64951, Loss:7.46501, AverageLoss: 204.01548, Run Time:0.122
+[2021-03-02 15:54:03,464 INFO] -Training-Epoch:0(0.71938%), Global Step:110, Learning Rate:0.000100, Grad Norm:3.70030, Loss:7.33045, AverageLoss: 185.97660, Run Time:0.140
+[2021-03-02 15:54:04,819 INFO] -Training-Epoch:0(0.78599%), Global Step:120, Learning Rate:0.000100, Grad Norm:3.74259, Loss:7.19632, AverageLoss: 170.95807, Run Time:0.116
+[2021-03-02 15:54:06,257 INFO] -Training-Epoch:0(0.85259%), Global Step:130, Learning Rate:0.000100, Grad Norm:3.80187, Loss:7.05461, AverageLoss: 158.25720, Run Time:0.152
+[2021-03-02 15:54:07,927 INFO] -Training-Epoch:0(0.91920%), Global Step:140, Learning Rate:0.000100, Grad Norm:3.88121, Loss:6.90740, AverageLoss: 147.37345, Run Time:0.221
+[2021-03-02 15:54:09,383 INFO] -Training-Epoch:0(0.98581%), Global Step:150, Learning Rate:0.000100, Grad Norm:3.96402, Loss:6.75309, AverageLoss: 137.94060, Run Time:0.140
+[2021-03-02 15:54:11,299 INFO] -Training-Epoch:0(1.05242%), Global Step:160, Learning Rate:0.000100, Grad Norm:4.03838, Loss:6.59980, AverageLoss: 129.68455, Run Time:0.170
+[2021-03-02 15:54:12,951 INFO] -Training-Epoch:0(1.11903%), Global Step:170, Learning Rate:0.000100, Grad Norm:4.13032, Loss:6.43326, AverageLoss: 122.39607, Run Time:0.237
+[2021-03-02 15:54:14,894 INFO] -Training-Epoch:0(1.18564%), Global Step:180, Learning Rate:0.000100, Grad Norm:4.22715, Loss:6.26157, AverageLoss: 115.91250, Run Time:0.114
+[2021-03-02 15:54:16,905 INFO] -Training-Epoch:0(1.25225%), Global Step:190, Learning Rate:0.000100, Grad Norm:4.33270, Loss:6.08298, AverageLoss: 110.10569, Run Time:0.107
+[2021-03-02 15:54:18,557 INFO] -Training-Epoch:0(1.31886%), Global Step:200, Learning Rate:0.000100, Grad Norm:4.43512, Loss:5.89453, AverageLoss: 104.87321, Run Time:0.146
+[2021-03-02 15:54:20,306 INFO] -Training-Epoch:0(1.38547%), Global Step:210, Learning Rate:0.000100, Grad Norm:4.54601, Loss:5.69821, AverageLoss: 100.13223, Run Time:0.150
+[2021-03-02 15:54:22,319 INFO] -Training-Epoch:0(1.45207%), Global Step:220, Learning Rate:0.000100, Grad Norm:4.65938, Loss:5.49046, AverageLoss: 95.81496, Run Time:0.185
+[2021-03-02 15:54:25,115 INFO] -Training-Epoch:0(1.51868%), Global Step:230, Learning Rate:0.000100, Grad Norm:4.79715, Loss:5.26859, AverageLoss: 91.86549, Run Time:0.256
+[2021-03-02 15:54:27,569 INFO] -Training-Epoch:0(1.58529%), Global Step:240, Learning Rate:0.000100, Grad Norm:4.87114, Loss:5.05207, AverageLoss: 88.23719, Run Time:0.280
+[2021-03-02 15:54:29,921 INFO] -Training-Epoch:0(1.65190%), Global Step:250, Learning Rate:0.000100, Grad Norm:4.96334, Loss:4.81729, AverageLoss: 84.89103, Run Time:0.254
+[2021-03-02 15:54:33,074 INFO] -Training-Epoch:0(1.71851%), Global Step:260, Learning Rate:0.000100, Grad Norm:5.06555, Loss:4.57424, AverageLoss: 81.79437, Run Time:0.242
+[2021-03-02 15:54:35,185 INFO] -Training-Epoch:0(1.78512%), Global Step:270, Learning Rate:0.000100, Grad Norm:5.17844, Loss:4.30673, AverageLoss: 78.91840, Run Time:0.206
+[2021-03-02 15:54:37,160 INFO] -Training-Epoch:0(1.85173%), Global Step:280, Learning Rate:0.000100, Grad Norm:5.27214, Loss:4.04540, AverageLoss: 76.23894, Run Time:0.178
+[2021-03-02 15:54:39,346 INFO] -Training-Epoch:0(1.91834%), Global Step:290, Learning Rate:0.000100, Grad Norm:5.36701, Loss:3.76270, AverageLoss: 73.73539, Run Time:0.150
+[2021-03-02 15:54:44,764 INFO] Save config info.
+[2021-03-02 15:54:46,782 INFO] Load Train Set!
+[2021-03-02 15:54:47,000 INFO] Load Dev Set!
+[2021-03-02 15:54:47,001 INFO] Set random seed: 2019
+[2021-03-02 15:55:00,909 INFO] Loaded the model to 1 GPUs
+[2021-03-02 15:55:00,910 INFO] # the number of parameters in the whole model: 16170250
+[2021-03-02 15:55:00,910 INFO] # the number of parameters in the Encoder: 9236800
+[2021-03-02 15:55:00,910 INFO] # the number of parameters in the Decoder: 4433216
+[2021-03-02 15:55:00,910 INFO] # the number of parameters in the JointNet: 2500234
+[2021-03-02 15:55:00,911 INFO] Created a sgd optimizer.
+[2021-03-02 15:55:00,914 INFO] Created a visualizer.
+[2021-03-02 15:55:03,291 INFO] -Training-Epoch:0(0.10657%), Global Step:10, Learning Rate:0.000100, Grad Norm:392.62277, Loss:1166.01208, AverageLoss: 1318.10794, Run Time:0.262
+[2021-03-02 15:55:06,387 INFO] -Training-Epoch:0(0.23978%), Global Step:20, Learning Rate:0.000100, Grad Norm:734.87897, Loss:95.17837, AverageLoss: 963.85642, Run Time:0.220
+[2021-03-02 15:55:09,281 INFO] -Training-Epoch:0(0.37299%), Global Step:30, Learning Rate:0.000100, Grad Norm:2.69707, Loss:8.24040, AverageLoss: 635.24282, Run Time:0.279
+[2021-03-02 15:55:11,743 INFO] -Training-Epoch:0(0.50619%), Global Step:40, Learning Rate:0.000100, Grad Norm:3.02696, Loss:8.16141, AverageLoss: 474.46223, Run Time:0.190
+[2021-03-02 15:55:13,973 INFO] -Training-Epoch:0(0.63940%), Global Step:50, Learning Rate:0.000100, Grad Norm:3.15929, Loss:8.06728, AverageLoss: 379.28843, Run Time:0.130
+[2021-03-02 15:55:15,479 INFO] -Training-Epoch:0(0.77261%), Global Step:60, Learning Rate:0.000100, Grad Norm:3.21970, Loss:7.96626, AverageLoss: 316.36028, Run Time:0.139
+[2021-03-02 15:55:17,390 INFO] -Training-Epoch:0(0.90582%), Global Step:70, Learning Rate:0.000100, Grad Norm:3.24953, Loss:7.86351, AverageLoss: 271.65734, Run Time:0.216
+[2021-03-02 15:55:19,604 INFO] -Training-Epoch:0(1.03903%), Global Step:80, Learning Rate:0.000100, Grad Norm:3.27746, Loss:7.75835, AverageLoss: 238.25842, Run Time:0.187
+[2021-03-02 15:55:21,660 INFO] -Training-Epoch:0(1.17224%), Global Step:90, Learning Rate:0.000100, Grad Norm:3.30810, Loss:7.65061, AverageLoss: 212.35287, Run Time:0.209
+[2021-03-02 15:55:23,749 INFO] -Training-Epoch:0(1.30545%), Global Step:100, Learning Rate:0.000100, Grad Norm:3.34254, Loss:7.54139, AverageLoss: 191.66980, Run Time:0.210
+[2021-03-02 15:55:26,156 INFO] -Training-Epoch:0(1.43866%), Global Step:110, Learning Rate:0.000100, Grad Norm:3.38055, Loss:7.42901, AverageLoss: 174.77162, Run Time:0.242
+[2021-03-02 15:55:29,684 INFO] -Training-Epoch:0(1.57187%), Global Step:120, Learning Rate:0.000100, Grad Norm:3.42202, Loss:7.31491, AverageLoss: 160.70396, Run Time:0.238
+[2021-03-02 15:55:32,103 INFO] -Training-Epoch:0(1.70508%), Global Step:130, Learning Rate:0.000100, Grad Norm:3.46720, Loss:7.19736, AverageLoss: 148.80835, Run Time:0.232
+[2021-03-02 15:55:34,656 INFO] -Training-Epoch:0(1.83828%), Global Step:140, Learning Rate:0.000100, Grad Norm:3.52130, Loss:7.07683, AverageLoss: 138.61575, Run Time:0.223
+[2021-03-02 15:55:36,963 INFO] -Training-Epoch:0(1.97149%), Global Step:150, Learning Rate:0.000100, Grad Norm:3.57962, Loss:6.95241, AverageLoss: 129.78306, Run Time:0.192
+[2021-03-02 15:55:39,301 INFO] -Training-Epoch:0(2.10470%), Global Step:160, Learning Rate:0.000100, Grad Norm:3.64304, Loss:6.82466, AverageLoss: 122.05346, Run Time:0.226
+[2021-03-02 15:55:41,633 INFO] -Training-Epoch:0(2.23791%), Global Step:170, Learning Rate:0.000100, Grad Norm:3.71558, Loss:6.69065, AverageLoss: 115.23087, Run Time:0.379
+[2021-03-02 15:55:43,862 INFO] -Training-Epoch:0(2.37112%), Global Step:180, Learning Rate:0.000100, Grad Norm:3.79138, Loss:6.55267, AverageLoss: 109.16296, Run Time:0.157
+[2021-03-02 15:55:46,140 INFO] -Training-Epoch:0(2.50433%), Global Step:190, Learning Rate:0.000100, Grad Norm:3.86503, Loss:6.41057, AverageLoss: 103.72974, Run Time:0.205
+[2021-03-02 15:55:48,336 INFO] -Training-Epoch:0(2.63754%), Global Step:200, Learning Rate:0.000100, Grad Norm:3.96549, Loss:6.25747, AverageLoss: 98.83518, Run Time:0.191
+[2021-03-02 15:55:50,486 INFO] -Training-Epoch:0(2.77075%), Global Step:210, Learning Rate:0.000100, Grad Norm:4.05121, Loss:6.10348, AverageLoss: 94.40158, Run Time:0.266
+[2021-03-02 15:55:52,823 INFO] -Training-Epoch:0(2.90396%), Global Step:220, Learning Rate:0.000100, Grad Norm:4.15784, Loss:5.93721, AverageLoss: 90.36558, Run Time:0.283
+[2021-03-02 15:55:55,184 INFO] -Training-Epoch:0(3.03717%), Global Step:230, Learning Rate:0.000100, Grad Norm:4.27141, Loss:5.76147, AverageLoss: 86.67457, Run Time:0.185
+[2021-03-02 15:55:57,723 INFO] -Training-Epoch:0(3.17037%), Global Step:240, Learning Rate:0.000100, Grad Norm:4.38716, Loss:5.57810, AverageLoss: 83.28497, Run Time:0.267
+[2021-03-02 15:55:59,954 INFO] -Training-Epoch:0(3.30358%), Global Step:250, Learning Rate:0.000100, Grad Norm:4.48532, Loss:5.39255, AverageLoss: 80.16022, Run Time:0.227
+[2021-03-02 15:56:02,546 INFO] -Training-Epoch:0(3.43679%), Global Step:260, Learning Rate:0.000100, Grad Norm:4.60937, Loss:5.18851, AverageLoss: 77.26909, Run Time:0.239
+[2021-03-02 15:56:06,319 INFO] -Training-Epoch:0(3.57000%), Global Step:270, Learning Rate:0.000100, Grad Norm:4.69966, Loss:4.99026, AverageLoss: 74.58544, Run Time:0.284
+[2021-03-02 15:56:12,665 INFO] -Training-Epoch:0(3.70321%), Global Step:280, Learning Rate:0.000100, Grad Norm:4.82796, Loss:4.76022, AverageLoss: 72.08630, Run Time:0.364
+[2021-03-02 15:56:15,145 INFO] -Training-Epoch:0(3.83642%), Global Step:290, Learning Rate:0.000100, Grad Norm:4.96320, Loss:4.51814, AverageLoss: 69.75211, Run Time:0.185
+[2021-03-02 15:56:17,179 INFO] -Training-Epoch:0(3.96963%), Global Step:300, Learning Rate:0.000100, Grad Norm:5.07159, Loss:4.27218, AverageLoss: 67.56598, Run Time:0.185
+[2021-03-02 15:56:19,835 INFO] -Training-Epoch:0(4.10284%), Global Step:310, Learning Rate:0.000100, Grad Norm:5.17008, Loss:4.02016, AverageLoss: 65.51325, Run Time:0.305
+[2021-03-02 15:56:23,108 INFO] -Training-Epoch:0(4.23605%), Global Step:320, Learning Rate:0.000100, Grad Norm:5.25957, Loss:3.75676, AverageLoss: 63.58111, Run Time:0.351
+[2021-03-02 15:56:26,376 INFO] -Training-Epoch:0(4.36926%), Global Step:330, Learning Rate:0.000100, Grad Norm:5.35532, Loss:3.48385, AverageLoss: 61.75819, Run Time:0.275
+[2021-03-02 15:56:28,312 INFO] -Training-Epoch:0(4.50246%), Global Step:340, Learning Rate:0.000100, Grad Norm:5.41782, Loss:3.18726, AverageLoss: 60.03420, Run Time:0.177
+[2021-03-02 15:56:30,277 INFO] -Training-Epoch:0(4.63567%), Global Step:350, Learning Rate:0.000100, Grad Norm:5.44674, Loss:2.89292, AverageLoss: 58.40076, Run Time:0.225
+[2021-03-02 15:56:32,432 INFO] -Training-Epoch:0(4.76888%), Global Step:360, Learning Rate:0.000100, Grad Norm:5.38301, Loss:2.60121, AverageLoss: 56.85009, Run Time:0.169
+[2021-03-02 15:56:34,363 INFO] -Training-Epoch:0(4.90209%), Global Step:370, Learning Rate:0.000100, Grad Norm:5.27744, Loss:2.31953, AverageLoss: 55.37562, Run Time:0.199
+[2021-03-02 15:56:36,790 INFO] -Training-Epoch:0(5.03530%), Global Step:380, Learning Rate:0.000100, Grad Norm:5.30712, Loss:2.01408, AverageLoss: 53.97110, Run Time:0.258
+[2021-03-02 15:56:39,344 INFO] -Training-Epoch:0(5.16851%), Global Step:390, Learning Rate:0.000100, Grad Norm:5.16037, Loss:1.72685, AverageLoss: 52.63141, Run Time:0.261
+[2021-03-02 15:56:41,726 INFO] -Training-Epoch:0(5.30172%), Global Step:400, Learning Rate:0.000100, Grad Norm:4.87674, Loss:1.48678, AverageLoss: 51.35219, Run Time:0.173
+[2021-03-02 15:56:43,919 INFO] -Training-Epoch:0(5.43493%), Global Step:410, Learning Rate:0.000100, Grad Norm:4.64154, Loss:1.23431, AverageLoss: 50.12970, Run Time:0.165
+[2021-03-02 15:56:46,358 INFO] -Training-Epoch:0(5.56814%), Global Step:420, Learning Rate:0.000100, Grad Norm:4.29822, Loss:1.02363, AverageLoss: 48.96012, Run Time:0.267
+[2021-03-02 15:56:48,310 INFO] -Training-Epoch:0(5.70135%), Global Step:430, Learning Rate:0.000100, Grad Norm:4.05575, Loss:0.89548, AverageLoss: 47.84117, Run Time:0.131
+[2021-03-02 15:56:50,266 INFO] -Training-Epoch:0(5.83455%), Global Step:440, Learning Rate:0.000100, Grad Norm:3.52170, Loss:0.68579, AverageLoss: 46.76935, Run Time:0.253
+[2021-03-02 15:56:52,282 INFO] -Training-Epoch:0(5.96776%), Global Step:450, Learning Rate:0.000100, Grad Norm:3.29407, Loss:0.59352, AverageLoss: 45.74213, Run Time:0.154
+[2021-03-02 15:56:54,256 INFO] -Training-Epoch:0(6.10097%), Global Step:460, Learning Rate:0.000100, Grad Norm:2.78725, Loss:0.46815, AverageLoss: 44.75714, Run Time:0.242
+[2021-03-02 15:56:57,018 INFO] -Training-Epoch:0(6.23418%), Global Step:470, Learning Rate:0.000100, Grad Norm:2.50189, Loss:0.40059, AverageLoss: 43.81205, Run Time:0.267
+[2021-03-02 15:56:59,787 INFO] -Training-Epoch:0(6.36739%), Global Step:480, Learning Rate:0.000100, Grad Norm:2.18848, Loss:0.33637, AverageLoss: 42.90482, Run Time:0.200
