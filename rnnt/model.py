@@ -115,7 +115,7 @@ class CTC(nn.Module):
         # define encoder
         self.config = config
         self.encoder = build_encoder(config)
-        self.lin = nn.Linear(self.config.enc.output_size, self.config.vocab_size)
+        self.project_layer = nn.Linear(self.config.enc.output_size, self.config.vocab_size)
 
         self.crit = nn.CTCLoss()
 
@@ -123,7 +123,7 @@ class CTC(nn.Module):
 
         enc_state, _ = self.encoder(inputs, inputs_length)
 
-        encoder_output = self.lin(enc_state)
+        encoder_output = self.project_layer(enc_state)
         encoder_output = torch.transpose(encoder_output,0,1)
         encoder_output = encoder_output.log_softmax(2)
 
@@ -134,7 +134,7 @@ class CTC(nn.Module):
     def recognize(self, inputs, inputs_length):
 
         enc_states, _ = self.encoder(inputs, inputs_length)
-        encoder_output = self.lin(enc_states)
+        encoder_output = self.project_layer(enc_states)
 
         ans=torch.argmax(encoder_output,-1)
 
