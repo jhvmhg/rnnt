@@ -114,10 +114,10 @@ def save_language_model(model, optimizer, config, save_name):
 
 def add_space(path, old_path):
 
-    move(path, old_path)
-
-    with open(old_path,"r") as f_in:
+    with open(path,"r") as f_in:
         lines = f_in.readlines()
+
+    move(path, old_path)
 
     with open(path,"w") as f_out:
         for line in lines:
