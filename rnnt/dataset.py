@@ -217,7 +217,10 @@ class AudioDataset(Dataset):
                 encoded_seq.append(self.unit2idx['<unk>'])
         return encoded_seq
 
-    def decode(self, seq):
+    def decode(self, seq, rm_blk=False):
+
+        if rm_blk:
+            return " ".join([self.idx2unit[int(i)] for i in seq if i > 0])
         return " ".join([self.idx2unit[int(i)] for i in seq])
 
     def check_speech_and_text(self):
