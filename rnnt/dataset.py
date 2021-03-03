@@ -41,14 +41,20 @@ class Dataset:
         if dim == 1:
             if max_length is None:
                 max_length = self.max_target_length
-            pad_zeros_mat = np.zeros([1, max_length - inputs.shape[0]], dtype=np.int32)
-            padded_inputs = np.column_stack([inputs.reshape(1, -1), pad_zeros_mat])
+            if inputs.shape[0] >= max_length:
+                padded_inputs = inputs[:max_length]
+            else:
+                pad_zeros_mat = np.zeros([1, max_length - inputs.shape[0]], dtype=np.int32)
+                padded_inputs = np.column_stack([inputs.reshape(1, -1), pad_zeros_mat])
         elif dim == 2:
             if max_length is None:
                 max_length = self.max_input_length
             feature_dim = inputs.shape[1]
-            pad_zeros_mat = np.zeros([max_length - inputs.shape[0], feature_dim])
-            padded_inputs = np.row_stack([inputs, pad_zeros_mat])
+            if inputs.shape[0] >= max_length:
+                padded_inputs = inputs[:max_length,]
+            else:
+                pad_zeros_mat = np.zeros([max_length - inputs.shape[0], feature_dim])
+                padded_inputs = np.row_stack([inputs, pad_zeros_mat])
         else:
             raise AssertionError(
                 'Features in inputs list must be one vector or two dimension matrix! ')
