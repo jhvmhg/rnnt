@@ -101,6 +101,8 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
         if step % config.training.show_interval == 0:
             process = step / batch_steps * 100
             logger.info('-Validation-Epoch:%d(%.5f%%), CER: %.5f %%' % (epoch, process, cer))
+            logger.info('preds:', preds)
+            logger.info('transcripts:', transcripts)
 
     val_loss = total_loss/(step+1)
     logger.info('-Validation-Epoch:%4d, AverageLoss:%.5f, AverageCER: %.5f %%' %
