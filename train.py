@@ -23,15 +23,14 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
     for step, (inputs, inputs_length, targets, targets_length) in enumerate(training_data):
 
+        if config.training.num_gpu > 0:
+            inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
+            targets, targets_length = targets.cuda(), targets_length.cuda()
+
         max_inputs_length = inputs_length.max().item()
         max_targets_length = targets_length.max().item()
         inputs = inputs[:, :max_inputs_length, :]
         targets = targets[:, :max_targets_length]
-
-
-        if config.training.num_gpu > 0:
-            inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
-            targets, targets_length = targets.cuda(), targets_length.cuda()
 
         if config.optim.step_wise_update:
             optimizer.step_decay_lr()
