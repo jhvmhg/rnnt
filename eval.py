@@ -109,7 +109,7 @@ def main():
         checkpoint = torch.load(config.training.load_model)
         print(str(checkpoint.keys()))
         model.encoder.load_state_dict(checkpoint['encoder'])
-        model.load_state_dict(checkpoint['project_layer'])
+        model.project_layer.load_state_dict(checkpoint['project_layer'])
         logger.info('Loaded encoder from %s' %
                     config.training.load_encoder)
     else:
