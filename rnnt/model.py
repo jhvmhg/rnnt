@@ -16,10 +16,6 @@ class JointNet(nn.Module):
             nn.Linear(inner_dim, vocab_size, bias=True)
         )
 
-        # self.forward_layer = nn.Linear(input_size, inner_dim, bias=True)
-        #
-        # self.tanh = nn.Tanh()
-        # self.project_layer = nn.Linear(inner_dim, vocab_size, bias=True)
 
     def forward(self, enc_state, dec_state):
         if enc_state.dim() == 3 and dec_state.dim() == 3:
@@ -36,10 +32,6 @@ class JointNet(nn.Module):
 
         concat_state = torch.cat((enc_state, dec_state), dim=-1)
         outputs = self.mlp(concat_state)
-        # outputs = self.forward_layer(concat_state)
-        #
-        # outputs = self.tanh(outputs)
-        # outputs = self.project_layer(outputs)
 
         return outputs
 
