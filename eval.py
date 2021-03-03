@@ -15,7 +15,7 @@ from rnnt.utils import AttrDict, init_logger, count_parameters, save_model, comp
 
 
 
-def eval(epoch, config, model, validating_data, logger, visualizer=None):
+def eval(config, model, validating_data, logger, visualizer=None):
     model.eval()
     total_loss = 0
     total_dist = 0
