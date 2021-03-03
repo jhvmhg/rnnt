@@ -121,6 +121,7 @@ class AudioDataset(Dataset):
 
         # if self.config.encoding:
         self.unit2idx = self.get_vocab_map()
+        self.idx2unit = self.get_idx2unit(self.unit2idx)
         self.targets_dict = self.get_targets_dict()
 
         if self.short_first and type == 'train':
@@ -171,6 +172,13 @@ class AudioDataset(Dataset):
                 unit2idx[unit] = idx
         return unit2idx
 
+    def get_idx2unit(self, unit2idx):
+        idx2unit = {}
+        for i in unit2idx:
+            idx2unit[int(unit2idx[i])] = i
+
+        return idx2unit
+
     def get_targets_dict(self):
         targets_dict = {}
         with codecs.open(self.text, 'r', encoding='utf-8') as fid:
@@ -196,9 +204,14 @@ class AudioDataset(Dataset):
                 encoded_seq.append(self.unit2idx['<unk>'])
         return encoded_seq
 
+    def decode(self, seq):
+        return " ".join([self.idx2unit[i] for i in seq])
+
     def check_speech_and_text(self):
         featslist = copy.deepcopy(self.feats_list)
         for utt_id in featslist:
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
+
+
 
