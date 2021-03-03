@@ -134,7 +134,7 @@ class CTC(nn.Module):
     def recognize(self, inputs, inputs_length):
 
         enc_states, _ = self.encoder(inputs, inputs_length)
-        encoder_output = self.mlp(enc_states)
+        encoder_output = self.lin(enc_states)
 
         ans=torch.argmax(encoder_output,-1)
 
