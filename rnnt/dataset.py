@@ -152,6 +152,7 @@ class AudioDataset(Dataset):
 
         targets = np.array(seq)
         features = kaldiio.load_mat(feats_scp)
+
         if self.apply_cmvn:
             spk_id = self.utt2spk[utt_id]
             stats = self.cmvn_stats_dict[spk_id]
@@ -159,6 +160,9 @@ class AudioDataset(Dataset):
 
         features = self.concat_frame(features)
         features = self.subsampling(features)
+
+        if features.shape[0] >= self.config.max_input_length:
+            features = features[:self.config.max_input_length, ]
 
         inputs_length = np.array(features.shape[0]).astype(np.int64)
         targets_length = np.array(targets.shape[0]).astype(np.int64)
