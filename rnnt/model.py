@@ -10,7 +10,7 @@ class JointNet(nn.Module):
     def __init__(self, input_size, inner_dim, vocab_size):
         super(JointNet, self).__init__()
 
-        self.mlp = nn.ModuleList(
+        self.mlp = nn.Sequential(
             nn.Linear(input_size, inner_dim, bias=True),
             nn.Tanh(),
             nn.Linear(inner_dim, vocab_size, bias=True)
