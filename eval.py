@@ -99,7 +99,7 @@ def main():
     if config.model.type == "transducer":
         model = Transducer(config.model)
         checkpoint = torch.load(config.training.load_model)
-        print(checkpoint.keys())
+        print(str(checkpoint.keys()))
         model.encoder.load_state_dict(checkpoint['encoder'])
         model.decoder.load_state_dict(checkpoint['decoder'])
         model.joint.load_state_dict(checkpoint['joint'])
@@ -107,9 +107,9 @@ def main():
     elif config.model.type == "ctc":
         model = CTC(config.model)
         checkpoint = torch.load(config.training.load_model)
-        print(checkpoint.keys())
+        print(str(checkpoint.keys()))
         model.encoder.load_state_dict(checkpoint['encoder'])
-        model.encoder.load_state_dict(checkpoint['project_layer'])
+        model.load_state_dict(checkpoint['project_layer'])
         logger.info('Loaded encoder from %s' %
                     config.training.load_encoder)
     else:
