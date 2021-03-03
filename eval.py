@@ -44,16 +44,16 @@ def eval(config, model, validating_data, logger, visualizer=None):
         cer = total_dist / total_word * 100
         if step % config.training.show_interval == 0:
             process = step / batch_steps * 100
-            logger.info('-Validation-Epoch:%d(%.5f%%), CER: %.5f %%' % (epoch, process, cer))
+            logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % ( process, cer))
             logger.info('preds:'+validating_data.dataset.decode(preds[0], rm_blk=True))
             logger.info('transcripts:'+validating_data.dataset.decode(transcripts[0]))
 
     val_loss = total_loss/(step+1)
-    logger.info('-Validation-Epoch:%4d, AverageLoss:%.5f, AverageCER: %.5f %%' %
-                (epoch, val_loss, cer))
+    logger.info('-Validation:, AverageLoss:%.5f, AverageCER: %.5f %%' %
+                (val_loss, cer))
 
     if visualizer is not None:
-        visualizer.add_scalar('cer', cer, epoch)
+        visualizer.add_scalar('cer', cer)
 
     return cer
 
@@ -115,6 +115,8 @@ def main():
     else:
         raise NotImplementedError
 
+    if config.training.num_gpu > 0:
+        model = model.cuda()
 
     _ = eval(config, model, validate_data, logger)
 
