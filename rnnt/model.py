@@ -108,3 +108,36 @@ class Transducer(nn.Module):
             results.append(decoded_seq)
 
         return results
+
+class CTC(nn.Module):
+    def __init__(self, config):
+        super(CTC, self).__init__()
+        # define encoder
+        self.config = config
+        self.encoder = build_encoder(config)
+        self.lin = nn.Linear(self.config.model.enc.output_size, self.config.model.vocab_size)
+
+        self.crit = nn.CTCLoss()
+
+    def forward(self, inputs, inputs_length, targets, targets_length):
+
+        enc_state, _ = self.encoder(inputs, inputs_length)
+
+        encoder_output = self.mlp(enc_state)
+        encoder_output = torch.transpose(encoder_output,0,1)
+        encoder_output = encoder_output.log_softmax(2)
+
+        loss = self.crit(encoder_output, targets.int(), inputs_length.int(), targets_length.int())
+
+        return loss
+
+    def recognize(self, inputs, inputs_length):
+
+        enc_states, _ = self.encoder(inputs, inputs_length)
+        encoder_output = self.mlp(enc_states)
+
+        ans=torch.argmax(encoder_output,-1)
+
+
+        return ans
+

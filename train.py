@@ -6,7 +6,7 @@ import time
 import torch
 import torch.nn as nn
 import torch.utils.data
-from rnnt.model import Transducer
+from rnnt.model import Transducer, CTC
 from rnnt.optim import Optimizer
 from rnnt.dataset import AudioDataset
 from tensorboardX import SummaryWriter
@@ -152,7 +152,12 @@ def main():
         torch.manual_seed(config.training.seed)
     logger.info('Set random seed: %d' % config.training.seed)
 
-    model = Transducer(config.model)
+    if config.model.type == "transducer":
+        model = Transducer(config.model)
+    elif config.model.type == "ctc":
+        model = CTC(config.model)
+    else:
+        raise NotImplementedError
 
     if config.training.load_model:
         checkpoint = torch.load(config.training.load_model)
