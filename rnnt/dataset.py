@@ -37,6 +37,9 @@ class Dataset:
         raise NotImplementedError
 
     def pad(self, inputs, max_length=None):
+        '''
+        if inputs.shape[0] >= max_length , just return inputs[:max_length]
+        '''
         dim = len(inputs.shape)
         if dim == 1:
             if max_length is None:
