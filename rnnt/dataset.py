@@ -205,7 +205,7 @@ class AudioDataset(Dataset):
         return encoded_seq
 
     def decode(self, seq):
-        return " ".join([self.idx2unit[i] for i in seq])
+        return " ".join([self.idx2unit[int(i)] for i in seq])
 
     def check_speech_and_text(self):
         featslist = copy.deepcopy(self.feats_list)
