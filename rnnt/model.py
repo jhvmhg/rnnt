@@ -123,7 +123,7 @@ class CTC(nn.Module):
 
         enc_state, _ = self.encoder(inputs, inputs_length)
 
-        encoder_output = self.mlp(enc_state)
+        encoder_output = self.lin(enc_state)
         encoder_output = torch.transpose(encoder_output,0,1)
         encoder_output = encoder_output.log_softmax(2)
 
