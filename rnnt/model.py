@@ -115,7 +115,7 @@ class CTC(nn.Module):
         # define encoder
         self.config = config
         self.encoder = build_encoder(config)
-        self.lin = nn.Linear(self.config.model.enc.output_size, self.config.model.vocab_size)
+        self.lin = nn.Linear(self.config.enc.output_size, self.config.vocab_size)
 
         self.crit = nn.CTCLoss()
 
