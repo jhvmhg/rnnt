@@ -128,7 +128,7 @@ def main():
     shutil.copyfile(opt.config, os.path.join(exp_name, 'config.yaml'))
     logger.info('Save config info.')
 
-    num_workers = config.training.num_gpu * 4
+    num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     train_dataset = AudioDataset(config.data, 'train')
     training_data = torch.utils.data.DataLoader(
         train_dataset, batch_size=config.data.batch_size * config.training.num_gpu
