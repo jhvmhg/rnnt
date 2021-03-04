@@ -92,18 +92,20 @@ def main():
         torch.manual_seed(config.training.seed)
     logger.info('Set random seed: %d' % config.training.seed)
 
+    if config.training.num_gpu < 1:
+        checkpoint = torch.load(config.training.load_model, map_location='cpu')
+    else:
+        checkpoint = torch.load(config.training.load_model)
+    print(str(checkpoint.keys()))
+
     if config.model.type == "transducer":
         model = Transducer(config.model)
-        checkpoint = torch.load(config.training.load_model, map_location='cpu')
-        print(str(checkpoint.keys()))
         model.encoder.load_state_dict(checkpoint['encoder'])
         model.decoder.load_state_dict(checkpoint['decoder'])
         model.joint.load_state_dict(checkpoint['joint'])
         logger.info('Loaded model from %s' % config.training.load_model)
     elif config.model.type == "ctc":
         model = CTC(config.model)
-        checkpoint = torch.load(config.training.load_model, map_location='cpu')
-        print(str(checkpoint.keys()))
         model.encoder.load_state_dict(checkpoint['encoder'])
         model.project_layer.load_state_dict(checkpoint['project_layer'])
         logger.info('Loaded encoder from %s' %

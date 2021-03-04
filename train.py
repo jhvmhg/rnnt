@@ -136,13 +136,13 @@ def main():
     num_workers = config.training.num_gpu * 4
     train_dataset = AudioDataset(config.data, 'train')
     training_data = torch.utils.data.DataLoader(
-        train_dataset, batch_size=config.data.batch_size * config.training.num_gpu,
+        train_dataset, batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu>0 else config.data.batch_size,
         shuffle=config.data.shuffle, num_workers=num_workers)
     logger.info('Load Train Set!')
 
     dev_dataset = AudioDataset(config.data, 'dev')
     validate_data = torch.utils.data.DataLoader(
-        dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu,
+        dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu>0 else config.data.batch_size,
         shuffle=False, num_workers=num_workers)
     logger.info('Load Dev Set!')
 
