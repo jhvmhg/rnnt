@@ -28,10 +28,10 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        max_inputs_length = inputs_length.max().item()
-        max_targets_length = targets_length.max().item()
-        inputs = inputs[:, :max_inputs_length, :]
-        targets = targets[:, :max_targets_length]
+        # max_inputs_length = inputs_length.max().item()
+        # max_targets_length = targets_length.max().item()
+        # inputs = inputs[:, :max_inputs_length, :]
+        # targets = targets[:, :max_targets_length]
 
         if config.optim.step_wise_update:
             optimizer.step_decay_lr()
@@ -83,11 +83,6 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
         if config.training.num_gpu > 0:
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
-
-        # max_inputs_length = inputs_length.max().item()
-        # max_targets_length = targets_length.max().item()
-        # inputs = inputs[:, :max_inputs_length, :]
-        # targets = targets[:, :max_targets_length]
 
         preds = model.recognize(inputs, inputs_length)
 

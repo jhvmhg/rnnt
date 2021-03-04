@@ -162,6 +162,7 @@ class AudioDataset(Dataset):
         features = self.concat_frame(features)
         features = self.subsampling(features)
 
+        # if features 长度 > max_input_length,只保留前面部分
         if features.shape[0] >= self.config.max_input_length:
             features = features[:self.config.max_input_length, ]
 
