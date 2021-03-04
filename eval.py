@@ -6,9 +6,7 @@ import torch.utils.data
 
 from rnnt.dataset import AudioDataset, _collate_fn
 from rnnt.utils import AttrDict, init_logger, computer_cer
-from rnnt.checkpoint import  new_model
-
-
+from rnnt.checkpoint import new_model
 
 
 def eval(config, model, validating_data, logger, visualizer=None):
@@ -23,7 +21,6 @@ def eval(config, model, validating_data, logger, visualizer=None):
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-
         preds = model.recognize(inputs, inputs_length)
 
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
@@ -36,12 +33,12 @@ def eval(config, model, validating_data, logger, visualizer=None):
         cer = total_dist / total_word * 100
         if step % config.training.show_interval == 0:
             process = step / batch_steps * 100
-            logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % ( process, cer))
-            logger.info('preds:'+validating_data.dataset.decode(preds[0]))
-            logger.info('transcripts:'+validating_data.dataset.decode(transcripts[0]))
-            logger.info('cer_num:'+str(dist))
+            logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % (process, cer))
+            logger.info('preds:' + validating_data.dataset.decode(preds[0]))
+            logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
+            logger.info('cer_num:' + str(dist))
 
-    val_loss = total_loss/(step+1)
+    val_loss = total_loss / (step + 1)
     logger.info('-Validation:, AverageLoss:%.5f, AverageCER: %.5f %%' %
                 (val_loss, cer))
 
@@ -65,13 +62,12 @@ def main():
 
     logger = init_logger(os.path.join(exp_name, opt.log))
 
-
-
     num_workers = config.training.num_gpu * 4
 
     dev_dataset = AudioDataset(config.data, 'dev')
     validate_data = torch.utils.data.DataLoader(
-        dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu>0 else config.data.batch_size,
+        dev_dataset,
+        batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size,
         shuffle=False, num_workers=num_workers, collate_fn=_collate_fn)
     logger.info('Load Dev Set!')
 
@@ -88,15 +84,12 @@ def main():
         checkpoint = torch.load(config.training.new_model)
     print(str(checkpoint.keys()))
 
-
     model = new_model(config, checkpoint)
 
     if config.training.num_gpu > 0:
         model = model.cuda()
 
     _ = eval(config, model, validate_data, logger)
-
-
 
 
 if __name__ == '__main__':

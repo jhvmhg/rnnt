@@ -163,9 +163,9 @@ def main():
 
     if config.training.load_model:
         if config.training.num_gpu == 0:
-            checkpoint = torch.load(config.training.new_model, map_location='cpu')
+            checkpoint = torch.load(config.training.load_model, map_location='cpu')
         else:
-            checkpoint = torch.load(config.training.new_model)
+            checkpoint = torch.load(config.training.load_model)
         print(str(checkpoint.keys()))
         if config.model.type == "transducer":
             load_rnn_t_model(model, checkpoint)
