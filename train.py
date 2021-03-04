@@ -10,7 +10,8 @@ from rnnt.model import Transducer, CTC
 from rnnt.optim import Optimizer
 from rnnt.dataset import AudioDataset, _collate_fn
 from tensorboardX import SummaryWriter
-from rnnt.utils import AttrDict, init_logger, count_parameters, save_model, computer_cer
+from rnnt.utils import AttrDict, init_logger, count_parameters, computer_cer
+from rnnt.checkpoint import save_model, load_rnn_t_model, load_ctc_model
 from eval import eval
 
 
@@ -157,25 +158,31 @@ def main():
     else:
         raise NotImplementedError
 
-    if config.training.num_gpu < 1:
-        checkpoint = torch.load(config.training.load_model, map_location='cpu')
-    else:
-        checkpoint = torch.load(config.training.load_model)
-    print(str(checkpoint.keys()))
-    if config.model.type == "transducer":
-        model = Transducer(config.model)
-        model.encoder.load_state_dict(checkpoint['encoder'])
-        model.decoder.load_state_dict(checkpoint['decoder'])
-        model.joint.load_state_dict(checkpoint['joint'])
-        logger.info('Loaded model from %s' % config.training.load_model)
-    elif config.model.type == "ctc":
-        model = CTC(config.model)
-        model.encoder.load_state_dict(checkpoint['encoder'])
-        model.project_layer.load_state_dict(checkpoint['project_layer'])
-        logger.info('Loaded encoder from %s' %
-                    config.training.load_encoder)
-    else:
-        raise NotImplementedError
+
+    if config.training.new_model:
+        if config.training.num_gpu == 0:
+            checkpoint = torch.load(config.training.new_model, map_location='cpu')
+        else:
+            checkpoint = torch.load(config.training.new_model)
+        print(str(checkpoint.keys()))
+        if config.model.type == "transducer":
+            load_rnn_t_model(model, checkpoint)
+        elif config.model.type == "ctc":
+            load_ctc_model(model, checkpoint)
+        else:
+            raise NotImplementedError
+        logger.info('Loaded model from %s' % config.training.new_model)
+    elif config.training.load_encoder or config.training.load_decoder:
+        if config.training.load_encoder:
+            checkpoint = torch.load(config.training.load_encoder)
+            model.encoder.load_state_dict(checkpoint['encoder'])
+            logger.info('Loaded encoder from %s' %
+                        config.training.load_encoder)
+        if config.training.load_decoder:
+            checkpoint = torch.load(config.training.load_decoder)
+            model.decoder.load_state_dict(checkpoint['decoder'])
+            logger.info('Loaded decoder from %s' %
+                        config.training.load_decoder)
 
     if config.training.num_gpu > 0:
         model = model.cuda()
