@@ -76,22 +76,23 @@ def init_parameters(model, type='xnormal'):
 def save_model(model, optimizer, config, save_name):
     multi_gpu = True if config.training.num_gpu > 1 else False
     if model.config.type == "transducer":
-        checkpoint = {
-            'encoder': model.module.encoder.state_dict() if multi_gpu else model.encoder.state_dict(),
-            'decoder': model.module.decoder.state_dict() if multi_gpu else model.decoder.state_dict(),
-            'joint': model.module.joint.state_dict() if multi_gpu else model.joint.state_dict(),
-            'optimizer': optimizer.state_dict(),
-            'epoch': optimizer.current_epoch,
-            'step': optimizer.global_step
-        }
+        save_rnn_t_model(model, optimizer, config, save_name)
     elif model.config.type == "ctc":
-        checkpoint = {
-            'encoder': model.module.encoder.state_dict() if multi_gpu else model.encoder.state_dict(),
-            'project_layer': model.module.project_layer.state_dict() if multi_gpu else model.project_layer.state_dict(),
-            'optimizer': optimizer.state_dict(),
-            'epoch': optimizer.current_epoch,
-            'step': optimizer.global_step
-        }
+        save_ctc_model(model, optimizer, config, save_name)
+    else:
+        raise NotImplementedError
+
+
+def save_rnn_t_model(model, optimizer, config, save_name):
+    multi_gpu = True if config.training.num_gpu > 1 else False
+    checkpoint = {
+        'encoder': model.module.encoder.state_dict() if multi_gpu else model.encoder.state_dict(),
+        'decoder': model.module.decoder.state_dict() if multi_gpu else model.decoder.state_dict(),
+        'joint': model.module.joint.state_dict() if multi_gpu else model.joint.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'epoch': optimizer.current_epoch,
+        'step': optimizer.global_step
+    }
 
     torch.save(checkpoint, save_name)
 
