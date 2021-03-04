@@ -136,10 +136,11 @@ class CTC(nn.Module):
         enc_states, _ = self.encoder(inputs, inputs_length)
         encoder_output = self.project_layer(enc_states)
 
-        ans = torch.argmax(encoder_output, -1)
-        k = []
-        for i in ans:
-            k.append([int(j) for j in i if j > 0])
+        preds = torch.argmax(encoder_output, -1)
 
-        return k
+        ans = [[int(j) for j in i if j > 0]
+                       for i in preds]
+
+        return ans
+
 

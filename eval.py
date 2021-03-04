@@ -47,6 +47,7 @@ def eval(config, model, validating_data, logger, visualizer=None):
             logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % ( process, cer))
             logger.info('preds:'+validating_data.dataset.decode(preds[0]))
             logger.info('transcripts:'+validating_data.dataset.decode(transcripts[0]))
+            logger.info('cer_num:'+str(dist))
 
     val_loss = total_loss/(step+1)
     logger.info('-Validation:, AverageLoss:%.5f, AverageCER: %.5f %%' %
