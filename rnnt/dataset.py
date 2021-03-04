@@ -229,7 +229,7 @@ def _collate_fn(batch):
 
 
 class Batch_RandomSampler(Sampler):
-    """
+    r"""
     iter get [6, 7, 8]
              [0, 1, 2]
              [3, 4, 5]
@@ -239,25 +239,27 @@ class Batch_RandomSampler(Sampler):
     def __init__(self, index_length, batch_size, shuffle=True):
         self.index_length = index_length
         self.batch_size = batch_size
+        self.shuffle = shuffle
 
         self.len = (self.index_length + self.batch_size - 1) // self.batch_size
-        if shuffle:
-            self.index_list = torch.randperm(self.len).tolist()
-        else:
-            self.index_list = [i for i in range(self.len)]
-
         self.index = 0
 
     def __iter__(self):
+        if self.shuffle:
+            index_list = torch.randperm(self.len).tolist()
+        else:
+            index_list = [i for i in range(self.len)]
 
         while self.index < self.len:
-            k = self.index_list[self.index]  # 第k个group
+            k = index_list[self.index]  # 第k个group
             start = k * self.batch_size
             end = start + self.batch_size
             end = end if end < self.index_length else self.index_length
 
             yield [i for i in range(start, end)]
             self.index += 1
+
+        self.index = 0
 
     def __len__(self):
         return self.len
