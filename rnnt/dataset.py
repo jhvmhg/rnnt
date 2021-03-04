@@ -3,6 +3,7 @@ import copy
 import numpy as np
 import os
 import kaldiio
+import torch
 
 
 class Dataset:
@@ -229,5 +230,18 @@ class AudioDataset(Dataset):
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
 
+
+def _collate_fn(batch):
+    features = np.array([b[0] for b in batch])
+    inputs_length = np.array([b[1] for b in batch])
+    targets = np.array([b[2] for b in batch])
+    targets_length = np.array([b[3] for b in batch])
+
+    max_inputs_length = max(inputs_length)
+    max_targets_length = max(targets_length)
+    features = features[:, :max_inputs_length, :]
+    targets = targets[:, :max_targets_length]
+
+    return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
 
 

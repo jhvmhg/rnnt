@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.utils.data
 from rnnt.model import Transducer, CTC
 from rnnt.optim import Optimizer
-from rnnt.dataset import AudioDataset
+from rnnt.dataset import AudioDataset, _collate_fn
 from tensorboardX import SummaryWriter
 from rnnt.utils import AttrDict, init_logger, count_parameters, save_model, computer_cer
 from eval import eval
@@ -84,10 +84,10 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        max_inputs_length = inputs_length.max().item()
-        max_targets_length = targets_length.max().item()
-        inputs = inputs[:, :max_inputs_length, :]
-        targets = targets[:, :max_targets_length]
+        # max_inputs_length = inputs_length.max().item()
+        # max_targets_length = targets_length.max().item()
+        # inputs = inputs[:, :max_inputs_length, :]
+        # targets = targets[:, :max_targets_length]
 
         preds = model.recognize(inputs, inputs_length)
 
@@ -136,14 +136,16 @@ def main():
     num_workers = config.training.num_gpu * 4
     train_dataset = AudioDataset(config.data, 'train')
     training_data = torch.utils.data.DataLoader(
-        train_dataset, batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu>0 else config.data.batch_size,
-        shuffle=config.data.shuffle, num_workers=num_workers)
+        train_dataset, batch_size=config.data.batch_size * config.training.num_gpu
+                                if config.training.num_gpu>0 else config.data.batch_size,
+        shuffle=config.data.shuffle, num_workers=num_workers, collate_fn=_collate_fn)
     logger.info('Load Train Set!')
 
     dev_dataset = AudioDataset(config.data, 'dev')
     validate_data = torch.utils.data.DataLoader(
-        dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu>0 else config.data.batch_size,
-        shuffle=False, num_workers=num_workers)
+        dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu
+                                if config.training.num_gpu>0 else config.data.batch_size,
+        shuffle=False, num_workers=num_workers, collate_fn=_collate_fn)
     logger.info('Load Dev Set!')
 
     if config.training.num_gpu > 0:
