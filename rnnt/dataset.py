@@ -4,6 +4,7 @@ import numpy as np
 import os
 import kaldiio
 import torch
+from torch.utils.data import Sampler
 
 
 class Dataset:
@@ -126,6 +127,7 @@ class AudioDataset(Dataset):
 
         self.config = config
         self.text = os.path.join(config.__getattr__(type), 'text')
+        self.utt2num_frames = os.path.join(config.__getattr__(type), 'utt2num_frames')
 
         self.short_first = config.short_first
 
@@ -133,9 +135,10 @@ class AudioDataset(Dataset):
         self.unit2idx = self.get_vocab_map()
         self.idx2unit = self.get_idx2unit(self.unit2idx)
         self.targets_dict = self.get_targets_dict()
+        self.utt2num_frames_dict = self.get_utt_frames()
 
         if self.short_first and type == 'train':
-            self.sorted_list = sorted(self.targets_dict.items(), key=lambda x: len(x[1]), reverse=False)
+            self.sorted_list = sorted(self.utt2num_frames_dict.items(), key=lambda x: x[1], reverse=False)
         else:
             self.sorted_list = None
 
@@ -210,6 +213,16 @@ class AudioDataset(Dataset):
                 targets_dict[utt_id] = labels
         return targets_dict
 
+    def get_utt_frames(self):
+        utt2num_frames_dict = {}
+        with codecs.open(self.utt2num_frames, 'r', encoding='utf-8') as fid:
+            for line in fid:
+                parts = line.strip().split(' ')
+                utt_id = parts[0]
+                num_frames = parts[1]
+                utt2num_frames_dict[utt_id] = int(num_frames)
+        return utt2num_frames_dict
+
     def encode(self, seq):
         encoded_seq = []
         for unit in seq:
@@ -246,3 +259,36 @@ def _collate_fn(batch):
     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
 
 
+class Batch_RandomSampler(Sampler):
+    '''
+    iter get [6, 7, 8]
+             [0, 1, 2]
+             [3, 4, 5]
+             [9]
+    '''
+
+    def __init__(self, index_length, batch_size, shuffle=True):
+        self.index_length = index_length
+        self.batch_size = batch_size
+
+        self.len = (self.index_length + self.batch_size - 1) // self.batch_size
+        if shuffle:
+            self.index_list = torch.randperm(self.len).tolist()
+        else:
+            self.index_list = [i for i in range(self.len)]
+
+        self.index = 0
+
+    def __iter__(self):
+
+        while self.index < self.len:
+            k = self.index_list[self.index]  # 第k个group
+            start = k * self.batch_size
+            end = start + self.batch_size
+            end = end if end < self.index_length else self.index_length
+
+            yield [i for i in range(start, end)]
+            self.index += 1
+
+    def __len__(self):
+        return self.len

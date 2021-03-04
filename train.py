@@ -12,11 +12,13 @@ from rnnt.dataset import AudioDataset, _collate_fn
 from tensorboardX import SummaryWriter
 from rnnt.utils import AttrDict, init_logger, count_parameters, computer_cer
 from rnnt.checkpoint import save_model, load_rnn_t_model, load_ctc_model
+from rnnt.dataset import Batch_RandomSampler
+
+
 # from eval import eval
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
-
     model.train()
     start_epoch = time.process_time()
     total_loss = 0
@@ -65,12 +67,12 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             process = step / batch_steps * 100
             logger.info('-Training-Epoch:%d(%.5f%%), Global Step:%d, Learning Rate:%.6f, Grad Norm:%.5f, Loss:%.5f, '
                         'AverageLoss: %.5f, Run Time:%.3f' % (epoch, process, optimizer.global_step, optimizer.lr,
-                                                              grad_norm, loss.item(), avg_loss, end-start))
+                                                              grad_norm, loss.item(), avg_loss, end - start))
 
         # break
     end_epoch = time.process_time()
     logger.info('-Training-Epoch:%d, Average Loss: %.5f, Epoch Time: %.3f' %
-                (epoch, total_loss / (step+1), end_epoch-start_epoch))
+                (epoch, total_loss / (step + 1), end_epoch - start_epoch))
 
 
 def eval(epoch, config, model, validating_data, logger, visualizer=None):
@@ -98,10 +100,10 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
         if step % config.training.show_interval == 0:
             process = step / batch_steps * 100
             logger.info('-Validation-Epoch:%d(%.5f%%), CER: %.5f %%' % (epoch, process, cer))
-            logger.info('preds:'+validating_data.dataset.decode(preds[0]))
-            logger.info('transcripts:'+validating_data.dataset.decode(transcripts[0]))
+            logger.info('preds:' + validating_data.dataset.decode(preds[0]))
+            logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
 
-    val_loss = total_loss/(step+1)
+    val_loss = total_loss / (step + 1)
     logger.info('-Validation-Epoch:%4d, AverageLoss:%.5f, AverageCER: %.5f %%' %
                 (epoch, val_loss, cer))
 
@@ -130,17 +132,18 @@ def main():
     logger.info('Save config info.')
 
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
+    batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
     train_dataset = AudioDataset(config.data, 'train')
     training_data = torch.utils.data.DataLoader(
-        train_dataset, batch_size=config.data.batch_size * config.training.num_gpu
-                                if config.training.num_gpu>0 else config.data.batch_size,
-        shuffle=config.data.shuffle, num_workers=num_workers, collate_fn=_collate_fn)
+        train_dataset, batch_sampler=Batch_RandomSampler(len(train_dataset),
+                                                         batch_size=batch_size, shuffle=config.data.shuffle),
+        num_workers=num_workers, collate_fn=_collate_fn)
     logger.info('Load Train Set!')
 
     dev_dataset = AudioDataset(config.data, 'dev')
     validate_data = torch.utils.data.DataLoader(
         dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu
-                                if config.training.num_gpu>0 else config.data.batch_size,
+        if config.training.num_gpu > 0 else config.data.batch_size,
         shuffle=False, num_workers=num_workers, collate_fn=_collate_fn)
     logger.info('Load Dev Set!')
 
@@ -157,7 +160,6 @@ def main():
         model = CTC(config.model)
     else:
         raise NotImplementedError
-
 
     if config.training.new_model:
         if config.training.num_gpu == 0:
