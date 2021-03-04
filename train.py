@@ -121,7 +121,7 @@ def main():
     configfile = open(opt.config)
     config = AttrDict(yaml.load(configfile, Loader=yaml.FullLoader))
 
-    exp_name = os.path.join('egs', config.data.name, 'exp', config.training.save_model)
+    exp_name = os.path.join('egs', config.data.name, 'exp', config.training.save_model, config.model.type)
     if not os.path.isdir(exp_name):
         os.makedirs(exp_name)
     logger = init_logger(os.path.join(exp_name, opt.log))
