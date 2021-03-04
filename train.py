@@ -161,7 +161,7 @@ def main():
     else:
         raise NotImplementedError
 
-    if config.training.new_model:
+    if config.training.load_model:
         if config.training.num_gpu == 0:
             checkpoint = torch.load(config.training.new_model, map_location='cpu')
         else:
