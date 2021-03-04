@@ -45,7 +45,7 @@ def eval(config, model, validating_data, logger, visualizer=None):
         if step % config.training.show_interval == 0:
             process = step / batch_steps * 100
             logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % ( process, cer))
-            logger.info('preds:'+validating_data.dataset.decode(preds[0], rm_blk=True))
+            logger.info('preds:'+validating_data.dataset.decode(preds[0]))
             logger.info('transcripts:'+validating_data.dataset.decode(transcripts[0]))
 
     val_loss = total_loss/(step+1)
