@@ -7,6 +7,8 @@ import torch
 from torch.utils.data import Sampler
 
 
+
+
 class Dataset:
     def __init__(self, config, type):
 
@@ -38,33 +40,6 @@ class Dataset:
     def __len__(self):
         raise NotImplementedError
 
-    def pad(self, inputs, max_length=None):
-        '''
-        if inputs.shape[0] >= max_length , just return inputs[:max_length]
-        '''
-        dim = len(inputs.shape)
-        if dim == 1:
-            if max_length is None:
-                max_length = self.max_target_length
-            if inputs.shape[0] >= max_length:
-                padded_inputs = inputs[:max_length]
-            else:
-                pad_zeros_mat = np.zeros([1, max_length - inputs.shape[0]], dtype=np.int32)
-                padded_inputs = np.column_stack([inputs.reshape(1, -1), pad_zeros_mat])
-        elif dim == 2:
-            if max_length is None:
-                max_length = self.max_input_length
-            feature_dim = inputs.shape[1]
-            if inputs.shape[0] >= max_length:
-                padded_inputs = inputs[:max_length,]
-            else:
-                pad_zeros_mat = np.zeros([max_length - inputs.shape[0], feature_dim])
-                padded_inputs = np.row_stack([inputs, pad_zeros_mat])
-        else:
-            raise AssertionError(
-                'Features in inputs list must be one vector or two dimension matrix! ')
-        return padded_inputs
-
     def get_feats_list(self):
         feats_list = []
         feats_dict = {}
@@ -94,19 +69,19 @@ class Dataset:
             dtype=np.float32)
         # middle part is just the uttarnce
         concated_features[:, self.left_context_width * features_dim:
-                          (self.left_context_width + 1) * features_dim] = features
+                             (self.left_context_width + 1) * features_dim] = features
 
         for i in range(self.left_context_width):
             # add left context
             concated_features[i + 1:time_steps,
-                              (self.left_context_width - i - 1) * features_dim:
-                              (self.left_context_width - i) * features_dim] = features[0:time_steps - i - 1, :]
+            (self.left_context_width - i - 1) * features_dim:
+            (self.left_context_width - i) * features_dim] = features[0:time_steps - i - 1, :]
 
         for i in range(self.right_context_width):
             # add right context
             concated_features[0:time_steps - i - 1,
-                              (self.right_context_width + i + 1) * features_dim:
-                              (self.right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
+            (self.right_context_width + i + 1) * features_dim:
+            (self.right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
 
         return concated_features
 
@@ -121,19 +96,27 @@ class Dataset:
             return features
 
 
+def get_idx2unit(unit2idx):
+    idx2unit = {}
+    for i in unit2idx:
+        idx2unit[int(unit2idx[i])] = i
+
+    return idx2unit
+
+
 class AudioDataset(Dataset):
     def __init__(self, config, type):
         super(AudioDataset, self).__init__(config, type)
 
         self.config = config
         self.text = os.path.join(config.__getattr__(type), 'text')
-        self.utt2num_frames = os.path.join(config.__getattr__(type), 'utt2num_frames')
+        self.utt2num_frames_txt = os.path.join(config.__getattr__(type), 'utt2num_frames')
 
         self.short_first = config.short_first
 
         # if self.config.encoding:
         self.unit2idx = self.get_vocab_map()
-        self.idx2unit = self.get_idx2unit(self.unit2idx)
+        self.idx2unit = get_idx2unit(self.unit2idx)
         self.targets_dict = self.get_targets_dict()
         self.utt2num_frames_dict = self.get_utt_frames()
 
@@ -172,8 +155,8 @@ class AudioDataset(Dataset):
         inputs_length = np.array(features.shape[0]).astype(np.int64)
         targets_length = np.array(targets.shape[0]).astype(np.int64)
 
-        features = self.pad(features).astype(np.float32)
-        targets = self.pad(targets).astype(np.int64).reshape(-1)
+        features = pad(features, self.max_input_length).astype(np.float32)
+        targets = pad(targets, self.max_target_length).astype(np.int64).reshape(-1)
 
         return features, inputs_length, targets, targets_length
 
@@ -189,13 +172,6 @@ class AudioDataset(Dataset):
                 idx = int(parts[1])
                 unit2idx[unit] = idx
         return unit2idx
-
-    def get_idx2unit(self, unit2idx):
-        idx2unit = {}
-        for i in unit2idx:
-            idx2unit[int(unit2idx[i])] = i
-
-        return idx2unit
 
     def get_targets_dict(self):
         targets_dict = {}
@@ -215,22 +191,15 @@ class AudioDataset(Dataset):
 
     def get_utt_frames(self):
         utt2num_frames_dict = {}
-        with codecs.open(self.utt2num_frames, 'r', encoding='utf-8') as fid:
+        with codecs.open(self.utt2num_frames_txt, 'r', encoding='utf-8') as fid:
             for line in fid:
                 parts = line.strip().split(' ')
-                utt_id = parts[0]
-                num_frames = parts[1]
-                utt2num_frames_dict[utt_id] = int(num_frames)
+                utt2num_frames_dict[parts[0]] = int(parts[1])
         return utt2num_frames_dict
 
     def encode(self, seq):
-        encoded_seq = []
-        for unit in seq:
-            if unit in self.unit2idx:
-                encoded_seq.append(self.unit2idx[unit])
-            else:
-                encoded_seq.append(self.unit2idx['<unk>'])
-        return encoded_seq
+
+        return [self.unit2idx[unit] if unit in self.unit2idx else self.unit2idx['<unk>'] for unit in seq]
 
     def decode(self, seq, rm_blk=False):
 
@@ -260,12 +229,12 @@ def _collate_fn(batch):
 
 
 class Batch_RandomSampler(Sampler):
-    '''
+    """
     iter get [6, 7, 8]
              [0, 1, 2]
              [3, 4, 5]
              [9]
-    '''
+    """
 
     def __init__(self, index_length, batch_size, shuffle=True):
         self.index_length = index_length
@@ -292,3 +261,29 @@ class Batch_RandomSampler(Sampler):
 
     def __len__(self):
         return self.len
+
+
+def pad(inputs, max_length):
+    """
+    if inputs.shape[0] >= max_length , just return inputs[:max_length,]
+    """
+    dim = len(inputs.shape)
+    if dim == 1:
+
+        if inputs.shape[0] >= max_length:
+            padded_inputs = inputs[:max_length]
+        else:
+            pad_zeros_mat = np.zeros([1, max_length - inputs.shape[0]], dtype=np.int32)
+            padded_inputs = np.column_stack([inputs.reshape(1, -1), pad_zeros_mat])
+    elif dim == 2:
+
+        feature_dim = inputs.shape[1]
+        if inputs.shape[0] >= max_length:
+            padded_inputs = inputs[:max_length, ]
+        else:
+            pad_zeros_mat = np.zeros([max_length - inputs.shape[0], feature_dim])
+            padded_inputs = np.row_stack([inputs, pad_zeros_mat])
+    else:
+        raise AssertionError(
+            'Features in inputs list must be one vector or two dimension matrix! ')
+    return padded_inputs
