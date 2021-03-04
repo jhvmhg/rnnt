@@ -11,6 +11,7 @@ from rnnt.optim import Optimizer
 from rnnt.dataset import AudioDataset
 from tensorboardX import SummaryWriter
 from rnnt.utils import AttrDict, init_logger, count_parameters, save_model, computer_cer
+from eval import eval
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
@@ -101,7 +102,7 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
         if step % config.training.show_interval == 0:
             process = step / batch_steps * 100
             logger.info('-Validation-Epoch:%d(%.5f%%), CER: %.5f %%' % (epoch, process, cer))
-            logger.info('preds:'+validating_data.dataset.decode(preds[0], rm_blk=True))
+            logger.info('preds:'+validating_data.dataset.decode(preds[0]))
             logger.info('transcripts:'+validating_data.dataset.decode(transcripts[0]))
 
     val_loss = total_loss/(step+1)
