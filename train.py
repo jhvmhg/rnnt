@@ -53,6 +53,8 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         if config.training.max_grad_norm:
             grad_norm = nn.utils.clip_grad_norm_(
                 model.parameters(), config.training.max_grad_norm)
+        else:
+            grad_norm = 0
 
         optimizer.step()
 
