@@ -12,7 +12,7 @@ from rnnt.dataset import AudioDataset, _collate_fn
 from tensorboardX import SummaryWriter
 from rnnt.utils import AttrDict, init_logger, count_parameters, computer_cer
 from rnnt.checkpoint import save_model, load_rnn_t_model, load_ctc_model
-from eval import eval
+# from eval import eval
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
