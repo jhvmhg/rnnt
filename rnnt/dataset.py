@@ -106,12 +106,12 @@ def get_idx2unit(unit2idx):
 
 
 class AudioDataset(Dataset):
-    def __init__(self, config, type):
-        super(AudioDataset, self).__init__(config, type)
+    def __init__(self, config, dataset_type):
+        super(AudioDataset, self).__init__(config, dataset_type)
 
         self.config = config
-        self.text = os.path.join(config.__getattr__(type), 'text')
-        self.utt2num_frames_txt = os.path.join(config.__getattr__(type), 'utt2num_frames')
+        self.text = os.path.join(config.__getattr__(dataset_type), 'text')
+        self.utt2num_frames_txt = os.path.join(config.__getattr__(dataset_type), 'utt2num_frames')
 
         self.short_first = config.short_first
 
@@ -121,7 +121,7 @@ class AudioDataset(Dataset):
         self.targets_dict = self.get_targets_dict()
         self.utt2num_frames_dict = self.get_utt_frames()
 
-        if self.short_first and type == 'train':
+        if self.short_first and dataset_type == 'train':
             self.sorted_list = sorted(self.utt2num_frames_dict.items(), key=lambda x: x[1], reverse=False)
         else:
             self.sorted_list = None

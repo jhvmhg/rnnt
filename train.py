@@ -136,7 +136,7 @@ def main():
 
     train_dataset = AudioDataset(config.data, 'train')
     train_sampler = Batch_RandomSampler(len(train_dataset),
-                                        batch_size=batch_size, shuffle=config.data.shuffle),
+                                        batch_size=batch_size, shuffle=config.data.shuffle)
     training_data = AudioDataLoader(
         dataset=train_dataset,
         num_workers=num_workers,
