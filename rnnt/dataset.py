@@ -241,33 +241,42 @@ class AudioDataLoader(DataLoader):
 
 
 def _collate_fn(batch):
-    inputs_len = [b[1] for b in batch]  # list(np.arr)
-    targets_len = [b[3] for b in batch]
+    features = [b[0] for b in batch]
+    inputs_length = np.array([b[1] for b in batch])
+    targets = [b[2] for b in batch]
+    targets_length = np.array([b[3] for b in batch])
 
-    feat_dim = batch[0][0].shape[1]
-    minibatch_size = len(batch)
-    max_inputs_length = max(inputs_len)
-    max_targets_length = max(targets_len)
+    max_inputs_length = max(inputs_length)
+    max_targets_length = max(targets_length)
 
-    feats = torch.zeros(minibatch_size, max_inputs_length, feat_dim)
-    targets_tensor = torch.zeros(minibatch_size, max_targets_length)
 
-    inputs_len_tensor = torch.IntTensor(minibatch_size)
-    targets_len_tensor = torch.IntTensor(minibatch_size)
+    features = pad_np(features, max_inputs_length)
+    targets = pad_np(targets, max_targets_length)
 
-    for x in range(minibatch_size):
-        sample = batch[x]
-        feat = torch.tensor(sample[0])
-        target = torch.tensor(sample[2])
-        feat_len = feat.shape[0]
-        target_len = target.shape[0]
 
-        feats[x].narrow(0, 0, feat_len).copy_(feat)
-        targets_tensor[x].narrow(0, 0, target_len).copy_(target)
-        inputs_len_tensor[x] = feat_len
-        targets_len_tensor[x] = len(target)
+    return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
 
-    return feats, inputs_len_tensor, targets_tensor, targets_len_tensor
+
+def pad_np(inputs, max_length):
+    """
+    if inputs.shape[0] >= max_length , just return inputs[:max_length,]
+    """
+    dim = len(inputs[0].shape) + 1
+    batch_zise = len(inputs)
+    if dim == 2:  # batch_zise * target_len
+        pad_zeros_mat = np.zeros([batch_zise, max_length], dtype=np.int32)
+        for x in range(batch_zise):
+            pad_zeros_mat[x, :len(inputs[x])] = inputs[x]
+
+    elif dim == 3:  # batch_zise * feat_len * feature_dim
+        feature_dim = len(inputs[0][0])
+        pad_zeros_mat = np.zeros([batch_zise, max_length, feature_dim], dtype=np.int32)
+        for x in range(batch_zise):
+            pad_zeros_mat[x, :len(inputs[x]), :] = inputs[x]
+    else:
+        raise AssertionError(
+            'Features in inputs list must be one vector or two dimension matrix! ')
+    return pad_zeros_mat
 
 
 class Batch_RandomSampler(Sampler):
@@ -290,7 +299,7 @@ class Batch_RandomSampler(Sampler):
         if self.shuffle:
             g = torch.Generator()
             g.manual_seed(self.epoch)
-            index_list = torch.randperm(self.len).tolist()
+            index_list = torch.randperm(self.len, generator=g).tolist()
         else:
             index_list = [i for i in range(self.len)]
 
