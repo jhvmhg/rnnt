@@ -145,7 +145,7 @@ def main():
     logger.info('Load Train Set!')
 
     dev_dataset = AudioDataset(config.data, 'dev')
-    dev_sampler = Batch_RandomSampler(len(train_dataset),
+    dev_sampler = Batch_RandomSampler(len(dev_dataset),
                                         batch_size=batch_size, shuffle=False)
     validate_data = AudioDataLoader(
         dataset=dev_dataset,
