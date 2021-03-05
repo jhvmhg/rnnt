@@ -7,9 +7,6 @@ import torch
 from torch.utils.data import Sampler, Dataset, DataLoader
 
 
-
-
-
 class Dataset:
     def __init__(self, config, type):
 
@@ -156,8 +153,13 @@ class AudioDataset(Dataset):
         inputs_length = np.array(features.shape[0]).astype(np.int64)
         targets_length = np.array(targets.shape[0]).astype(np.int64)
 
-        features = pad(features, self.max_input_length).astype(np.float32)
-        targets = pad(targets, self.max_target_length).astype(np.int64).reshape(-1)
+        if features.shape[0] >= self.max_input_length:
+            features = features[:self.max_input_length, ]
+        if targets.shape[0] >= self.max_target_length:
+            targets = targets[:self.max_target_length]
+
+        # features = pad(features, self.max_input_length).astype(np.float32)
+        # targets = pad(targets, self.max_target_length).astype(np.int64).reshape(-1)
 
         return features, inputs_length, targets, targets_length
 
@@ -214,6 +216,7 @@ class AudioDataset(Dataset):
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
 
+
 class AudioDataLoader(DataLoader):
     def __init__(self, *args, **kwargs):
         """
@@ -222,18 +225,49 @@ class AudioDataLoader(DataLoader):
         super(AudioDataLoader, self).__init__(*args, **kwargs)
         self.collate_fn = _collate_fn
 
+
+# def _collate_fn(batch):
+#     features = np.array([b[0] for b in batch])
+#     inputs_length = np.array([b[1] for b in batch])
+#     targets = np.array([b[2] for b in batch])
+#     targets_length = np.array([b[3] for b in batch])
+#
+#     max_inputs_length = max(inputs_length)
+#     max_targets_length = max(targets_length)
+#     features = features[:, :max_inputs_length, :]
+#     targets = targets[:, :max_targets_length]
+#
+#     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
+
+
 def _collate_fn(batch):
-    features = np.array([b[0] for b in batch])
-    inputs_length = np.array([b[1] for b in batch])
-    targets = np.array([b[2] for b in batch])
-    targets_length = np.array([b[3] for b in batch])
+    inputs_len = [b[1] for b in batch]  # list(np.arr)
+    targets_len = [b[3] for b in batch]
 
-    max_inputs_length = max(inputs_length)
-    max_targets_length = max(targets_length)
-    features = features[:, :max_inputs_length, :]
-    targets = targets[:, :max_targets_length]
+    feat_dim = batch[0][0].shape[1]
+    minibatch_size = len(batch)
+    max_inputs_length = max(inputs_len)
+    max_targets_length = max(targets_len)
 
-    return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
+    feats = torch.zeros(minibatch_size, max_inputs_length, feat_dim)
+    targets_tensor = torch.zeros(minibatch_size, max_targets_length)
+
+    inputs_len_tensor = torch.IntTensor(minibatch_size)
+    targets_len_tensor = torch.IntTensor(minibatch_size)
+
+    for x in range(minibatch_size):
+        sample = batch[x]
+        feat = torch.tensor(sample[0])
+        target = torch.tensor(sample[2])
+        feat_len = feat.shape[0]
+        target_len = target.shape[0]
+
+        feats[x].narrow(0, 0, feat_len).copy_(feat)
+        targets_tensor[x].narrow(0, 0, target_len).copy_(target)
+        inputs_len_tensor[x] = feat_len
+        targets_len_tensor[x] = len(target)
+
+    return feats, inputs_len_tensor, targets_tensor, targets_len_tensor
 
 
 class Batch_RandomSampler(Sampler):
@@ -278,6 +312,7 @@ class Batch_RandomSampler(Sampler):
     def set_epoch(self, epoch):
         self.epoch = epoch
 
+
 class DSRandomSampler(Sampler):
     """
     Implementation of a Random Sampler for sampling the dataset.
@@ -314,7 +349,6 @@ class DSRandomSampler(Sampler):
 
     def set_epoch(self, epoch):
         self.epoch = epoch
-
 
 
 def pad(inputs, max_length):
