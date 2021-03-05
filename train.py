@@ -8,11 +8,10 @@ import torch.nn as nn
 import torch.utils.data
 from rnnt.model import Transducer, CTC
 from rnnt.optim import Optimizer
-from rnnt.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
+from rnnt.data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from rnnt.utils import AttrDict, init_logger, count_parameters, computer_cer
 from rnnt.checkpoint import save_model, load_rnn_t_model, load_ctc_model
-
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
@@ -146,7 +145,7 @@ def main():
 
     dev_dataset = AudioDataset(config.data, 'dev')
     dev_sampler = Batch_RandomSampler(len(dev_dataset),
-                                        batch_size=batch_size, shuffle=False)
+                                      batch_size=batch_size, shuffle=False)
     validate_data = AudioDataLoader(
         dataset=dev_dataset,
         num_workers=num_workers,

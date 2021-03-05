@@ -5,9 +5,10 @@ import os
 import kaldiio
 import torch
 from torch.utils.data import Sampler, Dataset, DataLoader
+from rnnt.data.utils import pad_np, get_idx2unit
 
 
-class Dataset:
+class myDataset:
     def __init__(self, config, type):
 
         self.type = type
@@ -94,15 +95,7 @@ class Dataset:
             return features
 
 
-def get_idx2unit(unit2idx):
-    idx2unit = {}
-    for i in unit2idx:
-        idx2unit[int(unit2idx[i])] = i
-
-    return idx2unit
-
-
-class AudioDataset(Dataset):
+class AudioDataset(myDataset):
     def __init__(self, config, dataset_type):
         super(AudioDataset, self).__init__(config, dataset_type)
 
@@ -149,17 +142,11 @@ class AudioDataset(Dataset):
         # if features 长度 > max_input_length,只保留前面部分
         if features.shape[0] >= self.config.max_input_length:
             features = features[:self.config.max_input_length, ]
-
-        inputs_length = np.array(features.shape[0]).astype(np.int64)
-        targets_length = np.array(targets.shape[0]).astype(np.int64)
-
-        if features.shape[0] >= self.max_input_length:
-            features = features[:self.max_input_length, ]
         if targets.shape[0] >= self.max_target_length:
             targets = targets[:self.max_target_length]
 
-        # features = pad(features, self.max_input_length).astype(np.float32)
-        # targets = pad(targets, self.max_target_length).astype(np.int64).reshape(-1)
+        inputs_length = np.array(features.shape[0]).astype(np.int64)
+        targets_length = np.array(targets.shape[0]).astype(np.int64)
 
         return features, inputs_length, targets, targets_length
 
@@ -226,20 +213,6 @@ class AudioDataLoader(DataLoader):
         self.collate_fn = _collate_fn
 
 
-# def _collate_fn(batch):
-#     features = np.array([b[0] for b in batch])
-#     inputs_length = np.array([b[1] for b in batch])
-#     targets = np.array([b[2] for b in batch])
-#     targets_length = np.array([b[3] for b in batch])
-#
-#     max_inputs_length = max(inputs_length)
-#     max_targets_length = max(targets_length)
-#     features = features[:, :max_inputs_length, :]
-#     targets = targets[:, :max_targets_length]
-#
-#     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
-
-
 def _collate_fn(batch):
     features = [b[0] for b in batch]
     inputs_length = np.array([b[1] for b in batch])
@@ -249,34 +222,10 @@ def _collate_fn(batch):
     max_inputs_length = max(inputs_length)
     max_targets_length = max(targets_length)
 
-
     features = pad_np(features, max_inputs_length)
     targets = pad_np(targets, max_targets_length)
 
-
     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
-
-
-def pad_np(inputs, max_length):
-    """
-    if inputs.shape[0] >= max_length , just return inputs[:max_length,]
-    """
-    dim = len(inputs[0].shape) + 1
-    batch_zise = len(inputs)
-    if dim == 2:  # batch_zise * target_len
-        pad_zeros_mat = np.zeros([batch_zise, max_length], dtype=np.int32)
-        for x in range(batch_zise):
-            pad_zeros_mat[x, :len(inputs[x])] = inputs[x]
-
-    elif dim == 3:  # batch_zise * feat_len * feature_dim
-        feature_dim = len(inputs[0][0])
-        pad_zeros_mat = np.zeros([batch_zise, max_length, feature_dim], dtype=np.float32)
-        for x in range(batch_zise):
-            pad_zeros_mat[x, :len(inputs[x]), :] = inputs[x]
-    else:
-        raise AssertionError(
-            'Features in inputs list must be one vector or two dimension matrix! ')
-    return pad_zeros_mat
 
 
 class Batch_RandomSampler(Sampler):
@@ -322,65 +271,3 @@ class Batch_RandomSampler(Sampler):
         self.epoch = epoch
 
 
-class DSRandomSampler(Sampler):
-    """
-    Implementation of a Random Sampler for sampling the dataset.
-    Added to ensure we reset the start index when an epoch is finished.
-    This is essential since we support saving/loading state during an epoch.
-    """
-
-    def __init__(self, dataset, batch_size=1):
-        super().__init__(data_source=dataset)
-
-        self.dataset = dataset
-        self.start_index = 0
-        self.epoch = 0
-        self.batch_size = batch_size
-        ids = list(range(len(self.dataset)))
-        self.bins = [ids[i:i + self.batch_size] for i in range(0, len(ids), self.batch_size)]
-
-    def __iter__(self):
-        # deterministically shuffle based on epoch
-        g = torch.Generator()
-        g.manual_seed(self.epoch)
-        indices = (
-            torch.randperm(len(self.bins) - self.start_index, generator=g)
-                .add(self.start_index)
-                .tolist()
-        )
-        for x in indices:
-            batch_ids = self.bins[x]
-            np.random.shuffle(batch_ids)
-            yield batch_ids
-
-    def __len__(self):
-        return len(self.bins) - self.start_index
-
-    def set_epoch(self, epoch):
-        self.epoch = epoch
-
-
-def pad(inputs, max_length):
-    """
-    if inputs.shape[0] >= max_length , just return inputs[:max_length,]
-    """
-    dim = len(inputs.shape)
-    if dim == 1:
-
-        if inputs.shape[0] >= max_length:
-            padded_inputs = inputs[:max_length]
-        else:
-            pad_zeros_mat = np.zeros([1, max_length - inputs.shape[0]], dtype=np.int32)
-            padded_inputs = np.column_stack([inputs.reshape(1, -1), pad_zeros_mat])
-    elif dim == 2:
-
-        feature_dim = inputs.shape[1]
-        if inputs.shape[0] >= max_length:
-            padded_inputs = inputs[:max_length, ]
-        else:
-            pad_zeros_mat = np.zeros([max_length - inputs.shape[0], feature_dim])
-            padded_inputs = np.row_stack([inputs, pad_zeros_mat])
-    else:
-        raise AssertionError(
-            'Features in inputs list must be one vector or two dimension matrix! ')
-    return padded_inputs

@@ -4,7 +4,7 @@ import yaml
 import torch
 import torch.utils.data
 
-from rnnt.dataset import AudioDataset, _collate_fn
+from rnnt.data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from rnnt.utils import AttrDict, init_logger, computer_cer
 from rnnt.checkpoint import new_model
 
@@ -62,13 +62,17 @@ def main():
 
     logger = init_logger(os.path.join(exp_name, opt.log))
 
-    num_workers = config.training.num_gpu * 4
+    num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
+    batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
 
-    dev_dataset = AudioDataset(config.data, 'dev')
-    validate_data = torch.utils.data.DataLoader(
-        dev_dataset,
-        batch_size=config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size,
-        shuffle=False, num_workers=num_workers, collate_fn=_collate_fn)
+    dev_dataset = (config.data, 'dev')
+    dev_sampler = Batch_RandomSampler(len(dev_dataset),
+                                      batch_size=batch_size, shuffle=False)
+    validate_data = AudioDataLoader(
+        dataset=dev_dataset,
+        num_workers=num_workers,
+        batch_sampler=dev_sampler
+    )
     logger.info('Load Dev Set!')
 
     if config.training.num_gpu > 0:
