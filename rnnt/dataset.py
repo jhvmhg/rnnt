@@ -4,7 +4,8 @@ import numpy as np
 import os
 import kaldiio
 import torch
-from torch.utils.data import Sampler
+from torch.utils.data import Sampler, Dataset, DataLoader
+
 
 
 
@@ -213,6 +214,13 @@ class AudioDataset(Dataset):
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
 
+class AudioDataLoader(DataLoader):
+    def __init__(self, *args, **kwargs):
+        """
+        Creates a data loader for AudioDatasets.
+        """
+        super(AudioDataLoader, self).__init__(*args, **kwargs)
+        self.collate_fn = _collate_fn
 
 def _collate_fn(batch):
     features = np.array([b[0] for b in batch])
@@ -240,12 +248,14 @@ class Batch_RandomSampler(Sampler):
         self.index_length = index_length
         self.batch_size = batch_size
         self.shuffle = shuffle
-
+        self.epoch = 0
         self.len = (self.index_length + self.batch_size - 1) // self.batch_size
         self.index = 0
 
     def __iter__(self):
         if self.shuffle:
+            g = torch.Generator()
+            g.manual_seed(self.epoch)
             index_list = torch.randperm(self.len).tolist()
         else:
             index_list = [i for i in range(self.len)]
@@ -260,9 +270,51 @@ class Batch_RandomSampler(Sampler):
             self.index += 1
 
         self.index = 0
+        self.epoch += 1
 
     def __len__(self):
         return self.len
+
+    def set_epoch(self, epoch):
+        self.epoch = epoch
+
+class DSRandomSampler(Sampler):
+    """
+    Implementation of a Random Sampler for sampling the dataset.
+    Added to ensure we reset the start index when an epoch is finished.
+    This is essential since we support saving/loading state during an epoch.
+    """
+
+    def __init__(self, dataset, batch_size=1):
+        super().__init__(data_source=dataset)
+
+        self.dataset = dataset
+        self.start_index = 0
+        self.epoch = 0
+        self.batch_size = batch_size
+        ids = list(range(len(self.dataset)))
+        self.bins = [ids[i:i + self.batch_size] for i in range(0, len(ids), self.batch_size)]
+
+    def __iter__(self):
+        # deterministically shuffle based on epoch
+        g = torch.Generator()
+        g.manual_seed(self.epoch)
+        indices = (
+            torch.randperm(len(self.bins) - self.start_index, generator=g)
+                .add(self.start_index)
+                .tolist()
+        )
+        for x in indices:
+            batch_ids = self.bins[x]
+            np.random.shuffle(batch_ids)
+            yield batch_ids
+
+    def __len__(self):
+        return len(self.bins) - self.start_index
+
+    def set_epoch(self, epoch):
+        self.epoch = epoch
+
 
 
 def pad(inputs, max_length):

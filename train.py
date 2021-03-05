@@ -8,14 +8,11 @@ import torch.nn as nn
 import torch.utils.data
 from rnnt.model import Transducer, CTC
 from rnnt.optim import Optimizer
-from rnnt.dataset import AudioDataset, _collate_fn
+from rnnt.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from rnnt.utils import AttrDict, init_logger, count_parameters, computer_cer
 from rnnt.checkpoint import save_model, load_rnn_t_model, load_ctc_model
-from rnnt.dataset import Batch_RandomSampler
 
-
-# from eval import eval
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
@@ -136,18 +133,25 @@ def main():
 
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
+
     train_dataset = AudioDataset(config.data, 'train')
-    training_data = torch.utils.data.DataLoader(
-        train_dataset, batch_sampler=Batch_RandomSampler(len(train_dataset),
-                                                         batch_size=batch_size, shuffle=config.data.shuffle),
-        num_workers=num_workers, collate_fn=_collate_fn)
+    train_sampler = Batch_RandomSampler(len(train_dataset),
+                                        batch_size=batch_size, shuffle=config.data.shuffle),
+    training_data = AudioDataLoader(
+        dataset=train_dataset,
+        num_workers=num_workers,
+        batch_sampler=train_sampler
+    )
     logger.info('Load Train Set!')
 
     dev_dataset = AudioDataset(config.data, 'dev')
-    validate_data = torch.utils.data.DataLoader(
-        dev_dataset, batch_size=config.data.batch_size * config.training.num_gpu
-        if config.training.num_gpu > 0 else config.data.batch_size,
-        shuffle=False, num_workers=num_workers, collate_fn=_collate_fn)
+    dev_sampler = Batch_RandomSampler(len(train_dataset),
+                                        batch_size=batch_size, shuffle=False)
+    validate_data = AudioDataLoader(
+        dataset=dev_dataset,
+        num_workers=num_workers,
+        batch_sampler=dev_sampler
+    )
     logger.info('Load Dev Set!')
 
     if config.training.num_gpu > 0:
