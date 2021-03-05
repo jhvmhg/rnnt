@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import math
 import torch.nn.functional as F
 
 
@@ -183,7 +182,6 @@ class DeepSpeech(nn.Module):
         sizes = x.size()
         x = x.view(sizes[0], sizes[1] * sizes[2], sizes[3])  # Collapse feature dimension
         x = x.transpose(1, 2).transpose(0, 1).contiguous()  # TxNxH
-        print("TxNxH", x.shape)
 
         for rnn in self.rnns:
             x = rnn(x, output_lengths)
