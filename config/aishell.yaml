@@ -49,9 +49,9 @@ training:
     show_interval: 10
     save_model: 3blstm_320henc_1l512dec
 optim:
-    type: sgd
+    type: adam
     lr: 0.0005
     momentum: 0.9
-    decay_ratio: 0.8
-    weight_decay: 0
+    decay_ratio: 1.0
+    weight_decay: 0.00001
     begin_to_adjust_lr: 10
