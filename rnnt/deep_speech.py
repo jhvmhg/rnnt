@@ -116,17 +116,15 @@ class BatchRNN(nn.Module):
 
 
 class DeepSpeech(nn.Module):
-    def __init__(self, hidden_size, num_classes):
+    def __init__(self, input_size, rnn_hidden_size, rnn_hidden_layers, output_size, bidirectional=False):
         super().__init__()
-        # self.save_hyperparameters()
-        # self.model_cfg = model_cfg
 
-        self.hidden_size = hidden_size
-        self.hidden_layers = 1
+        self.hidden_size = rnn_hidden_size
+        self.rnn_hidden_layers = rnn_hidden_layers
         self.rnn_type = nn.LSTM
-        self.lookahead_context = 3
 
-        self.bidirectional = False
+        self.lookahead_context = 3
+        self.bidirectional = bidirectional
 
         self.conv = MaskConv(nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=(41, 11), stride=(2, 1), padding=(20, 5)), ### stride=(2, 2)
@@ -137,7 +135,7 @@ class DeepSpeech(nn.Module):
             nn.Hardtanh(0, 20, inplace=True)
         ))
         # Based on above convolutions and spectrogram size using conv formula (W - F + 2P)/ S+1
-        rnn_input_size = 2560
+        rnn_input_size = input_size*32
 
         self.rnns = nn.Sequential(
             BatchRNN(
@@ -153,7 +151,7 @@ class DeepSpeech(nn.Module):
                     hidden_size=self.hidden_size,
                     rnn_type=self.rnn_type,
                     bidirectional=self.bidirectional
-                ) for x in range(self.hidden_layers - 1)
+                ) for x in range(self.rnn_hidden_layers - 1)
             )
         )
 
@@ -165,7 +163,7 @@ class DeepSpeech(nn.Module):
 
         fully_connected = nn.Sequential(
             nn.BatchNorm1d(self.hidden_size),
-            nn.Linear(self.hidden_size, num_classes, bias=False)
+            nn.Linear(self.hidden_size, output_size, bias=False)
         )
         self.fc = nn.Sequential(
             SequenceWise(fully_connected),

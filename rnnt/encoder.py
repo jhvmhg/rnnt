@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from rnnt.deep_speech import *
 
+
 class BaseEncoder(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, n_layers, dropout=0.2, bidirectional=True):
         super(BaseEncoder, self).__init__()
@@ -41,7 +42,8 @@ class BaseEncoder(nn.Module):
 
 
 class CNN_LSTM(nn.Module):
-    def __init__(self, input_size, kernal_size, pad,rnn_input_size, rnn_hidden_size, output_size, n_layers, dropout=0.2, bidirectional=True):
+    def __init__(self, input_size, kernal_size, pad, rnn_input_size, rnn_hidden_size, output_size, n_layers,
+                 dropout=0.2, bidirectional=True):
         super(CNN_LSTM, self).__init__()
 
         self.conv1d = nn.Conv1d(input_size, rnn_input_size, kernal_size, padding=pad)
@@ -99,12 +101,11 @@ def build_encoder(config):
             bidirectional=config.enc.bidirectional
         )
     elif config.enc.type == 'deep_speech':
-        return CNN_LSTM(
+        return DeepSpeech(
             input_size=config.feature_dim,
-            hidden_size=config.enc.hidden_size,
+            rnn_hidden_size=config.enc.hidden_size,
+            rnn_hidden_layers=config.enc.n_layers,
             output_size=config.enc.output_size,
-            n_layers=config.enc.n_layers,
-            dropout=config.dropout,
             bidirectional=config.enc.bidirectional
         )
     else:
