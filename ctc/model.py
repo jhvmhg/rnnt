@@ -3,6 +3,7 @@ import torch.nn as nn
 
 from utils.build_model import build_encoder
 
+
 class CTC(nn.Module):
     def __init__(self, config):
         super(CTC, self).__init__()
@@ -17,7 +18,6 @@ class CTC(nn.Module):
         self.crit = nn.CTCLoss()
 
     def forward(self, inputs, inputs_length, targets, targets_length):
-
         enc_state, output_lengths = self.encoder(inputs, inputs_length)
 
         encoder_output = self.project_layer(enc_state)
@@ -29,13 +29,12 @@ class CTC(nn.Module):
         return loss
 
     def recognize(self, inputs, inputs_length):
-
         enc_states, _ = self.encoder(inputs, inputs_length)
         encoder_output = self.project_layer(enc_states)
 
         preds = torch.argmax(encoder_output, -1)
 
         ans = [[int(j) for j in i if j > 0]
-                       for i in preds]
+               for i in preds]
 
         return ans

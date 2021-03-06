@@ -2,6 +2,9 @@ from rnnt.encoder import BaseEncoder, CNN_LSTM
 from rnnt.decoder import BaseDecoder
 from ctc.deep_speech import DeepSpeech
 
+"""
+统一在这里构建细分模型，主要是编码器和解码器
+"""
 
 def build_encoder(config):
     if config.enc.type == 'lstm':
