@@ -1,4 +1,5 @@
-from ctc.deep_speech import *
+import torch
+import torch.nn as nn
 
 
 class BaseEncoder(nn.Module):
