@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 
 class SequenceWise(nn.Module):
@@ -134,8 +135,10 @@ class DeepSpeech(nn.Module):
             nn.BatchNorm2d(32),
             nn.Hardtanh(0, 20, inplace=True)
         ))
-        # Based on above convolutions and spectrogram size using conv formula (W - F + 2P)/ S+1
-        rnn_input_size = input_size*8
+        # Based on above convolutions and spectrogram size using conv formula (input_size[0] - kernel_size[0] + 2*padding[0])/ stride[0] + 1
+        rnn_input_size = int(math.floor(input_size + 2 * 20 - 41) / 2 + 1)
+        rnn_input_size = int(math.floor(rnn_input_size + 2 * 10 - 21) / 2 + 1)
+        rnn_input_size *= 32
 
         self.rnns = nn.Sequential(
             BatchRNN(
