@@ -117,7 +117,7 @@ class BatchRNN(nn.Module):
 
 
 class DeepSpeech(nn.Module):
-    def __init__(self, input_size, rnn_hidden_size, rnn_hidden_layers, output_size, bidirectional=False):
+    def __init__(self, input_size,rnn_hidden_size, rnn_hidden_layers, output_size, cnn1_ksize=(41, 11), cnn2_ksize =(21, 11), bidirectional=False):
         super().__init__()
 
         self.hidden_size = rnn_hidden_size
@@ -128,10 +128,10 @@ class DeepSpeech(nn.Module):
         self.bidirectional = bidirectional
 
         self.conv = MaskConv(nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=(41, 11), stride=(2, 1), padding=(20, 5)), ### stride=(2, 2)
+            nn.Conv2d(1, 32, kernel_size=cnn1_ksize, stride=(2, 1), padding=(cnn1_ksize[0]//2, cnn1_ksize[0]//1)), ### stride=(2, 2)
             nn.BatchNorm2d(32),
             nn.Hardtanh(0, 20, inplace=True),
-            nn.Conv2d(32, 32, kernel_size=(21, 11), stride=(2, 1), padding=(10, 5)),
+            nn.Conv2d(32, 32, kernel_size=cnn2_ksize, stride=(2, 1), padding=(cnn2_ksize[0]//2, cnn2_ksize[0]//1)),
             nn.BatchNorm2d(32),
             nn.Hardtanh(0, 20, inplace=True)
         ))

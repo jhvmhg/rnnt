@@ -106,6 +106,8 @@ def build_encoder(config):
             rnn_hidden_size=config.enc.hidden_size,
             rnn_hidden_layers=config.enc.n_layers,
             output_size=config.enc.output_size,
+            cnn1_ksize=tuple([int(i) for i in config.model.enc.k1_size.split(",")]),
+            cnn2_ksize=tuple([int(i) for i in config.model.enc.k2_size.split(",")]),
             bidirectional=config.enc.bidirectional
         )
     else:
