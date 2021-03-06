@@ -170,8 +170,8 @@ class AudioDataset(myDataset):
                 parts = line.strip().split(' ')
                 utt_id = parts[0]
                 contents = parts[1:]
-                if len(contents) < 0 or len(contents) > self.max_target_length:
-                    continue
+                # if len(contents) < 0 or len(contents) > self.max_target_length:
+                #     continue
                 # if self.config.encoding:
                 labels = self.encode(contents)
                 # else:

@@ -8,7 +8,7 @@ data:
     right_context_width: 0
     frame_rate: 30
     apply_cmvn: True
-    max_input_length: 500
+    max_input_length: 500  # data_loader output T frames in (n * T * D)
     max_target_length: 50
     batch_size: 8
     short_first: True
