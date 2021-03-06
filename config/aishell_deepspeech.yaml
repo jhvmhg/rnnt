@@ -20,8 +20,10 @@ model:
     type: ctc
     enc:
         type: deep_speech
-        k1_size: 41, 11  #以逗号分隔
-        k2_size: 21, 11
+        cnn1_ksize: 41, 11  #以逗号分隔
+        k1_stride: 2, 1
+        cnn2_ksize: 21, 11
+        k2_stride: 2, 1
         hidden_size: 320
         output_size: 320
         n_layers: 3
