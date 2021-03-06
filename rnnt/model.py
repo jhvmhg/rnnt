@@ -127,7 +127,7 @@ class CTC(nn.Module):
         enc_state, _ = self.encoder(inputs, inputs_length)
 
         encoder_output = self.project_layer(enc_state)
-        encoder_output = torch.transpose(encoder_output,0,1)
+        encoder_output = torch.transpose(encoder_output, 0, 1)
         encoder_output = encoder_output.log_softmax(2)
 
         loss = self.crit(encoder_output, targets.int(), inputs_length.int(), targets_length.int())
