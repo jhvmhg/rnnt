@@ -127,17 +127,20 @@ class DeepSpeech(nn.Module):
         self.lookahead_context = 3
         self.bidirectional = bidirectional
 
+        cnn1_psize = (cnn1_ksize[0]//2, cnn1_ksize[0]//1)
+        cnn2_psize = (cnn2_ksize[0]//2, cnn2_ksize[0]//1)
+
         self.conv = MaskConv(nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=cnn1_ksize, stride=(2, 1), padding=(cnn1_ksize[0]//2, cnn1_ksize[0]//1)), ### stride=(2, 2)
+            nn.Conv2d(1, 32, kernel_size=cnn1_ksize, stride=(2, 1), padding=cnn1_psize), ### stride=(2, 2)
             nn.BatchNorm2d(32),
             nn.Hardtanh(0, 20, inplace=True),
-            nn.Conv2d(32, 32, kernel_size=cnn2_ksize, stride=(2, 1), padding=(cnn2_ksize[0]//2, cnn2_ksize[0]//1)),
+            nn.Conv2d(32, 32, kernel_size=cnn2_ksize, stride=(2, 1), padding=cnn2_psize),
             nn.BatchNorm2d(32),
             nn.Hardtanh(0, 20, inplace=True)
         ))
         # Based on above convolutions and spectrogram size using conv formula (input_size[0] - kernel_size[0] + 2*padding[0])/ stride[0] + 1
-        rnn_input_size = int(math.floor(input_size + 2 * 20 - 41) / 2 + 1)
-        rnn_input_size = int(math.floor(rnn_input_size + 2 * 10 - 21) / 2 + 1)
+        rnn_input_size = int(math.floor(input_size + 2 * cnn1_psize[0] - cnn1_ksize[0]) / 2 + 1)
+        rnn_input_size = int(math.floor(rnn_input_size + 2 * cnn2_psize[0] - cnn2_ksize[0]) / 2 + 1)
         rnn_input_size *= 32
 
         self.rnns = nn.Sequential(
