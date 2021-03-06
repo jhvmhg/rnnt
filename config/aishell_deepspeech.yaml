@@ -21,7 +21,7 @@ model:
     enc:
         type: deep_speech
         cnn1_ksize: 41, 11  #以逗号分隔
-        k1_stride: 2, 1
+        k1_stride: 2, 2
         cnn2_ksize: 21, 11
         k2_stride: 2, 1
         hidden_size: 320
