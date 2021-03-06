@@ -223,6 +223,7 @@ def main():
     else:
         visualizer = None
 
+    logger.info(model)
     for epoch in range(start_epoch, config.training.epochs):
 
         train(epoch, config, model, training_data,
