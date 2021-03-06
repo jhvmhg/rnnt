@@ -4,8 +4,8 @@ import numpy as np
 import os
 import kaldiio
 import torch
-from torch.utils.data import Sampler, Dataset, DataLoader
-from rnnt.data.utils import pad_np, get_idx2unit
+from torch.utils.data import Sampler, DataLoader
+from data.utils import pad_np, get_idx2unit
 
 
 class myDataset:

@@ -43,16 +43,3 @@ class BaseDecoder(nn.Module):
 
         return outputs, hidden
 
-
-def build_decoder(config):
-    if config.dec.type == 'lstm':
-        return BaseDecoder(
-            hidden_size=config.dec.hidden_size,
-            vocab_size=config.vocab_size,
-            output_size=config.dec.output_size,
-            n_layers=config.dec.n_layers,
-            dropout=config.dropout,
-            share_weight=config.share_weight
-        )
-    else:
-        raise NotImplementedError

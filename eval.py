@@ -4,9 +4,9 @@ import yaml
 import torch
 import torch.utils.data
 
-from rnnt.data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
-from rnnt.utils import AttrDict, init_logger, computer_cer
-from rnnt.checkpoint import new_model
+from data.dataset import AudioDataLoader, Batch_RandomSampler
+from utils.utils import AttrDict, init_logger, computer_cer
+from utils.checkpoint import new_model
 
 
 def eval(config, model, validating_data, logger, visualizer=None):

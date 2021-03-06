@@ -1,6 +1,4 @@
-import torch
-import torch.nn as nn
-from rnnt.deep_speech import *
+from ctc.deep_speech import *
 
 
 class BaseEncoder(nn.Module):
@@ -81,36 +79,3 @@ class CNN_LSTM(nn.Module):
         return logits, hidden
 
 
-def build_encoder(config):
-    if config.enc.type == 'lstm':
-        return BaseEncoder(
-            input_size=config.feature_dim,
-            hidden_size=config.enc.hidden_size,
-            output_size=config.enc.output_size,
-            n_layers=config.enc.n_layers,
-            dropout=config.dropout,
-            bidirectional=config.enc.bidirectional
-        )
-    elif config.enc.type == 'cnn_lstm':
-        return CNN_LSTM(
-            input_size=config.feature_dim,
-            hidden_size=config.enc.hidden_size,
-            output_size=config.enc.output_size,
-            n_layers=config.enc.n_layers,
-            dropout=config.dropout,
-            bidirectional=config.enc.bidirectional
-        )
-    elif config.enc.type == 'deep_speech':
-        return DeepSpeech(
-            input_size=config.feature_dim,
-            rnn_hidden_size=config.enc.hidden_size,
-            rnn_hidden_layers=config.enc.n_layers,
-            output_size=config.enc.output_size,
-            cnn1_ksize=tuple([int(i) for i in config.enc.cnn1_ksize.split(",")]),
-            cnn1_stride=tuple([int(i) for i in config.enc.k1_stride.split(",")]),
-            cnn2_ksize=tuple([int(i) for i in config.enc.cnn2_ksize.split(",")]),
-            cnn2_stride=tuple([int(i) for i in config.enc.k2_stride.split(",")]),
-            bidirectional=config.enc.bidirectional
-        )
-    else:
-        raise NotImplementedError

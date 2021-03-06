@@ -6,12 +6,13 @@ import time
 import torch
 import torch.nn as nn
 import torch.utils.data
-from rnnt.model import Transducer, CTC
-from rnnt.optim import Optimizer
-from rnnt.data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
+from rnnt.model import Transducer
+from ctc.model import CTC
+from utils.optim import Optimizer
+from data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
-from rnnt.utils import AttrDict, init_logger, count_parameters, computer_cer
-from rnnt.checkpoint import save_model, load_rnn_t_model, load_ctc_model
+from utils.utils import AttrDict, init_logger, count_parameters, computer_cer
+from utils.checkpoint import save_model, load_rnn_t_model, load_ctc_model
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
@@ -76,9 +77,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
 def eval(epoch, config, model, validating_data, logger, visualizer=None):
     model.eval()
-    total_loss = 0
-    total_dist = 0
-    total_word = 0
+    total_loss, total_dist, total_word = 0, 0, 0
     batch_steps = len(validating_data)
     for step, (inputs, inputs_length, targets, targets_length) in enumerate(validating_data):
 
