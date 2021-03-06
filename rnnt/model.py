@@ -124,13 +124,13 @@ class CTC(nn.Module):
 
     def forward(self, inputs, inputs_length, targets, targets_length):
 
-        enc_state, _ = self.encoder(inputs, inputs_length)
+        enc_state, output_lengths = self.encoder(inputs, inputs_length)
 
         encoder_output = self.project_layer(enc_state)
         encoder_output = torch.transpose(encoder_output, 0, 1)
         encoder_output = encoder_output.log_softmax(2)
 
-        loss = self.crit(encoder_output, targets.int(), inputs_length.int(), targets_length.int())
+        loss = self.crit(encoder_output, targets.int(), output_lengths, targets_length.int())
 
         return loss
 
