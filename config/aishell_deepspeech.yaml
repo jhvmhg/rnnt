@@ -1,0 +1,49 @@
+units_type: character
+feature_source: kaldi
+feature_type: fbank
+data:
+    name: aishell
+    vocab: egs/aishell/data/vocab_new
+    left_context_width: 0
+    right_context_width: 0
+    frame_rate: 10
+    apply_cmvn: True
+    max_input_length: 2500
+    max_target_length: 50
+    batch_size: 24
+    short_first: True
+    shuffle: True
+    train: /home1/meichaoyang/workspace/git/kws/egs/aishell1/data/train
+    dev: /home1/meichaoyang/workspace/git/kws/egs/aishell1/data/dev
+    test: /home1/meichaoyang/workspace/git/kws/egs/aishell1/data/test
+model:
+    type: ctc
+    enc:
+        type: deep_speech
+        hidden_size: 320
+        output_size: 320
+        n_layers: 3
+        bidirectional: False
+    vocab_size: 4232
+    share_weight: False
+    feature_dim: 320
+    dropout: 0.3
+training:
+    load_model: False
+    load_encoder: False
+    load_decoder: False
+    eval_or_not: True
+    seed: 2019
+    num_gpu: 1
+    epochs: 60
+    max_grad_norm: 200
+    visualization: True
+    show_interval: 10
+    save_model: 3lstm_320henc_deep_speech
+optim:
+    type: sgd
+    lr: 0.0005
+    momentum: 0.9
+    decay_ratio: 0.8
+    weight_decay: 0
+    begin_to_adjust_lr: 10
