@@ -135,7 +135,7 @@ class DeepSpeech(nn.Module):
             nn.Hardtanh(0, 20, inplace=True)
         ))
         # Based on above convolutions and spectrogram size using conv formula (W - F + 2P)/ S+1
-        rnn_input_size = input_size*32
+        rnn_input_size = input_size*320
 
         self.rnns = nn.Sequential(
             BatchRNN(
