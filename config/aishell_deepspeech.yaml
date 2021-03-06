@@ -26,7 +26,7 @@ model:
         bidirectional: False
     vocab_size: 4232
     share_weight: False
-    feature_dim: 320
+    feature_dim: 80
     dropout: 0.3
 training:
     load_model: False
