@@ -34,7 +34,7 @@ def pad_np(inputs, max_length):
     dim = len(inputs[0].shape) + 1
     batch_zise = len(inputs)
     if dim == 2:  # batch_zise * target_len
-        pad_zeros_mat = np.zeros([batch_zise, max_length], dtype=np.int32)
+        pad_zeros_mat = np.zeros([batch_zise, max_length], dtype=np.int64)
         for x in range(batch_zise):
             pad_zeros_mat[x, :len(inputs[x])] = inputs[x]
 
