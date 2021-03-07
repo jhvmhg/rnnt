@@ -258,7 +258,7 @@ class Batch_RandomSampler(Sampler):
             end = start + self.batch_size
             end = end if end < self.index_length else self.index_length
 
-            yield [i for i in range(end, start, -1)]
+            yield [i for i in range(end-1, start-1, -1)]
             self.index += 1
 
         self.index = 0
