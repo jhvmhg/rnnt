@@ -64,7 +64,7 @@ def get_idx2unit(unit2idx):
     return idx2unit
 
 
-def get_dict_from_scp(vocab, func=None):
+def get_dict_from_scp(vocab, func=int):
     unit2idx = {}
     with codecs.open(vocab, 'r', encoding='utf-8') as fid:
         for line in fid:
