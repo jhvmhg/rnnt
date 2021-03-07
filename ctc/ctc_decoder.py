@@ -123,7 +123,7 @@ class BeamCTCDecoder(Decoder):
 
         strings = self.convert_to_strings(out, seq_lens)
         offsets = self.convert_tensor(offsets, seq_lens)
-        return strings, offsets
+        return strings, scores, offsets, seq_lens
 
 
 class GreedyDecoder(Decoder):
