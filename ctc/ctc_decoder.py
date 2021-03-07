@@ -18,6 +18,10 @@
 import torch
 from six.moves import xrange
 
+from ctc.ctc_decoder import BeamCTCDecoder
+from ctc.model import CTC
+from data.utils import pad_np, get_dict_from_scp, cmvn
+
 
 class Decoder(object):
     """
@@ -29,24 +33,25 @@ class Decoder(object):
         blank_index (int, optional): index for the blank '_' character. Defaults to 0.
     """
 
-    def __init__(self, labels, blank_index=0):
-        self.labels = labels
-        self.int_to_char = dict([(i, c) for (i, c) in enumerate(labels)])
+    def __init__(self, config, model, blank_index=0):
+        self.model = model
+        self.unit2idx = get_dict_from_scp(config.data.vocab, int)
+        self.labels = list(self.unit2idx)
+        self.int_to_char = dict([(i, c) for (i, c) in enumerate(self.labels)])
         self.blank_index = blank_index
-        space_index = len(labels)  # To prevent errors in decode, we add an out of bounds index for the space
-        if ' ' in labels:
-            space_index = labels.index(' ')
+        space_index = len(self.labels)  # To prevent errors in decode, we add an out of bounds index for the space
+        if ' ' in self.labels:
+            space_index = self.labels.index(' ')
         self.space_index = space_index
 
-    def decode(self, probs, sizes=None):
+    def decode(self, inputs, inputs_length):
         """
         Given a matrix of character probabilities, returns the decoder's
         best guess of the transcription
 
         Arguments:
-            probs: Tensor of character probabilities, where probs[c,t]
-                            is the probability of character c at time t
-            sizes(optional): Size of each sequence in the mini-batch
+            inputs: Tensor of fbank feature T * L * D
+            inputs_length(optional): Size of each sequence in the mini-batch
         Returns:
             string: sequence of the model's best guess for the transcription
         """
@@ -55,7 +60,8 @@ class Decoder(object):
 
 class BeamCTCDecoder(Decoder):
     def __init__(self,
-                 labels,
+                 config,
+                 model,
                  lm_path=None,
                  alpha=0,
                  beta=0,
@@ -64,13 +70,13 @@ class BeamCTCDecoder(Decoder):
                  beam_width=100,
                  num_processes=4,
                  blank_index=0):
-        super(BeamCTCDecoder, self).__init__(labels)
+        super(BeamCTCDecoder, self).__init__(config, model, blank_index=0)
         try:
             from ctcdecode import CTCBeamDecoder
         except ImportError:
             raise ImportError("BeamCTCDecoder requires paddledecoder package.")
-        labels = list(labels)  # Ensure labels are a list before passing to decoder
-        self._decoder = CTCBeamDecoder(labels, lm_path, alpha, beta, cutoff_top_n, cutoff_prob, beam_width,
+        # labels = list(labels)  # Ensure labels are a list before passing to decoder
+        self._decoder = CTCBeamDecoder(self.labels, lm_path, alpha, beta, cutoff_top_n, cutoff_prob, beam_width,
                                        num_processes, blank_index)
 
     def convert_to_strings(self, out, seq_len):
@@ -100,7 +106,8 @@ class BeamCTCDecoder(Decoder):
             results.append(utterances)
         return results
 
-    def decode(self, probs, sizes=None):
+    def decode(self, inputs, inputs_length):
+
         """
         Decodes probability output using ctcdecode package.
         Arguments:
@@ -110,7 +117,9 @@ class BeamCTCDecoder(Decoder):
         Returns:
             string: sequences of the model's best guess for the transcription
         """
-        probs = probs.cpu()
+
+        encoder_output, output_lengths = self.model.get_post(inputs, inputs_length)
+        probs, sizes = encoder_output.cpu(), output_lengths.cpu()
         out, scores, offsets, seq_lens = self._decoder.decode(probs, sizes)
 
         strings = self.convert_to_strings(out, seq_lens)

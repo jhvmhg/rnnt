@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 from utils.build_model import build_encoder
-from ctc.ctc_decoder import BeamCTCDecoder
 
 
 class CTC(nn.Module):
@@ -30,7 +29,7 @@ class CTC(nn.Module):
         return loss
 
     def recognize(self, inputs, inputs_length):
-        enc_states, _ = self.encoder(inputs, inputs_length)
+        enc_states, output_lengths = self.encoder(inputs, inputs_length)
         encoder_output = self.project_layer(enc_states)
 
         preds = torch.argmax(encoder_output, -1)
@@ -39,3 +38,9 @@ class CTC(nn.Module):
                for i in preds]
 
         return ans
+
+    def get_post(self, inputs, inputs_length):
+        enc_states, output_lengths = self.encoder(inputs, inputs_length)
+        encoder_output = self.project_layer(enc_states)
+
+        return encoder_output, output_lengths
