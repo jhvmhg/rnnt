@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 
 from utils.build_model import build_encoder
+from ctc.ctc_decoder import BeamCTCDecoder
 
 
 class CTC(nn.Module):

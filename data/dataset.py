@@ -5,7 +5,7 @@ import os
 import kaldiio
 import torch
 from torch.utils.data import Sampler, DataLoader
-from data.utils import pad_np, get_idx2unit
+from data.utils import pad_np, get_idx2unit, get_dict_from_scp, cmvn
 
 
 class myDataset:
@@ -55,11 +55,6 @@ class myDataset:
         for spkid, stats in cmvn_reader:
             self.cmvn_stats_dict[spkid] = stats
 
-    def cmvn(self, mat, stats):
-        mean = stats[0, :-1] / stats[0, -1]
-        variance = stats[1, :-1] / stats[0, -1] - np.square(mean)
-        return np.divide(np.subtract(mat, mean), np.sqrt(variance))
-
     def concat_frame(self, features):
         time_steps, features_dim = features.shape
         concated_features = np.zeros(
@@ -106,10 +101,10 @@ class AudioDataset(myDataset):
         self.short_first = config.short_first
 
         # if self.config.encoding:
-        self.unit2idx = self.get_vocab_map()
+        self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
         self.idx2unit = get_idx2unit(self.unit2idx)
         self.targets_dict = self.get_targets_dict()
-        self.utt2num_frames_dict = self.get_utt_frames()
+        self.utt2num_frames_dict = get_dict_from_scp(self.utt2num_frames_txt, lambda x: int(x))
 
         if self.short_first and dataset_type == 'train':
             self.sorted_list = sorted(self.utt2num_frames_dict.items(), key=lambda x: x[1], reverse=False)
@@ -134,7 +129,7 @@ class AudioDataset(myDataset):
         if self.apply_cmvn:
             spk_id = self.utt2spk[utt_id]
             stats = self.cmvn_stats_dict[spk_id]
-            features = self.cmvn(features, stats)
+            features = cmvn(features, stats)
 
         features = self.concat_frame(features)
         features = self.subsampling(features)
@@ -153,16 +148,6 @@ class AudioDataset(myDataset):
     def __len__(self):
         return self.lengths
 
-    def get_vocab_map(self):
-        unit2idx = {}
-        with codecs.open(self.vocab, 'r', encoding='utf-8') as fid:
-            for line in fid:
-                parts = line.strip().split()
-                unit = parts[0]
-                idx = int(parts[1])
-                unit2idx[unit] = idx
-        return unit2idx
-
     def get_targets_dict(self):
         targets_dict = {}
         with codecs.open(self.text, 'r', encoding='utf-8') as fid:
@@ -178,14 +163,6 @@ class AudioDataset(myDataset):
                 #     labels = [int(i) for i in contents]
                 targets_dict[utt_id] = labels
         return targets_dict
-
-    def get_utt_frames(self):
-        utt2num_frames_dict = {}
-        with codecs.open(self.utt2num_frames_txt, 'r', encoding='utf-8') as fid:
-            for line in fid:
-                parts = line.strip().split(' ')
-                utt2num_frames_dict[parts[0]] = int(parts[1])
-        return utt2num_frames_dict
 
     def encode(self, seq):
 
@@ -258,7 +235,7 @@ class Batch_RandomSampler(Sampler):
             end = start + self.batch_size
             end = end if end < self.index_length else self.index_length
 
-            yield [i for i in range(end-1, start-1, -1)]
+            yield [i for i in range(end - 1, start - 1, -1)]
             self.index += 1
 
         self.index = 0
@@ -269,5 +246,4 @@ class Batch_RandomSampler(Sampler):
 
     def set_epoch(self, epoch):
         self.epoch = epoch
-
 

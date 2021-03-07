@@ -44,4 +44,4 @@ model:
 ```
 
 ## Acknowledge
-Thanks to [warp-transducer](https://github.com/HawkAaron/warp-transducer).
+Thanks to [warp-transducer](https://github.com/HawkAaron/warp-transducer) and [ctc-decoder](https://github.com/parlance/ctcdecode).

@@ -1,4 +1,5 @@
 import numpy as np
+import codecs
 
 
 def pad(inputs, max_length):
@@ -49,9 +50,26 @@ def pad_np(inputs, max_length):
     return pad_zeros_mat
 
 
+def cmvn(mat, stats):
+    mean = stats[0, :-1] / stats[0, -1]
+    variance = stats[1, :-1] / stats[0, -1] - np.square(mean)
+    return np.divide(np.subtract(mat, mean), np.sqrt(variance))
+
+
 def get_idx2unit(unit2idx):
     idx2unit = {}
     for i in unit2idx:
         idx2unit[int(unit2idx[i])] = i
 
     return idx2unit
+
+
+def get_dict_from_scp(vocab, func=None):
+    unit2idx = {}
+    with codecs.open(vocab, 'r', encoding='utf-8') as fid:
+        for line in fid:
+            parts = line.strip().split()
+            unit = parts[0]
+            idx = func(parts[1])
+            unit2idx[unit] = idx
+    return unit2idx
