@@ -5,7 +5,7 @@ import os
 import kaldiio
 import torch
 from torch.utils.data import Sampler, DataLoader
-from data.utils import pad_np, get_idx2unit, get_dict_from_scp, cmvn
+from data.utils import pad_np, get_dict_from_scp, cmvn
 
 
 class myDataset:
@@ -102,7 +102,7 @@ class AudioDataset(myDataset):
 
         # if self.config.encoding:
         self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
-        self.idx2unit = get_idx2unit(self.unit2idx)
+        self.idx2unit = dict([(i, c) for (i, c) in enumerate(self.unit2idx)])
         self.targets_dict = self.get_targets_dict()
         self.utt2num_frames_dict = get_dict_from_scp(self.utt2num_frames_txt, lambda x: int(x))
 

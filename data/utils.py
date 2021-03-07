@@ -56,14 +56,6 @@ def cmvn(mat, stats):
     return np.divide(np.subtract(mat, mean), np.sqrt(variance))
 
 
-def get_idx2unit(unit2idx):
-    idx2unit = {}
-    for i in unit2idx:
-        idx2unit[int(unit2idx[i])] = i
-
-    return idx2unit
-
-
 def get_dict_from_scp(vocab, func=int):
     unit2idx = {}
     with codecs.open(vocab, 'r', encoding='utf-8') as fid:
