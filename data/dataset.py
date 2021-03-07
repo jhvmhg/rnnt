@@ -106,7 +106,7 @@ class AudioDataset(myDataset):
         self.targets_dict = self.get_targets_dict()
         self.utt2num_frames_dict = get_dict_from_scp(self.utt2num_frames_txt, lambda x: int(x))
 
-        if self.short_first and dataset_type == 'train':
+        if self.short_first:
             self.sorted_list = sorted(self.utt2num_frames_dict.items(), key=lambda x: x[1], reverse=False)
         else:
             self.sorted_list = None
