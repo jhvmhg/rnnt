@@ -67,7 +67,8 @@ class BeamCTCDecoder(Decoder):
                  cutoff_prob=1.0,
                  beam_width=100,
                  num_processes=4,
-                 blank_index=0):
+                 blank_index=0,
+                 log_probs_input=False):
         super(BeamCTCDecoder, self).__init__(config, model, blank_index=0)
         try:
             from ctcdecode import CTCBeamDecoder
@@ -75,7 +76,7 @@ class BeamCTCDecoder(Decoder):
             raise ImportError("BeamCTCDecoder requires paddledecoder package.")
         # labels = list(labels)  # Ensure labels are a list before passing to decoder
         self._decoder = CTCBeamDecoder(self.labels, lm_path, alpha, beta, cutoff_top_n, cutoff_prob, beam_width,
-                                       num_processes, blank_index)
+                                       num_processes, blank_index, log_probs_input)
 
     def convert_to_strings(self, out, seq_len):
         results = []
