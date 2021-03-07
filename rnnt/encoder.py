@@ -37,7 +37,7 @@ class BaseEncoder(nn.Module):
 
         logits = self.output_proj(outputs)
 
-        return logits, hidden
+        return logits, input_lengths
 
 
 class CNN_LSTM(nn.Module):
@@ -77,6 +77,6 @@ class CNN_LSTM(nn.Module):
 
         logits = self.output_proj(outputs)
 
-        return logits, hidden
+        return logits, input_lengths
 
 
