@@ -18,8 +18,6 @@
 import torch
 from six.moves import xrange
 
-from ctc.ctc_decoder import BeamCTCDecoder
-from ctc.model import CTC
 from data.utils import pad_np, get_dict_from_scp, cmvn
 
 
