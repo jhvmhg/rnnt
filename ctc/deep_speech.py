@@ -92,8 +92,9 @@ class MaskConv(nn.Module):
 
 
 class BatchRNN(nn.Module):
-    def __init__(self, input_size, hidden_size, rnn_type=nn.LSTM, bidirectional=False, batch_norm=True):
+    def __init__(self, input_size, hidden_size, rnn_type=nn.LSTM, bidirectional=False, batch_norm=True, input_sorted=True):
         super(BatchRNN, self).__init__()
+        self.input_sorted = input_sorted
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.bidirectional = bidirectional
@@ -108,7 +109,7 @@ class BatchRNN(nn.Module):
     def forward(self, x, output_lengths):
         if self.batch_norm is not None:
             x = self.batch_norm(x)
-        x = nn.utils.rnn.pack_padded_sequence(x, output_lengths, enforce_sorted=True)
+        x = nn.utils.rnn.pack_padded_sequence(x, output_lengths, enforce_sorted=self.input_sorted)
         x, h = self.rnn(x)
         x, _ = nn.utils.rnn.pad_packed_sequence(x)
         if self.bidirectional:
@@ -119,7 +120,7 @@ class BatchRNN(nn.Module):
 class DeepSpeech(nn.Module):
     def __init__(self, input_size, rnn_hidden_size, rnn_hidden_layers, output_size,
                  cnn1_ksize=(41, 11), cnn1_stride=(2, 1), cnn2_ksize=(21, 11), cnn2_stride=(2, 1),
-                 bidirectional=False):
+                 bidirectional=False, input_sorted=False):
         super().__init__()
 
         self.hidden_size = rnn_hidden_size
@@ -151,14 +152,16 @@ class DeepSpeech(nn.Module):
                 hidden_size=self.hidden_size,
                 rnn_type=self.rnn_type,
                 bidirectional=self.bidirectional,
-                batch_norm=False
+                batch_norm=False,
+                input_sorted=input_sorted
             ),
             *(
                 BatchRNN(
                     input_size=self.hidden_size,
                     hidden_size=self.hidden_size,
                     rnn_type=self.rnn_type,
-                    bidirectional=self.bidirectional
+                    bidirectional=self.bidirectional,
+                    input_sorted=input_sorted
                 ) for x in range(self.rnn_hidden_layers - 1)
             )
         )

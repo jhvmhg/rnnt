@@ -28,6 +28,7 @@ model:
         output_size: 320
         n_layers: 3
         bidirectional: False
+        input_sorted: False
     vocab_size: 4232
     share_weight: False
     feature_dim: 80

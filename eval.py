@@ -67,7 +67,7 @@ def main():
 
     dev_dataset = (config.data, 'dev')
     dev_sampler = Batch_RandomSampler(len(dev_dataset),
-                                      batch_size=batch_size, shuffle=False)
+                                      batch_size=batch_size, shuffle=config.data.shuffle)
     validate_data = AudioDataLoader(
         dataset=dev_dataset,
         num_workers=num_workers,
