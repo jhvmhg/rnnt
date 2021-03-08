@@ -50,6 +50,7 @@ evaling:
     lm_model: "text_lm_.apra"
     num_gpu: 1
     show_interval: 10
+    seed: 2019
 optim:
     type: adam
     lr: 0.0005

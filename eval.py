@@ -81,12 +81,12 @@ def main():
     )
     logger.info('Load Dev Set!')
 
-    if config.training.num_gpu > 0:
-        torch.cuda.manual_seed(config.training.seed)
+    if config.evaling.num_gpu > 0:
+        torch.cuda.manual_seed(config.evaling.seed)
         torch.backends.cudnn.deterministic = True
     else:
-        torch.manual_seed(config.training.seed)
-    logger.info('Set random seed: %d' % config.training.seed)
+        torch.manual_seed(config.evaling.seed)
+    logger.info('Set random seed: %d' % config.evaling.seed)
 
     if config.evaling.num_gpu == 0:
         checkpoint = torch.load(config.evaling.load_model, map_location='cpu')
@@ -100,7 +100,7 @@ def main():
     if config.model.type == "ctc" and config.evaling.lm_model:
         beamctc_decoder = BeamCTCDecoder(config.data.vocab, model, lm_path=config.evaling.lm_model,
                                          log_probs_input=True, beam_width=10)
-    if config.training.num_gpu > 0:
+    if config.evaling.num_gpu > 0:
         model = model.cuda()
 
     _ = eval(config, model, validate_data, logger, beamctc_decoder)
