@@ -100,7 +100,7 @@ def main():
     if config.evaling.num_gpu > 0:
         model = model.cuda()
 
-    _ = eval(config, model, validate_data, logger, beamctc_decoder)
+    _ = eval(config, model, validate_data, logger, beamctc_decoder=beamctc_decoder)
 
 
 if __name__ == '__main__':
