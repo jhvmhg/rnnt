@@ -70,7 +70,7 @@ def main():
     num_workers = 6 * (config.evaling.num_gpu if config.evaling.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.evaling.num_gpu if config.evaling.num_gpu > 0 else config.data.batch_size
 
-    dev_dataset = AudioDataset(config.data, 'dev')
+    dev_dataset = AudioDataset(config.data, 'test')
     dev_sampler = Batch_RandomSampler(len(dev_dataset),
                                       batch_size=batch_size, shuffle=config.data.shuffle)
     validate_data = AudioDataLoader(
