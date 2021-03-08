@@ -18,7 +18,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
     batch_steps = len(validating_data)
     for step, (inputs, inputs_length, targets, targets_length) in enumerate(validating_data):
 
-        if config.training.num_gpu > 0:
+        if config.evaling.num_gpu > 0:
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
