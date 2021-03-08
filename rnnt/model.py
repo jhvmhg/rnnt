@@ -65,7 +65,7 @@ class Transducer(nn.Module):
 
         logits = self.joint(enc_state, dec_state)
 
-        loss = self.crit(logits, targets.int(), output_length.int(), targets_length.int())
+        loss = self.crit(logits, targets.int(), output_length.int().cuda(), targets_length.int())
 
         return loss
 
