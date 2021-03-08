@@ -24,7 +24,8 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
 
         if beamctc_decoder:
             results_strings, results_tensor, scores, offsets, seq_lens = beamctc_decoder.decode(inputs, inputs_length)
-            preds = [i[0] for i in results_tensor]
+            # preds = [i[0] for i in results_tensor]
+            preds = [[k.item() for k in j[0][:seq_lens[i][0]]] for i, j in enumerate(results_tensor)]
         else:
             preds = model.recognize(inputs, inputs_length)
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
