@@ -48,8 +48,9 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         total_loss += loss.item()
 
-        if step % 4 != 0:
-            continue
+        if step % 4 == 0:
+            optimizer.step()
+            optimizer.zero_grad()
 
         if config.training.max_grad_norm:
             grad_norm = nn.utils.clip_grad_norm_(
