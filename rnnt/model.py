@@ -60,14 +60,16 @@ class Transducer(nn.Module):
 
         enc_state, output_length = self.encoder(inputs, inputs_length)
         if enc_state.is_cuda:
-            output_length = output_length.cuda()
+            output_length = output_length.int().cuda()
+        else:
+            output_length = output_length.int()
         concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
 
         dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
 
         logits = self.joint(enc_state, dec_state)
 
-        loss = self.crit(logits, targets, output_length, targets_length)
+        loss = self.crit(logits, targets.int(), output_length, targets_length.int())
 
         return loss
 
