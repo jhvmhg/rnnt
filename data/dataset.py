@@ -9,9 +9,9 @@ from data.utils import pad_np, get_dict_from_scp, cmvn
 
 
 class myDataset:
-    def __init__(self, config, type):
+    def __init__(self, config, dataset_type):
 
-        self.type = type
+        self.type = dataset_type
         self.name = config.name
         self.left_context_width = config.left_context_width
         self.right_context_width = config.right_context_width
@@ -22,15 +22,15 @@ class myDataset:
         self.max_target_length = config.max_target_length
         self.vocab = config.vocab
 
-        self.arkscp = os.path.join(config.__getattr__(type), 'feats.scp')
+        self.arkscp = os.path.join(config.__getattr__(dataset_type), 'feats.scp')
 
         if self.apply_cmvn:
             self.utt2spk = {}
-            with open(os.path.join(config.__getattr__(type), 'utt2spk'), 'r') as fid:
+            with open(os.path.join(config.__getattr__(dataset_type), 'utt2spk'), 'r') as fid:
                 for line in fid:
                     parts = line.strip().split()
                     self.utt2spk[parts[0]] = parts[1]
-            self.cmvnscp = os.path.join(config.__getattr__(type), 'cmvn.scp')
+            self.cmvnscp = os.path.join(config.__getattr__(dataset_type), 'cmvn.scp')
             self.cmvn_stats_dict = {}
             self.get_cmvn_dict()
 
