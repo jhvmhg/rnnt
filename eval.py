@@ -7,7 +7,7 @@ import torch.utils.data
 from data.dataset import AudioDataLoader, Batch_RandomSampler, AudioDataset
 from utils.utils import AttrDict, init_logger, computer_cer
 from utils.checkpoint import new_model
-from ctc.ctc_decoder import BeamCTCDecoder
+from ctc.ctc_decoder import BeamCTCDecoder, build_decoder
 
 
 def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):
@@ -95,10 +95,8 @@ def main():
 
     model = new_model(config, checkpoint)
 
-    beamctc_decoder = None
     if config.model.type == "ctc" and config.evaling.lm_model:
-        beamctc_decoder = BeamCTCDecoder(config.data.vocab, model, lm_path=config.evaling.lm_model,
-                                         log_probs_input=True, beam_width=10)
+        beamctc_decoder = build_decoder(config, model)
     if config.evaling.num_gpu > 0:
         model = model.cuda()
 

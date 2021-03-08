@@ -62,6 +62,7 @@ class BeamCTCDecoder(Decoder):
                             lmplz -o 4 -S50% --interpolate_unigrams 0  <text_lm > text_lm.apra`
                             or `awk '{$1="";print}' text | lmplz -o 4 -S50% --interpolate_unigrams 0  > text_lm.apra
     """
+
     def __init__(self,
                  vocab,
                  model,
@@ -192,3 +193,22 @@ class GreedyDecoder(Decoder):
                                                    remove_repetitions=True,
                                                    return_offsets=True)
         return strings, offsets
+
+
+def build_decoder(config, model):
+    beamctc_decoder = None
+    if config.model.type == "ctc" and config.evaling.lm_model:
+        alpha = config.evaling.alpha if config.evaling.alpha else 0.5
+        beta = config.evaling.alpha if config.evaling.beta else 0.5
+        cutoff_top_n = config.evaling.cutoff_top_n if config.evaling.cutoff_top_n else 40
+        cutoff_prob = config.evaling.cutoff_prob if config.evaling.cutoff_prob else 1.0
+        beam_width = config.evaling.beam_width if config.evaling.beam_width else 20
+        log_probs_input = config.evaling.log_probs_input if config.evaling.log_probs_input else True
+        beamctc_decoder = BeamCTCDecoder(config.data.vocab, model, lm_path=config.evaling.lm_model,
+                                         alpha=alpha,
+                                         beta=beta,
+                                         cutoff_top_n=cutoff_top_n,
+                                         cutoff_prob=cutoff_prob,
+                                         beam_width=beam_width,
+                                         log_probs_input=log_probs_input)
+    return beamctc_decoder
