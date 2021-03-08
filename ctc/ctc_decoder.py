@@ -57,6 +57,11 @@ class Decoder(object):
 
 
 class BeamCTCDecoder(Decoder):
+    """
+    language model train by `awk '{$1="";print}' text > text_lm
+                            lmplz -o 4 -S50% --interpolate_unigrams 0  <text_lm > text_lm.apra`
+                            or `awk '{$1="";print}' text | lmplz -o 4 -S50% --interpolate_unigrams 0  > text_lm.apra
+    """
     def __init__(self,
                  vocab,
                  model,
@@ -119,11 +124,11 @@ class BeamCTCDecoder(Decoder):
 
         encoder_output, output_lengths = self.model.get_post(inputs, inputs_length)
         probs, sizes = encoder_output.cpu(), output_lengths.cpu()
-        out, scores, offsets, seq_lens = self._decoder.decode(probs, sizes)
+        results_tensor, scores, offsets, seq_lens = self._decoder.decode(probs, sizes)
 
-        strings = self.convert_to_strings(out, seq_lens)
+        results_strings = self.convert_to_strings(results_tensor, seq_lens)
         offsets = self.convert_tensor(offsets, seq_lens)
-        return strings, scores, offsets, seq_lens
+        return results_strings, results_tensor, scores, offsets, seq_lens
 
 
 class GreedyDecoder(Decoder):

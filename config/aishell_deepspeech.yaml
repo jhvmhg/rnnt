@@ -45,6 +45,11 @@ training:
     visualization: True
     show_interval: 10
     save_model: 3lstm_320henc_deep_speech
+evaling:
+    load_model: "3lstm_320henc_deep_speech"
+    lm_model: "text_lm_.apra"
+    num_gpu: 1
+    show_interval: 10
 optim:
     type: adam
     lr: 0.0005

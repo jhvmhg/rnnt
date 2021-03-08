@@ -209,6 +209,8 @@ def main():
     logger.info('Created a %s optimizer.' % config.optim.type)
 
     if opt.mode == 'continue':
+        if not config.training.load_model:
+            raise Exception("if mode is 'continue', need 'config.training.load_model'")
         optimizer.load_state_dict(checkpoint['optimizer'])
         start_epoch = checkpoint['epoch']
         logger.info('Load Optimizer State!')

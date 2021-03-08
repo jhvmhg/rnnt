@@ -7,9 +7,10 @@ import torch.utils.data
 from data.dataset import AudioDataLoader, Batch_RandomSampler
 from utils.utils import AttrDict, init_logger, computer_cer
 from utils.checkpoint import new_model
+from ctc.ctc_decoder import BeamCTCDecoder
 
 
-def eval(config, model, validating_data, logger, visualizer=None):
+def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):
     model.eval()
     total_loss = 0
     total_dist = 0
@@ -22,7 +23,11 @@ def eval(config, model, validating_data, logger, visualizer=None):
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
         preds = model.recognize(inputs, inputs_length)
-
+        if beamctc_decoder:
+            results_strings, results_tensor, scores, offsets, seq_lens = beamctc_decoder.decode(inputs, inputs_length)
+            preds = [i[0] for i in results_tensor]
+        else:
+            preds = model.recognize(inputs, inputs_length)
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
                        for i in range(targets.size(0))]
 
@@ -51,7 +56,7 @@ def eval(config, model, validating_data, logger, visualizer=None):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-config', type=str, default='config/aishell.yaml')
-    parser.add_argument('-log', type=str, default='train.log')
+    parser.add_argument('-log', type=str, default='eval.log')
     parser.add_argument('-mode', type=str, default='retrain')
     opt = parser.parse_args()
 
@@ -86,14 +91,18 @@ def main():
         checkpoint = torch.load(config.training.new_model, map_location='cpu')
     else:
         checkpoint = torch.load(config.training.new_model)
-    print(str(checkpoint.keys()))
+    logger.info(str(checkpoint.keys()))
 
     model = new_model(config, checkpoint)
 
+    beamctc_decoder = None
+    if config.model.type == "ctc" and config.evaling.lm_model:
+        beamctc_decoder = BeamCTCDecoder(config.data.vocab, model, lm_path=config.evaling.lm_model,
+                                         log_probs_input=True, beam_width=10)
     if config.training.num_gpu > 0:
         model = model.cuda()
 
-    _ = eval(config, model, validate_data, logger)
+    _ = eval(config, model, validate_data, logger, beamctc_decoder)
 
 
 if __name__ == '__main__':
