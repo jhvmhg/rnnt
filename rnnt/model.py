@@ -59,13 +59,15 @@ class Transducer(nn.Module):
     def forward(self, inputs, inputs_length, targets, targets_length):
 
         enc_state, output_length = self.encoder(inputs, inputs_length)
+        if enc_state.is_cuda:
+            output_length = output_length.cuda()
         concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
 
         dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
 
         logits = self.joint(enc_state, dec_state)
 
-        loss = self.crit(logits, targets.int(), output_length.int().cuda(), targets_length.int())
+        loss = self.crit(logits, targets, output_length, targets_length)
 
         return loss
 
