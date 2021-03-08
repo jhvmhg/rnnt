@@ -88,10 +88,10 @@ def main():
         torch.manual_seed(config.training.seed)
     logger.info('Set random seed: %d' % config.training.seed)
 
-    if config.training.num_gpu == 0:
-        checkpoint = torch.load(config.training.new_model, map_location='cpu')
+    if config.evaling.num_gpu == 0:
+        checkpoint = torch.load(config.evaling.load_model, map_location='cpu')
     else:
-        checkpoint = torch.load(config.training.new_model)
+        checkpoint = torch.load(config.evaling.load_model)
     logger.info(str(checkpoint.keys()))
 
     model = new_model(config, checkpoint)
