@@ -127,8 +127,8 @@ class BeamCTCDecoder(Decoder):
 
 
 class GreedyDecoder(Decoder):
-    def __init__(self, labels, blank_index=0):
-        super(GreedyDecoder, self).__init__(labels, blank_index)
+    def __init__(self, vocab, blank_index=0):
+        super(GreedyDecoder, self).__init__(vocab, blank_index)
 
     def convert_to_strings(self,
                            sequences,
