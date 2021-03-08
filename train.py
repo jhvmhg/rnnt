@@ -36,8 +36,6 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         if config.optim.step_wise_update:
             optimizer.step_decay_lr()
 
-        if step == 1:
-            optimizer.zero_grad()
         start = time.process_time()
         loss = model(inputs, inputs_length, targets, targets_length)
 
@@ -47,10 +45,6 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         loss.backward()
 
         total_loss += loss.item()
-
-        if step % 4 == 0:
-            optimizer.step()
-            optimizer.zero_grad()
 
         if config.training.max_grad_norm:
             grad_norm = nn.utils.clip_grad_norm_(
