@@ -22,7 +22,6 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        preds = model.recognize(inputs, inputs_length)
         if beamctc_decoder:
             results_strings, results_tensor, scores, offsets, seq_lens = beamctc_decoder.decode(inputs, inputs_length)
             preds = [i[0] for i in results_tensor]
