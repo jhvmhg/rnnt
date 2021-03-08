@@ -58,10 +58,10 @@ class Transducer(nn.Module):
 
     def forward(self, inputs, inputs_length, targets, targets_length):
 
-        enc_state, _ = self.encoder(inputs, inputs_length)
+        enc_state, output_length = self.encoder(inputs, inputs_length)
         concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
 
-        dec_state, output_length = self.decoder(concat_targets, targets_length.add(1))
+        dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
 
         logits = self.joint(enc_state, dec_state)
 
