@@ -99,16 +99,17 @@ class BeamCTCDecoder(Decoder):
         return results
 
     def convert_tensor(self, offsets, sizes):
-        results = []
-        for b, batch in enumerate(offsets):
-            utterances = []
-            for p, utt in enumerate(batch):
-                size = sizes[b][p]
-                if sizes[b][p] > 0:
-                    utterances.append(utt[0:size])
-                else:
-                    utterances.append(torch.tensor([], dtype=torch.int))
-            results.append(utterances)
+        results = [[k.item() for k in j[0][:sizes[i][0]]] for i, j in enumerate(offsets)]
+        # results = []
+        # for b, batch in enumerate(offsets):
+        #     utterances = []
+        #     for p, utt in enumerate(batch):
+        #         size = sizes[b][p]
+        #         if sizes[b][p] > 0:
+        #             utterances.append(utt[0:size])
+        #         else:
+        #             utterances.append(torch.tensor([], dtype=torch.int))
+        #     results.append(utterances)
         return results
 
     def decode(self, inputs, inputs_length):
@@ -116,9 +117,9 @@ class BeamCTCDecoder(Decoder):
         """
         Decodes probability output using ctcdecode package.
         Arguments:
-            probs: Tensor of character probabilities, where probs[c,t]
+            inputs: Tensor of character probabilities, where probs[c,t]
                             is the probability of character c at time t
-            sizes: Size of each sequence in the mini-batch
+            inputs_length: Size of each sequence in the mini-batch
         Returns:
             string: sequences of the model's best guess for the transcription
         """
@@ -129,6 +130,8 @@ class BeamCTCDecoder(Decoder):
 
         results_strings = self.convert_to_strings(results_tensor, seq_lens)
         offsets = self.convert_tensor(offsets, seq_lens)
+        results_tensor = self.convert_tensor(results_tensor, seq_lens)
+
         return results_strings, results_tensor, scores, offsets, seq_lens
 
 
@@ -195,7 +198,7 @@ class GreedyDecoder(Decoder):
         return strings, offsets
 
 
-def build_decoder(config, model):
+def build_ctc_beam_decoder(config, model):
     beamctc_decoder = None
     if config.model.type == "ctc" and config.evaling.lm_model:
         alpha = config.evaling.alpha if config.evaling.alpha else 0.5
@@ -204,6 +207,7 @@ def build_decoder(config, model):
         cutoff_prob = config.evaling.cutoff_prob if config.evaling.cutoff_prob else 1.0
         beam_width = config.evaling.beam_width if config.evaling.beam_width else 20
         log_probs_input = config.evaling.log_probs_input if config.evaling.log_probs_input else True
+
         beamctc_decoder = BeamCTCDecoder(config.data.vocab, model, lm_path=config.evaling.lm_model,
                                          alpha=alpha,
                                          beta=beta,

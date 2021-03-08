@@ -1,13 +1,14 @@
-import os
 import argparse
-import yaml
+import os
+
 import torch
 import torch.utils.data
+import yaml
 
+from ctc.ctc_decoder import build_ctc_beam_decoder
 from data.dataset import AudioDataLoader, Batch_RandomSampler, AudioDataset
-from utils.utils import AttrDict, init_logger, computer_cer
 from utils.checkpoint import new_model
-from ctc.ctc_decoder import BeamCTCDecoder, build_decoder
+from utils.utils import AttrDict, init_logger, computer_cer
 
 
 def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):
@@ -23,9 +24,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
         if beamctc_decoder:
-            results_strings, results_tensor, scores, offsets, seq_lens = beamctc_decoder.decode(inputs, inputs_length)
-            # preds = [i[0] for i in results_tensor]
-            preds = [[k.item() for k in j[0][:seq_lens[i][0]]] for i, j in enumerate(results_tensor)]
+            results_strings, preds, scores, offsets, seq_lens = beamctc_decoder.decode(inputs, inputs_length)
         else:
             preds = model.recognize(inputs, inputs_length)
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
@@ -36,7 +35,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
         total_word += num_words
 
         cer = total_dist / total_word * 100
-        if step % config.training.show_interval == 0:
+        if step % config.evaling.show_interval == 0:
             process = step / batch_steps * 100
             logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % (process, cer))
             logger.info('preds:' + validating_data.dataset.decode(preds[0]))
@@ -68,8 +67,8 @@ def main():
         os.makedirs(exp_name)
     logger = init_logger(os.path.join(exp_name, opt.log))
 
-    num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
-    batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
+    num_workers = 6 * (config.evaling.num_gpu if config.evaling.num_gpu > 0 else 1)
+    batch_size = config.data.batch_size * config.evaling.num_gpu if config.evaling.num_gpu > 0 else config.data.batch_size
 
     dev_dataset = AudioDataset(config.data, 'dev')
     dev_sampler = Batch_RandomSampler(len(dev_dataset),
@@ -97,7 +96,7 @@ def main():
     model = new_model(config, checkpoint)
 
     if config.model.type == "ctc" and config.evaling.lm_model:
-        beamctc_decoder = build_decoder(config, model)
+        beamctc_decoder = build_ctc_beam_decoder(config, model)
     if config.evaling.num_gpu > 0:
         model = model.cuda()
 
