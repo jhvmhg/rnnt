@@ -95,8 +95,7 @@ def main():
 
     model = new_model(config, checkpoint)
 
-    if config.model.type == "ctc" and config.evaling.lm_model:
-        beamctc_decoder = build_ctc_beam_decoder(config, model)
+    beamctc_decoder = build_ctc_beam_decoder(config, model)
     if config.evaling.num_gpu > 0:
         model = model.cuda()
 
