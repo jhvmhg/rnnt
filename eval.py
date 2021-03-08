@@ -4,7 +4,7 @@ import yaml
 import torch
 import torch.utils.data
 
-from data.dataset import AudioDataLoader, Batch_RandomSampler
+from data.dataset import AudioDataLoader, Batch_RandomSampler, AudioDataset
 from utils.utils import AttrDict, init_logger, computer_cer
 from utils.checkpoint import new_model
 from ctc.ctc_decoder import BeamCTCDecoder
@@ -71,7 +71,7 @@ def main():
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
 
-    dev_dataset = (config.data, 'dev')
+    dev_dataset = AudioDataset(config.data, 'dev')
     dev_sampler = Batch_RandomSampler(len(dev_dataset),
                                       batch_size=batch_size, shuffle=config.data.shuffle)
     validate_data = AudioDataLoader(
