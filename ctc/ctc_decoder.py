@@ -31,9 +31,9 @@ class Decoder(object):
         blank_index (int, optional): index for the blank '_' character. Defaults to 0.
     """
 
-    def __init__(self, config, model, blank_index=0):
+    def __init__(self, vocab, model, blank_index=0):
         self.model = model
-        self.unit2idx = get_dict_from_scp(config.data.vocab, int)
+        self.unit2idx = get_dict_from_scp(vocab, int)
         self.labels = list(self.unit2idx)
         self.int_to_char = dict([(i, c) for (i, c) in enumerate(self.labels)])
         self.blank_index = blank_index
@@ -58,7 +58,7 @@ class Decoder(object):
 
 class BeamCTCDecoder(Decoder):
     def __init__(self,
-                 config,
+                 vocab,
                  model,
                  lm_path=None,
                  alpha=0,
@@ -69,7 +69,7 @@ class BeamCTCDecoder(Decoder):
                  num_processes=4,
                  blank_index=0,
                  log_probs_input=False):
-        super(BeamCTCDecoder, self).__init__(config, model, blank_index=0)
+        super(BeamCTCDecoder, self).__init__(vocab, model, blank_index=0)
         try:
             from ctcdecode import CTCBeamDecoder
         except ImportError:
