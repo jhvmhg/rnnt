@@ -207,6 +207,7 @@ def build_ctc_beam_decoder(config, model):
         cutoff_prob = config.evaling.cutoff_prob if config.evaling.cutoff_prob else 1.0
         beam_width = config.evaling.beam_width if config.evaling.beam_width else 20
         log_probs_input = config.evaling.log_probs_input if config.evaling.log_probs_input else True
+        num_processes = config.evaling.beam_decoder_num_processes if config.evaling.beam_decoder_num_processes else 4
 
         beamctc_decoder = BeamCTCDecoder(config.data.vocab, model, lm_path=config.evaling.lm_model,
                                          alpha=alpha,
@@ -214,5 +215,7 @@ def build_ctc_beam_decoder(config, model):
                                          cutoff_top_n=cutoff_top_n,
                                          cutoff_prob=cutoff_prob,
                                          beam_width=beam_width,
-                                         log_probs_input=log_probs_input)
+                                         log_probs_input=log_probs_input,
+                                         num_processes=num_processes
+                                         )
     return beamctc_decoder
