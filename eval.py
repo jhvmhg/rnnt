@@ -24,7 +24,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
         if beamctc_decoder:
-            results_strings, preds, scores, offsets, seq_lens = beamctc_decoder.decode(inputs, inputs_length)
+            results_strings, preds, scores, offsets = beamctc_decoder.decode(inputs, inputs_length)
         else:
             preds = model.recognize(inputs, inputs_length)
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
