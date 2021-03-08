@@ -61,11 +61,11 @@ class Transducer(nn.Module):
         enc_state, _ = self.encoder(inputs, inputs_length)
         concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
 
-        dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
+        dec_state, output_length = self.decoder(concat_targets, targets_length.add(1))
 
         logits = self.joint(enc_state, dec_state)
 
-        loss = self.crit(logits, targets.int(), inputs_length.int(), targets_length.int())
+        loss = self.crit(logits, targets.int(), output_length.int(), targets_length.int())
 
         return loss
 
