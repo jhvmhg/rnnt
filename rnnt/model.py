@@ -59,7 +59,7 @@ class Transducer(nn.Module):
     def forward(self, inputs, inputs_length, targets, targets_length):
 
         enc_state, _ = self.encoder(inputs, inputs_length)
-        concat_targets = F.pad(targets, pad=(1, 0, 0, 0), value=0)
+        concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
 
         dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
 
