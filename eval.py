@@ -78,7 +78,7 @@ def main():
         num_workers=num_workers,
         batch_sampler=dev_sampler
     )
-    logger.info('Load Dev Set!')
+    logger.info('Load Test Set!')
 
     if config.evaling.num_gpu > 0:
         torch.cuda.manual_seed(config.evaling.seed)
