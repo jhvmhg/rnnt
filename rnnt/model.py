@@ -155,7 +155,7 @@ class LM(nn.Module):
         index = 0
         inputs_seq = torch.zeros((inputs_length.sum().item(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
         if logits.is_cuda:
-            targets_seq = inputs_seq.cuda()
+            inputs_seq = inputs_seq.cuda()
         for i, b in enumerate(logits):
             inputs_seq.narrow(0, index, inputs_length[i]).copy_(b[:inputs_length[i], :])
             index += inputs_length[i]
