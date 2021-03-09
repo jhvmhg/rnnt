@@ -51,7 +51,7 @@ class Transducer(nn.Module):
 
         if config.share_embedding:
             assert self.decoder.embedding.weight.size() == self.joint.project_layer.weight.size(), '%d != %d' % (
-            self.decoder.embedding.weight.size(1), self.joint.project_layer.weight.size(1))
+                self.decoder.embedding.weight.size(1), self.joint.project_layer.weight.size(1))
             self.joint.project_layer.weight = self.decoder.embedding.weight
 
         self.crit = RNNTLoss()
@@ -133,13 +133,24 @@ class LM(nn.Module):
         inputs: N*T
         targets: N*T
         """
-        enc_states = self.decoder(inputs, inputs_length)[0]  # enc_states: N*T*D
-        logits = self.project_layer(enc_states)  # logits: N*T*C
-        logits = self.reshape_logits(logits, inputs_length) # (N*T) * C
-        targets = self.reshape_targets(targets, targets_length) # (N*T)
+        dec_states = self.decoder(inputs, inputs_length)[0]  # enc_states: N*T*D
+        logits = self.project_layer(dec_states)  # logits: N*T*C
+        logits = self.reshape_logits(logits, inputs_length)  # (N*T) * C
+        targets = self.reshape_targets(targets, targets_length)  # (N*T)
         loss = self.crit(logits, targets)
 
         return loss
+
+    def recognize(self, inputs, inputs_length):
+        dec_states = self.decoder(inputs, inputs_length)[0]  # enc_states: N*T*D
+        logits = self.project_layer(dec_states)  # logits: N*T*C
+
+        preds = torch.argmax(logits, -1)
+
+        ans = [j[:inputs_length[i].item()]
+               for i, j in enumerate(preds)]
+
+        return ans
 
     def reshape_targets(self, targets, targets_length):
         index = 0
@@ -153,7 +164,8 @@ class LM(nn.Module):
 
     def reshape_logits(self, logits, inputs_length):
         index = 0
-        inputs_seq = torch.zeros((inputs_length.sum().item(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
+        inputs_seq = torch.zeros((inputs_length.sum().item(), self.vocab_size),
+                                 dtype=torch.float32)  # targets_length.sum()
         if logits.is_cuda:
             inputs_seq = inputs_seq.cuda()
         for i, b in enumerate(logits):
