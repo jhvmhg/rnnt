@@ -144,6 +144,8 @@ class LM(nn.Module):
     def reshape_targets(self, targets, targets_length):
         index = 0
         targets_seq = torch.zeros(targets_length.sum(), dtype=torch.int64)  # targets_length.sum()
+        if targets.is_cuda:
+            targets_seq = targets_seq.cuda()
         for i, b in enumerate(targets):
             targets_seq.narrow(0, index, targets_length[i]).copy_(b[:targets_length[i]])
             index += targets_length[i]
@@ -152,6 +154,8 @@ class LM(nn.Module):
     def reshape_logits(self, logits, inputs_length):
         index = 0
         inputs_seq = torch.zeros((inputs_length.sum().item(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
+        if logits.is_cuda:
+            targets_seq = inputs_seq.cuda()
         for i, b in enumerate(logits):
             inputs_seq.narrow(0, index, inputs_length[i]).copy_(b[:inputs_length[i], :])
             index += inputs_length[i]
