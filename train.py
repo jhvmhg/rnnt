@@ -12,7 +12,7 @@ from utils.optim import Optimizer
 from data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from utils.utils import AttrDict, init_logger, count_parameters, computer_cer
-from utils.checkpoint import save_model, load_rnn_t_model, load_ctc_model
+from utils.checkpoint import save_model, load_model, load_ctc_model
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
@@ -28,10 +28,6 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        # max_inputs_length = inputs_length.max().item()
-        # max_targets_length = targets_length.max().item()
-        # inputs = inputs[:, :max_inputs_length, :]
-        # targets = targets[:, :max_targets_length]
 
         if config.optim.step_wise_update:
             optimizer.step_decay_lr()
@@ -54,13 +50,15 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         optimizer.step()
 
+        avg_loss = total_loss / (step + 1)
         if visualizer is not None:
             visualizer.add_scalar(
                 'train_loss', loss.item(), optimizer.global_step)
             visualizer.add_scalar(
                 'learn_rate', optimizer.lr, optimizer.global_step)
+            visualizer.add_scalar(
+                'avg_loss', avg_loss, optimizer.global_step)
 
-        avg_loss = total_loss / (step + 1)
         if optimizer.global_step % config.training.show_interval == 0:
             end = time.process_time()
             process = step / batch_steps * 100
@@ -178,14 +176,9 @@ def main():
         else:
             checkpoint = torch.load(config.training.load_model)
         print(str(checkpoint.keys()))
-        if config.model.type == "transducer":
-            load_rnn_t_model(model, checkpoint)
-        elif config.model.type == "ctc":
-            load_ctc_model(model, checkpoint)
-        else:
-            raise NotImplementedError
+        load_model(model, checkpoint)
         logger.info('Loaded model from %s' % config.training.new_model)
-    elif config.training.load_encoder or config.training.load_decoder:
+    if config.training.load_encoder or config.training.load_decoder:
         if config.training.load_encoder:
             checkpoint = torch.load(config.training.load_encoder)
             model.encoder.load_state_dict(checkpoint['encoder'])
