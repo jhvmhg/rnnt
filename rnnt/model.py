@@ -151,7 +151,7 @@ class LM(nn.Module):
 
     def reshape_logits(self, logits, output_lengths):
         index = 0
-        inputs_seq = torch.zeros((logits.sum(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
+        inputs_seq = torch.zeros((output_lengths.sum().item(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
         for i, b in enumerate(logits):
             inputs_seq.narrow(0, index, output_lengths[i]).copy_(b[:output_lengths[i], :])
             index += output_lengths[i]
