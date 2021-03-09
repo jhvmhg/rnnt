@@ -12,7 +12,7 @@ from utils.optim import Optimizer
 from data.dataset import LmDataset, LMDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from utils.utils import AttrDict, init_logger
-from utils.checkpoint import save_model, load_rnn_t_model, load_ctc_model, load_language_model
+from utils.checkpoint import save_model, load_model, load_ctc_model, load_language_model
 
 from train import train, eval
 
@@ -80,14 +80,15 @@ def main():
         else:
             checkpoint = torch.load(config.training.load_model)
         print(str(checkpoint.keys()))
-        if config.model.type == "transducer":
-            load_rnn_t_model(model, checkpoint)
-        elif config.model.type == "ctc":
-            load_ctc_model(model, checkpoint)
-        elif config.model.type == "lm":
-            load_language_model(model, checkpoint)
-        else:
-            raise NotImplementedError
+        load_model(model, checkpoint)
+        # if config.model.type == "transducer":
+        #     load_rnn_t_model(model, checkpoint)
+        # elif config.model.type == "ctc":
+        #     load_ctc_model(model, checkpoint)
+        # elif config.model.type == "lm":
+        #     load_language_model(model, checkpoint)
+        # else:
+        #     raise NotImplementedError
         logger.info('Loaded model from %s' % config.training.new_model)
     elif config.training.load_encoder or config.training.load_decoder:
         if config.training.load_encoder:
