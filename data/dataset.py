@@ -211,6 +211,7 @@ class LmDataset():
         self.vocab = config.vocab
         self.text = config.__getattr__(txt_path)
         self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
+        self.idx2unit = dict([(i, c) for (i, c) in enumerate(self.unit2idx)])
         self.targets_dict = self.get_targets_dict()
         self.max_target_length = config.max_target_length
         self.short_first = config.short_first
@@ -236,6 +237,12 @@ class LmDataset():
 
     def encode(self, seq):
         return [self.unit2idx[unit] if unit in self.unit2idx else self.unit2idx['<unk>'] for unit in seq]
+
+    def decode(self, seq, rm_blk=False):
+
+        if rm_blk:
+            return " ".join([self.idx2unit[int(i)] for i in seq if i > 0])
+        return " ".join([self.idx2unit[int(i)] for i in seq])
 
     def __getitem__(self, index):
         utt_id = self.sorted_list[index][0]
