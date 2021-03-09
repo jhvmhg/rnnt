@@ -34,7 +34,7 @@ training:
     load_decoder: False
     eval_or_not: True
     seed: 2019
-    num_gpu: 1
+    gpus: "1"
     epochs: 60
     max_grad_norm: 200
     visualization: True

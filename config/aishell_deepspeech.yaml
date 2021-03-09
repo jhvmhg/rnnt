@@ -53,7 +53,7 @@ evaling:
     beta: 1.55
     beam_width: 20
     beam_decoder_num_processes: 8
-    num_gpu: 1
+    gpus: "1"
     show_interval: 10
     seed: 2019
 optim:
