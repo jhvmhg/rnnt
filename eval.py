@@ -93,7 +93,7 @@ def main():
         checkpoint = torch.load(config.evaling.load_model)
     logger.info(str(checkpoint.keys()))
 
-    model = new_model(config, checkpoint)
+    model = new_model(config, checkpoint).no_grad()
 
     beamctc_decoder = build_ctc_beam_decoder(config, model)
     if config.evaling.num_gpu > 0:
