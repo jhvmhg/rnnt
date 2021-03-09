@@ -212,6 +212,7 @@ class LmDataset():
         self.text = config.__getattr__(txt_path)
         self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
         self.targets_dict = self.get_targets_dict()
+        self.max_target_length = config.max_target_length
         self.short_first = config.short_first
         if self.short_first:
             self.sorted_list = sorted(self.targets_dict.items(), key=lambda x: len(x[1]), reverse=False)
