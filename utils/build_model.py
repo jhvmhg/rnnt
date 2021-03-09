@@ -35,9 +35,9 @@ def build_encoder(config):
             cnn1_stride=tuple([int(i) for i in config.enc.k1_stride.split(",")]),
             cnn2_ksize=tuple([int(i) for i in config.enc.cnn2_ksize.split(",")]),
             cnn2_stride=tuple([int(i) for i in config.enc.k2_stride.split(",")]),
-            bidirectional=config.enc.bidirectional,
-            input_sorted=config.enc.input_sorted,
-            lookahead_context=config.enc.lookahead_context if config.enc.lookahead_context else 1
+            bidirectional=config.enc.bidirectional if config.enc.bidirectional else False,
+            input_sorted=config.enc.input_sorted if config.enc.input_sorted else True,
+            lookahead_context=config.enc.lookahead_context if config.enc.lookahead_context else 3
         )
     else:
         raise NotImplementedError
