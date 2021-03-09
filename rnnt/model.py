@@ -133,9 +133,9 @@ class LM(nn.Module):
         inputs: N*T
         targets: N*T
         """
-        enc_states, output_lengths = self.decoder(inputs, inputs_length)  # enc_states: N*T*D
+        enc_states = self.decoder(inputs, inputs_length)[0]  # enc_states: N*T*D
         logits = self.project_layer(enc_states)  # logits: N*T*C
-        logits = self.reshape_logits(logits, output_lengths)
+        logits = self.reshape_logits(logits, inputs_length)
         targets = self.reshape_targets(targets, targets_length)
         loss = self.crit(logits, targets)
 
@@ -149,10 +149,10 @@ class LM(nn.Module):
             index += targets_length[i]
         return targets_seq
 
-    def reshape_logits(self, logits, output_lengths):
+    def reshape_logits(self, logits, inputs_length):
         index = 0
-        inputs_seq = torch.zeros((output_lengths.sum().item(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
+        inputs_seq = torch.zeros((inputs_length.sum().item(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
         for i, b in enumerate(logits):
-            inputs_seq.narrow(0, index, output_lengths[i]).copy_(b[:output_lengths[i], :])
-            index += output_lengths[i]
+            inputs_seq.narrow(0, index, inputs_length[i]).copy_(b[:inputs_length[i], :])
+            index += inputs_length[i]
         return inputs_seq
