@@ -90,8 +90,8 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
                        for i in range(targets.size(0))]
 
         dist, num_words = computer_cer(preds, transcripts)
-        logger.info("preds[0]:", preds[0])
-        logger.info("transcripts[0]:", transcripts[0])
+        logger.info("preds[0]:"+str(preds[0]))
+        logger.info("transcripts[0]:"+str(transcripts[0]))
         total_dist += dist
         total_word += num_words
 
