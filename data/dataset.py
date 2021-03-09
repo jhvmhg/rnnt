@@ -218,6 +218,8 @@ class LmDataset():
         else:
             self.sorted_list = list(self.targets_dict)
 
+        self.lengths = len(self.sorted_list)
+
 
     def get_targets_dict(self):
         targets_dict = {}
@@ -250,6 +252,8 @@ class LmDataset():
 
         return input, inputs_length, targets, targets_length
 
+    def __len__(self):
+        return self.lengths
 
 
 class LMDataLoader(DataLoader):
