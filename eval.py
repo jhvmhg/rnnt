@@ -92,7 +92,7 @@ def main():
     else:
         checkpoint = torch.load(config.evaling.load_model)
     logger.info(str(checkpoint.keys()))
-    with torch.no_grad:
+    with torch.no_grad():
         model = new_model(config, checkpoint).eval()
 
         beamctc_decoder = build_ctc_beam_decoder(config, model)
