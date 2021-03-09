@@ -90,9 +90,9 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
             transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
                            for i in range(targets.size(0))]
 
-            dist, num_words = computer_cer(preds, transcripts.cpu())
+            dist, num_words = computer_cer(preds, transcripts)
             logger.info("preds[0]:"+str(preds[0]))
-            logger.info("trans[0]:"+str(transcripts[0]))
+            logger.info("trans[0]:"+str(transcripts[0]).cpu())
             total_dist += dist
             total_word += num_words
 
