@@ -13,10 +13,10 @@ class myDataset:
 
         self.type = dataset_type
         self.name = config.name
-        self.left_context_width = config.left_context_width
-        self.right_context_width = config.right_context_width
-        self.frame_rate = config.frame_rate
-        self.apply_cmvn = config.apply_cmvn
+        self.left_context_width = config.left_context_width if config.left_context_width else 0
+        self.right_context_width = config.right_context_width if config.right_context_width else 0
+        self.frame_rate = config.frame_rate if config.frame_rate else 10
+        self.apply_cmvn = config.apply_cmvn if config.apply_cmvn else False
 
         self.max_input_length = config.max_input_length
         self.max_target_length = config.max_target_length
@@ -200,6 +200,76 @@ def _collate_fn(batch):
     max_targets_length = max(targets_length)
 
     features = pad_np(features, max_inputs_length)
+    targets = pad_np(targets, max_targets_length)
+
+    return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
+
+class LmDataset():
+
+    def __init__(self, config, txt_path):
+
+        self.vocab = config.vocab
+        self.text = config.__getattr__(txt_path)
+        self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
+        self.targets_dict = self.get_targets_dict()
+        if self.short_first:
+            self.sorted_list = sorted(self.targets_dict.items(), key=lambda x: len(x[1]), reverse=False)
+        else:
+            self.sorted_list = list(self.targets_dict)
+
+
+    def get_targets_dict(self):
+        targets_dict = {}
+        with codecs.open(self.text, 'r', encoding='utf-8') as fid:
+            for line in fid:
+                parts = line.strip().split(' ')
+                utt_id = parts[0]
+                contents = parts[1:]
+
+                labels = self.encode(contents)
+                targets_dict[utt_id] = labels
+        return targets_dict
+
+    def encode(self, seq):
+        return [self.unit2idx[unit] if unit in self.unit2idx else self.unit2idx['<unk>'] for unit in seq]
+
+    def __getitem__(self, index):
+        utt_id = self.sorted_list[index][0]
+
+        seq = self.targets_dict[utt_id]
+        seq_ids = np.array(seq)
+
+        if seq_ids.shape[0] >= self.max_target_length:
+            seq_ids = seq_ids[:self.max_target_length]
+
+        input = seq_ids[:-1]
+        targets = seq_ids[1:]
+        inputs_length = np.array(input.shape[0]).astype(np.int64)
+        targets_length = np.array(targets.shape[0]).astype(np.int64)
+
+        return input, inputs_length, targets, targets_length
+
+
+
+class LMDataLoader(DataLoader):
+    def __init__(self, *args, **kwargs):
+        """
+        Creates a data loader for AudioDatasets.
+        """
+        super(LMDataLoader, self).__init__(*args, **kwargs)
+        self.collate_fn = _collate_fn_lm
+
+
+def _collate_fn_lm(batch):
+    inputs = [b[0] for b in batch]
+    inputs_length = np.array([b[1] for b in batch])
+    targets = [b[2] for b in batch]
+    targets_length = np.array([b[3] for b in batch])
+
+    max_inputs_length = max(inputs_length)
+    max_targets_length = max(targets_length)
+
+    features = pad_np(inputs, max_inputs_length)
     targets = pad_np(targets, max_targets_length)
 
     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)

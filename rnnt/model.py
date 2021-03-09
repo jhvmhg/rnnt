@@ -15,7 +15,6 @@ class JointNet(nn.Module):
             nn.Linear(inner_dim, vocab_size, bias=True)
         )
 
-
     def forward(self, enc_state, dec_state):
         if enc_state.dim() == 3 and dec_state.dim() == 3:
             dec_state = dec_state.unsqueeze(1)
@@ -48,10 +47,11 @@ class Transducer(nn.Module):
             input_size=config.joint.input_size,
             inner_dim=config.joint.inner_size,
             vocab_size=config.vocab_size
-            )
+        )
 
         if config.share_embedding:
-            assert self.decoder.embedding.weight.size() == self.joint.project_layer.weight.size(), '%d != %d' % (self.decoder.embedding.weight.size(1),  self.joint.project_layer.weight.size(1))
+            assert self.decoder.embedding.weight.size() == self.joint.project_layer.weight.size(), '%d != %d' % (
+            self.decoder.embedding.weight.size(1), self.joint.project_layer.weight.size(1))
             self.joint.project_layer.weight = self.decoder.embedding.weight
 
         self.crit = RNNTLoss()
@@ -113,4 +113,46 @@ class Transducer(nn.Module):
         return results
 
 
+class LM(nn.Module):
+    def __init__(self, config):
+        super(LM, self).__init__()
+        self.config = config
+        self.vocab_size = self.config.vocab_size
+        # define decoder
+        self.decoder = build_decoder(config)
+        # define project_layer
+        self.project_layer = nn.Sequential(
+            nn.Tanh(),
+            nn.Linear(self.config.dec.output_size, self.config.vocab_size)
+        )
 
+        self.crit = nn.CrossEntropyLoss()
+
+    def forward(self, inputs, inputs_length, targets, targets_length):
+        """
+        inputs: N*T
+        targets: N*T
+        """
+        enc_states, output_lengths = self.decoder(inputs, inputs_length)  # enc_states: N*T*D
+        logits = self.project_layer(enc_states)  # logits: N*T*C
+        logits = self.reshape_logits(logits, output_lengths)
+        targets = self.reshape_targets(targets, targets_length)
+        loss = self.crit(logits, targets)
+
+        return loss
+
+    def reshape_targets(self, targets, targets_length):
+        index = 0
+        targets_seq = torch.zeros(targets_length.sum(), dtype=torch.int64)  # targets_length.sum()
+        for i, b in enumerate(targets):
+            targets_seq.narrow(0, index, targets_length[i]).copy_(b[:targets_length[i]])
+            index += targets_length[i]
+        return targets_seq
+
+    def reshape_logits(self, logits, output_lengths):
+        index = 0
+        inputs_seq = torch.zeros((logits.sum(), self.vocab_size), dtype=torch.float32)  # targets_length.sum()
+        for i, b in enumerate(logits):
+            inputs_seq.narrow(0, index, output_lengths[i]).copy_(b[:output_lengths[i], :])
+            index += output_lengths[i]
+        return inputs_seq
