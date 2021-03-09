@@ -1,5 +1,5 @@
 import torch
-from rnnt.model import Transducer
+from rnnt.model import Transducer, LM
 from ctc.model import CTC
 
 
@@ -8,6 +8,8 @@ def save_model(model, optimizer, config, save_name):
         save_rnn_t_model(model, optimizer, config, save_name)
     elif model.config.type == "ctc":
         save_ctc_model(model, optimizer, config, save_name)
+    elif model.config.type == "lm":
+        save_language_model(model, optimizer, config, save_name)
     else:
         raise NotImplementedError
 
@@ -19,6 +21,9 @@ def new_model(config, checkpoint):
     elif config.model.type == "ctc":
         model = CTC(config.model)
         load_ctc_model(model, checkpoint)
+    elif config.model.type == "lm":
+        model = LM(config.model)
+        load_language_model(model, checkpoint)
     else:
         raise NotImplementedError
 
