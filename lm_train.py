@@ -11,104 +11,10 @@ from ctc.model import CTC
 from utils.optim import Optimizer
 from data.dataset import LmDataset, LMDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
-from utils.utils import AttrDict, init_logger, count_parameters, computer_cer
+from utils.utils import AttrDict, init_logger
 from utils.checkpoint import save_model, load_rnn_t_model, load_ctc_model
 
 from train import train, eval
-
-#
-# def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
-#     model.train()
-#     start_epoch = time.process_time()
-#     total_loss = 0
-#     optimizer.epoch()
-#     batch_steps = len(training_data)
-#
-#     for step, (inputs, inputs_length, targets, targets_length) in enumerate(training_data):
-#
-#         if config.training.num_gpu > 0:
-#             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
-#             targets, targets_length = targets.cuda(), targets_length.cuda()
-#
-#         # max_inputs_length = inputs_length.max().item()
-#         # max_targets_length = targets_length.max().item()
-#         # inputs = inputs[:, :max_inputs_length, :]
-#         # targets = targets[:, :max_targets_length]
-#
-#         if config.optim.step_wise_update:
-#             optimizer.step_decay_lr()
-#
-#         start = time.process_time()
-#         loss = model(inputs, inputs_length, targets, targets_length)
-#
-#         if config.training.num_gpu > 1:
-#             loss = torch.mean(loss)
-#
-#         loss.backward()
-#
-#         total_loss += loss.item()
-#
-#         if config.training.max_grad_norm:
-#             grad_norm = nn.utils.clip_grad_norm_(
-#                 model.parameters(), config.training.max_grad_norm)
-#         else:
-#             grad_norm = 0
-#
-#         optimizer.step()
-#
-#         if visualizer is not None:
-#             visualizer.add_scalar(
-#                 'train_loss', loss.item(), optimizer.global_step)
-#             visualizer.add_scalar(
-#                 'learn_rate', optimizer.lr, optimizer.global_step)
-#
-#         avg_loss = total_loss / (step + 1)
-#         if optimizer.global_step % config.training.show_interval == 0:
-#             end = time.process_time()
-#             process = step / batch_steps * 100
-#             logger.info('-Training-Epoch:%d(%.5f%%), Global Step:%d, Learning Rate:%.6f, Grad Norm:%.5f, Loss:%.5f, '
-#                         'AverageLoss: %.5f, Run Time:%.3f' % (epoch, process, optimizer.global_step, optimizer.lr,
-#                                                               grad_norm, loss.item(), avg_loss, end - start))
-#
-#         # break
-#     end_epoch = time.process_time()
-#     logger.info('-Training-Epoch:%d, Average Loss: %.5f, Epoch Time: %.3f' %
-#                 (epoch, total_loss / (step + 1), end_epoch - start_epoch))
-#
-# def eval(epoch, config, model, validating_data, logger, visualizer=None):
-#     model.eval()
-#     total_loss, total_dist, total_word = 0, 0, 0
-#     batch_steps = len(validating_data)
-#     for step, (inputs, inputs_length, targets, targets_length) in enumerate(validating_data):
-#
-#         if config.training.num_gpu > 0:
-#             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
-#             targets, targets_length = targets.cuda(), targets_length.cuda()
-#
-#         preds = model.recognize(inputs, inputs_length)
-#
-#         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
-#                        for i in range(targets.size(0))]
-#
-#         dist, num_words = computer_cer(preds, transcripts)
-#         total_dist += dist
-#         total_word += num_words
-#
-#         cer = total_dist / total_word * 100
-#         if step % config.training.show_interval == 0:
-#             process = step / batch_steps * 100
-#             logger.info('-Validation-Epoch:%d(%.5f%%), CER: %.5f %%' % (epoch, process, cer))
-#             logger.info('preds:' + validating_data.dataset.decode(preds[0]))
-#             logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
-#
-#     val_loss = total_loss / (step + 1)
-#     logger.info('-Validation-Epoch:%4d, AverageLoss:%.5f, AverageCER: %.5f %%' %
-#                 (epoch, val_loss, cer))
-#
-#     if visualizer is not None:
-#         visualizer.add_scalar('cer', cer, epoch)
-#
-#     return cer
 
 
 def main():
