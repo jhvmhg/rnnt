@@ -132,6 +132,9 @@ def main():
     shutil.copyfile(opt.config, os.path.join(exp_name, 'config.yaml'))
     logger.info('Save config info.')
 
+    os.environ["CUDA_VISIBLE_DEVICES"] = config.training.gpus
+
+    config.training.num_gpu = len(config.training.gpus.split(","))
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
 

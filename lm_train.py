@@ -81,16 +81,8 @@ def main():
             checkpoint = torch.load(config.training.load_model)
         print(str(checkpoint.keys()))
         load_model(model, checkpoint)
-        # if config.model.type == "transducer":
-        #     load_rnn_t_model(model, checkpoint)
-        # elif config.model.type == "ctc":
-        #     load_ctc_model(model, checkpoint)
-        # elif config.model.type == "lm":
-        #     load_language_model(model, checkpoint)
-        # else:
-        #     raise NotImplementedError
         logger.info('Loaded model from %s' % config.training.new_model)
-    elif config.training.load_encoder or config.training.load_decoder:
+    if config.training.load_encoder or config.training.load_decoder:
         if config.training.load_encoder:
             checkpoint = torch.load(config.training.load_encoder)
             model.encoder.load_state_dict(checkpoint['encoder'])
