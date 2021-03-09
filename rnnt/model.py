@@ -147,7 +147,7 @@ class LM(nn.Module):
 
         preds = torch.argmax(logits, -1)
 
-        ans = [j[:inputs_length[i].item()]
+        ans = [j[:inputs_length[i].item()].numpy().tolist()
                for i, j in enumerate(preds)]
 
         return ans
