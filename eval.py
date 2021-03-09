@@ -92,14 +92,14 @@ def main():
     else:
         checkpoint = torch.load(config.evaling.load_model)
     logger.info(str(checkpoint.keys()))
+    with torch.no_grad:
+        model = new_model(config, checkpoint).eval()
 
-    model = new_model(config, checkpoint).no_grad()
+        beamctc_decoder = build_ctc_beam_decoder(config, model)
+        if config.evaling.num_gpu > 0:
+            model = model.cuda()
 
-    beamctc_decoder = build_ctc_beam_decoder(config, model)
-    if config.evaling.num_gpu > 0:
-        model = model.cuda()
-
-    _ = eval(config, model, validate_data, logger, beamctc_decoder=beamctc_decoder)
+        _ = eval(config, model, validate_data, logger, beamctc_decoder=beamctc_decoder)
 
 
 if __name__ == '__main__':
