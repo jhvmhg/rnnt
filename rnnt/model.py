@@ -135,8 +135,8 @@ class LM(nn.Module):
         """
         enc_states = self.decoder(inputs, inputs_length)[0]  # enc_states: N*T*D
         logits = self.project_layer(enc_states)  # logits: N*T*C
-        logits = self.reshape_logits(logits, inputs_length)
-        targets = self.reshape_targets(targets, targets_length)
+        logits = self.reshape_logits(logits, inputs_length) # (N*T) * C
+        targets = self.reshape_targets(targets, targets_length) # (N*T)
         loss = self.crit(logits, targets)
 
         return loss

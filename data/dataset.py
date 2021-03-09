@@ -248,6 +248,9 @@ class LmDataset():
 
         input = seq_ids[:-1]
         targets = seq_ids[1:]
+        if input.shape[0] == 0:
+            input = np.array([0])
+            targets = np.array([0])
         inputs_length = np.array(input.shape[0]).astype(np.int64)
         targets_length = np.array(targets.shape[0]).astype(np.int64)
 
