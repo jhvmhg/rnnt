@@ -22,19 +22,19 @@ class BaseEncoder(nn.Module):
     def forward(self, inputs, input_lengths):
         assert inputs.dim() == 3
 
-        if input_lengths is not None:
-            sorted_seq_lengths, indices = torch.sort(input_lengths, descending=True)
-            inputs = inputs[indices]
-            inputs = nn.utils.rnn.pack_padded_sequence(inputs, sorted_seq_lengths, batch_first=True)
-
+        # if input_lengths is not None:
+        #     sorted_seq_lengths, indices = torch.sort(input_lengths, descending=True)
+        #     inputs = inputs[indices]
+        #     inputs = nn.utils.rnn.pack_padded_sequence(inputs, sorted_seq_lengths, batch_first=True)
+        inputs = nn.utils.rnn.pack_padded_sequence(inputs, input_lengths, batch_first=True)
         self.lstm.flatten_parameters()
         outputs, hidden = self.lstm(inputs)
 
-        if input_lengths is not None:
-            _, desorted_indices = torch.sort(indices, descending=False)
-            outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
-            outputs = outputs[desorted_indices]
-
+        # if input_lengths is not None:
+        #     _, desorted_indices = torch.sort(indices, descending=False)
+        #     outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
+        #     outputs = outputs[desorted_indices]
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
         logits = self.output_proj(outputs)
 
         return logits, input_lengths
