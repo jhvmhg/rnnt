@@ -36,7 +36,8 @@ def build_encoder(config):
             cnn2_ksize=tuple([int(i) for i in config.enc.cnn2_ksize.split(",")]),
             cnn2_stride=tuple([int(i) for i in config.enc.k2_stride.split(",")]),
             bidirectional=config.enc.bidirectional,
-            input_sorted=config.enc.input_sorted
+            input_sorted=config.enc.input_sorted,
+            lookahead_context=config.enc.lookahead_context
         )
     else:
         raise NotImplementedError

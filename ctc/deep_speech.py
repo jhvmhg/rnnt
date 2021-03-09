@@ -120,14 +120,14 @@ class BatchRNN(nn.Module):
 class DeepSpeech(nn.Module):
     def __init__(self, input_size, rnn_hidden_size, rnn_hidden_layers, output_size,
                  cnn1_ksize=(41, 11), cnn1_stride=(2, 1), cnn2_ksize=(21, 11), cnn2_stride=(2, 1),
-                 bidirectional=False, input_sorted=False):
+                 bidirectional=False, input_sorted=False, lookahead_context=3):
         super().__init__()
 
         self.hidden_size = rnn_hidden_size
         self.rnn_hidden_layers = rnn_hidden_layers
         self.rnn_type = nn.LSTM
 
-        self.lookahead_context = 3
+        self.lookahead_context = lookahead_context
         self.bidirectional = bidirectional
 
         cnn1_psize = (cnn1_ksize[0] // 2, cnn1_ksize[0] // 1)
@@ -185,6 +185,8 @@ class DeepSpeech(nn.Module):
 
         lengths = lengths.cpu().int()
         output_lengths = self.get_seq_lens(lengths)
+        if x.is_cuda:
+            output_lengths = output_lengths.cuda()
         x, _ = self.conv(x, output_lengths)
 
         sizes = x.size()

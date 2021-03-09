@@ -29,6 +29,7 @@ model:
         n_layers: 3
         bidirectional: False
         input_sorted: False
+        lookahead_context: 3
     vocab_size: 4232
     share_weight: False
     feature_dim: 80
