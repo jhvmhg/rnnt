@@ -97,8 +97,6 @@ def eval(epoch, config, model, validating_data, logger, visualizer=None):
             if step % config.training.show_interval == 0:
                 process = step / batch_steps * 100
                 logger.info('-Validation-Epoch:%d(%.5f%%), CER: %.5f %%' % (epoch, process, cer))
-                logger.info("preds[0]:" + str(preds[0]))
-                logger.info("trans[0]:" + str(transcripts[0]))
                 logger.info('preds:' + validating_data.dataset.decode(preds[0]))
                 logger.info('trans:' + validating_data.dataset.decode(transcripts[0]))
 
