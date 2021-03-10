@@ -96,7 +96,7 @@ def show_ctc_loss(utt_prob, target, idx2unit, save_path):
     plt.plot(utt_prob[:, 0].detach().numpy(), linewidth=0.1)
     for j in target:
         if j != 0:
-            plt.plot(utt_prob[:, j.item()].detach().numpy(), linewidth=0.5, linestyle="-.", label=idx2unit[j.item()])
+            plt.plot(utt_prob[:, int(j)].detach().numpy(), linewidth=0.5, linestyle="-.", label=idx2unit[int(j)])
 
     legend(loc='upper right', prop=zhfont1)
     savefig(save_path, dpi=440)
