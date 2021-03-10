@@ -29,20 +29,32 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         start = time.process_time()
 
+        if config.optim.step_wise_update:
+            optimizer.step_decay_lr()
+
         if config.training.num_gpu > 0:
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        if config.optim.step_wise_update:
-            optimizer.step_decay_lr()
-
-        loss = model(inputs, inputs_length, targets, targets_length)
-
-        if config.training.num_gpu > 1:
-            loss = torch.mean(loss)
-
-        loss.backward()
-        total_loss += loss.item()
+        # feed inputs to model
+        oom = False
+        try:
+            loss = model(inputs, inputs_length, targets, targets_length)
+        except RuntimeError:  # Out of memory
+            oom = True
+        if oom:
+            for i in range(targets_length.shape[0]):
+                loss = model(inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
+                             targets[i].unsqueeze(0), targets_length[i].unsqueeze(0))
+                if config.training.num_gpu > 1:
+                    loss = torch.mean(loss)
+                loss.backward()
+                total_loss += loss.item()
+        else:
+            if config.training.num_gpu > 1:
+                loss = torch.mean(loss)
+            loss.backward()
+            total_loss += loss.item()
 
         if config.training.max_grad_norm:
             grad_norm = nn.utils.clip_grad_norm_(
