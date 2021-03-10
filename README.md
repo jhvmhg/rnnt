@@ -17,12 +17,12 @@ We utilize Kaldi for data preparation. At least these files(text, feats.scp) sho
 ```
 ## Train
 ```bash
-python train.py -config config/aishell.yaml
+python bin/train.py -config config/aishell.yaml
 ```
 
 ## Eval
 ```bash
-python eval.py -config config/aishell.yaml
+python bin/eval.py -config config/aishell.yaml
 ```
 
 ## Experiments
