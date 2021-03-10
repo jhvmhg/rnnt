@@ -29,6 +29,7 @@ class JointNet(nn.Module):
             assert enc_state.dim() == dec_state.dim()
 
         concat_state = torch.cat((enc_state, dec_state), dim=-1)
+        del enc_state, dec_state
         outputs = self.mlp(concat_state)
 
         return outputs
@@ -59,16 +60,17 @@ class Transducer(nn.Module):
     def forward(self, inputs, inputs_length, targets, targets_length):
 
         enc_state, output_length = self.encoder(inputs, inputs_length)
+        concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
+
         if enc_state.is_cuda:
-            output_length = output_length.int().cuda()
+            output_length, concat_targets = output_length.int().cuda(), concat_targets.cuda()
         else:
             output_length = output_length.int()
-        concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
 
         dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
 
         logits = self.joint(enc_state, dec_state)
-
+        del enc_state, dec_state
         loss = self.crit(logits, targets.int(), output_length, targets_length.int())
 
         return loss
