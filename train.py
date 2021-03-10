@@ -12,7 +12,7 @@ from src.utils import Optimizer
 from src.data import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from src.utils import AttrDict, init_logger, count_parameters, computer_cer
-from src.utils import save_model, load_model
+from src.utils.checkpoint import save_model, load_model
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):

@@ -7,7 +7,7 @@ import yaml
 
 from src.ctc import build_ctc_beam_decoder
 from src.data import AudioDataLoader, Batch_RandomSampler, AudioDataset
-from src.utils import new_model
+from src.utils.checkpoint import new_model
 from src.utils import AttrDict, init_logger, computer_cer
 
 

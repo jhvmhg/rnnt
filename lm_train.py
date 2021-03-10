@@ -10,7 +10,7 @@ from src.utils import Optimizer
 from src.data import LmDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from src.utils import AttrDict, init_logger
-from src.utils import save_model, load_model
+from src.utils.checkpoint import save_model, load_model
 
 from train import train, eval
 
