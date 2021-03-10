@@ -36,7 +36,8 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        # feed inputs to model
+
+        # feed inputs to model and catch "CUDA out of memory" error
         oom = False
         try:
             loss = model(inputs, inputs_length, targets, targets_length)
@@ -54,8 +55,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
                 if config.training.num_gpu > 1:
                     loss = torch.mean(loss)
                 loss.backward()
-                total_loss += loss.item()
-
+                total_loss += loss.item()/targets_length.shape[0]
 
 
         if config.training.max_grad_norm:
@@ -68,12 +68,9 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         avg_loss = total_loss / (step + 1)
         if visualizer is not None:
-            visualizer.add_scalar(
-                'train_loss', loss.item(), optimizer.global_step)
-            visualizer.add_scalar(
-                'learn_rate', optimizer.lr, optimizer.global_step)
-            visualizer.add_scalar(
-                'avg_loss', avg_loss, optimizer.global_step)
+            visualizer.add_scalar('train_loss', loss.item(), optimizer.global_step)
+            visualizer.add_scalar('learn_rate', optimizer.lr, optimizer.global_step)
+            visualizer.add_scalar('avg_loss', avg_loss, optimizer.global_step)
 
         if optimizer.global_step % config.training.show_interval == 0:
             end = time.process_time()
