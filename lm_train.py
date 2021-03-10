@@ -84,6 +84,7 @@ def main():
         logger.info(str(checkpoint.keys()))
         load_model(model, checkpoint)
         logger.info('Loaded model from %s' % config.training.new_model)
+
     if config.training.load_encoder or config.training.load_decoder:
         if config.training.load_encoder:
             checkpoint = torch.load(config.training.load_encoder)

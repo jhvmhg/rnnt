@@ -24,22 +24,21 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
     for step, (inputs, inputs_length, targets, targets_length) in enumerate(training_data):
 
+        start = time.process_time()
+
         if config.training.num_gpu > 0:
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-
         if config.optim.step_wise_update:
             optimizer.step_decay_lr()
 
-        start = time.process_time()
         loss = model(inputs, inputs_length, targets, targets_length)
 
         if config.training.num_gpu > 1:
             loss = torch.mean(loss)
 
         loss.backward()
-
         total_loss += loss.item()
 
         if config.training.max_grad_norm:
@@ -237,7 +236,7 @@ def main():
         if epoch >= config.optim.begin_to_adjust_lr:
             optimizer.decay_lr()
             # early stop
-            if optimizer.lr < 1e-6:
+            if optimizer.lr < 5e-7:
                 logger.info('The learning rate is too low to train.')
                 break
             logger.info('Epoch %d update learning rate: %.6f' %
