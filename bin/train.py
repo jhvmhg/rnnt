@@ -1,6 +1,6 @@
 import os
 import sys
-
+sys.path.append(".")
 import shutil
 import argparse
 import yaml
@@ -16,7 +16,7 @@ from tensorboardX import SummaryWriter
 from src.utils import AttrDict, init_logger, count_parameters, computer_cer, num_gpus
 from src.utils.checkpoint import save_model, load_model
 
-sys.path.append(".")
+
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
     model.train()

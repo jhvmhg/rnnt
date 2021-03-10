@@ -1,6 +1,7 @@
 import os
 import sys
 
+sys.path.append(".")
 import shutil
 import argparse
 import yaml
@@ -16,7 +17,6 @@ from src.utils.checkpoint import save_model, load_model
 
 from train import train, eval
 
-sys.path.append(".")
 
 def main():
     parser = argparse.ArgumentParser()

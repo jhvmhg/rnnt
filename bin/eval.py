@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-
+sys.path.append(".")
 import torch
 import torch.utils.data
 import yaml
@@ -11,7 +11,7 @@ from src.data import AudioDataLoader, Batch_RandomSampler, AudioDataset
 from src.utils.checkpoint import new_model
 from src.utils import AttrDict, init_logger, computer_cer, num_gpus
 
-sys.path.append(".")
+
 
 
 def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):
