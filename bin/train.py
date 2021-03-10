@@ -40,6 +40,10 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         oom = False
         try:
             loss = model(inputs, inputs_length, targets, targets_length)
+            if config.training.num_gpu > 1:
+                loss = torch.mean(loss)
+            loss.backward()
+            total_loss += loss.item()
         except RuntimeError:  # Out of memory
             oom = True
             logger.warning("CUDA out of memory")
@@ -51,11 +55,8 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
                     loss = torch.mean(loss)
                 loss.backward()
                 total_loss += loss.item()
-        else:
-            if config.training.num_gpu > 1:
-                loss = torch.mean(loss)
-            loss.backward()
-            total_loss += loss.item()
+
+
 
         if config.training.max_grad_norm:
             grad_norm = nn.utils.clip_grad_norm_(
