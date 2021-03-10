@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-sys.path.append(".")
+
 import torch
 import torch.utils.data
 import yaml
@@ -10,6 +10,8 @@ from src.ctc import build_ctc_beam_decoder
 from src.data import AudioDataLoader, Batch_RandomSampler, AudioDataset
 from src.utils.checkpoint import new_model
 from src.utils import AttrDict, init_logger, computer_cer, num_gpus
+
+sys.path.append(".")
 
 
 def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):
@@ -71,7 +73,7 @@ def main():
 
     os.environ["CUDA_VISIBLE_DEVICES"] = config.evaling.gpus
     config.evaling.num_gpu = num_gpus(config.evaling.gpus)
-    logger.info('Number of gpu:'+str(config.evaling.num_gpu))
+    logger.info('Number of gpu:' + str(config.evaling.num_gpu))
     num_workers = 6 * (config.evaling.num_gpu if config.evaling.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.evaling.num_gpu if config.evaling.num_gpu > 0 else config.data.batch_size
 
