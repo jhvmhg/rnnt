@@ -1,8 +1,7 @@
 import argparse
 import os
 import sys
-sys.path.append("..")
-sys.path.append(".")
+# sys.path.append(".")
 import torch
 import torch.utils.data
 import yaml
