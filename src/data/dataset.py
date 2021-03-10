@@ -5,7 +5,7 @@ import os
 import kaldiio
 import torch
 from torch.utils.data import Sampler, DataLoader
-from src.data.utils import pad_np, get_dict_from_scp, cmvn, get_feats_list
+from src.data.utils import pad_np, get_dict_from_scp, cmvn, get_feats_list, concat_frame, get_cmvn_dict
 
 
 class myDataset:
@@ -52,15 +52,6 @@ class myDataset:
         return " ".join([self.idx2unit[int(i)] for i in seq])
 
 
-def get_cmvn_dict(cmvnscp):
-    cmvn_stats_dict={}
-    cmvn_reader = kaldiio.load_scp_sequential(cmvnscp)
-
-    for spkid, stats in cmvn_reader:
-        cmvn_stats_dict[spkid] = stats
-
-    return cmvn_stats_dict
-
 
 class AudioDataset(myDataset):
     def __init__(self, config, dataset_type):
@@ -106,30 +97,30 @@ class AudioDataset(myDataset):
         else:
             utt_id = self.feats_list[index]
 
-        feats_scp = self.feats_dict[utt_id]
+        feat_scp = self.feats_dict[utt_id]
         seq = self.targets_dict[utt_id]
 
-        targets = np.array(seq)
-        features = kaldiio.load_mat(feats_scp)
+        target = np.array(seq)
+        feature = kaldiio.load_mat(feat_scp)
 
         if self.apply_cmvn:
             spk_id = self.utt2spk[utt_id]
             stats = self.cmvn_stats_dict[spk_id]
-            features = cmvn(features, stats)
+            feature = cmvn(feature, stats)
 
-        features = self.concat_frame(features)
-        features = self.subsampling(features)
+        feature = concat_frame(feature, self.left_context_width, self.right_context_width)
+        feature = self.subsampling(feature)
 
         # if features 长度 > max_input_length,只保留前面部分
-        if features.shape[0] >= self.config.max_input_length:
-            features = features[:self.config.max_input_length, ]
-        if targets.shape[0] >= self.max_target_length:
-            targets = targets[:self.max_target_length]
+        if feature.shape[0] >= self.config.max_input_length:
+            feature = feature[:self.config.max_input_length, ]
+        if target.shape[0] >= self.max_target_length:
+            target = target[:self.max_target_length]
 
-        inputs_length = np.array(features.shape[0]).astype(np.int64)
-        targets_length = np.array(targets.shape[0]).astype(np.int64)
+        inputs_length = np.array(feature.shape[0]).astype(np.int64)
+        targets_length = np.array(target.shape[0]).astype(np.int64)
 
-        return features, inputs_length, targets, targets_length
+        return feature, inputs_length, target, targets_length
 
     def __len__(self):
         return self.lengths
@@ -139,30 +130,6 @@ class AudioDataset(myDataset):
         for utt_id in featslist:
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
-
-    def concat_frame(self, features):
-        time_steps, features_dim = features.shape
-        concated_features = np.zeros(
-            shape=[time_steps, features_dim *
-                   (1 + self.left_context_width + self.right_context_width)],
-            dtype=np.float32)
-        # middle part is just the uttarnce
-        concated_features[:, self.left_context_width * features_dim:
-                             (self.left_context_width + 1) * features_dim] = features
-
-        for i in range(self.left_context_width):
-            # add left context
-            concated_features[i + 1:time_steps,
-            (self.left_context_width - i - 1) * features_dim:
-            (self.left_context_width - i) * features_dim] = features[0:time_steps - i - 1, :]
-
-        for i in range(self.right_context_width):
-            # add right context
-            concated_features[0:time_steps - i - 1,
-            (self.right_context_width + i + 1) * features_dim:
-            (self.right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
-
-        return concated_features
 
     def subsampling(self, features):
         if self.frame_rate != 10:

@@ -1,5 +1,6 @@
 import numpy as np
 import codecs
+import kaldiio
 
 
 def pad(inputs, max_length):
@@ -76,3 +77,38 @@ def get_feats_list(arkscp):
             feats_list.append(key)
             feats_dict[key] = path
     return feats_list, feats_dict
+
+
+def get_cmvn_dict(cmvnscp):
+    cmvn_stats_dict = {}
+    cmvn_reader = kaldiio.load_scp_sequential(cmvnscp)
+
+    for spkid, stats in cmvn_reader:
+        cmvn_stats_dict[spkid] = stats
+
+    return cmvn_stats_dict
+
+
+def concat_frame(features, left_context_width, right_context_width):
+    time_steps, features_dim = features.shape
+    concated_features = np.zeros(
+        shape=[time_steps, features_dim *
+               (1 + left_context_width + right_context_width)],
+        dtype=np.float32)
+    # middle part is just the uttarnce
+    concated_features[:, left_context_width * features_dim:
+                         (left_context_width + 1) * features_dim] = features
+
+    for i in range(left_context_width):
+        # add left context
+        concated_features[i + 1:time_steps,
+        (left_context_width - i - 1) * features_dim:
+        (left_context_width - i) * features_dim] = features[0:time_steps - i - 1, :]
+
+    for i in range(right_context_width):
+        # add right context
+        concated_features[0:time_steps - i - 1,
+        (right_context_width + i + 1) * features_dim:
+        (right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
+
+    return concated_features
