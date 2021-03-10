@@ -99,17 +99,17 @@ class BeamCTCDecoder(Decoder):
         return results
 
     def convert_tensor(self, offsets, sizes):
-        results = [[k.item() for k in j[0][:sizes[i][0]]] for i, j in enumerate(offsets)]
-        # results = []
-        # for b, batch in enumerate(offsets):
-        #     utterances = []
-        #     for p, utt in enumerate(batch):
-        #         size = sizes[b][p]
-        #         if sizes[b][p] > 0:
-        #             utterances.append(utt[0:size])
-        #         else:
-        #             utterances.append(torch.tensor([], dtype=torch.int))
-        #     results.append(utterances)
+        # results = [[k.item() for k in j[0][:sizes[i][0]]] for i, j in enumerate(offsets)]
+        results = []
+        for b, batch in enumerate(offsets):
+            utterances = []
+            for p, utt in enumerate(batch):
+                size = sizes[b][p]
+                if sizes[b][p] > 0:
+                    utterances.append(utt[0:size])
+                else:
+                    utterances.append(torch.tensor([], dtype=torch.int))
+            results.append(utterances)
         return results
 
     def decode(self, inputs, inputs_length):
