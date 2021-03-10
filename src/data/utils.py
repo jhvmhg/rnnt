@@ -112,3 +112,14 @@ def concat_frame(features, left_context_width, right_context_width):
         (right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
 
     return concated_features
+
+
+def subsampling(features, frame_rate):
+    if frame_rate != 10:
+        interval = int(frame_rate / 10)
+        temp_mat = [features[i]
+                    for i in range(0, features.shape[0], interval)]
+        subsampled_features = np.row_stack(temp_mat)
+        return subsampled_features
+    else:
+        return features

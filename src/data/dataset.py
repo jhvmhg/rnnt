@@ -32,12 +32,9 @@ class myDataset:
                 parts = line.strip().split(' ')
                 utt_id = parts[0]
                 contents = parts[1:]
-                # if len(contents) < 0 or len(contents) > self.max_target_length:
-                #     continue
-                # if self.config.encoding:
+
                 labels = self.encode(contents)
-                # else:
-                #     labels = [int(i) for i in contents]
+
                 targets_dict[utt_id] = labels
         return targets_dict
 
@@ -50,7 +47,6 @@ class myDataset:
         if rm_blk:
             return " ".join([self.idx2unit[int(i)] for i in seq if i > 0])
         return " ".join([self.idx2unit[int(i)] for i in seq])
-
 
 
 class AudioDataset(myDataset):
@@ -109,7 +105,7 @@ class AudioDataset(myDataset):
             feature = cmvn(feature, stats)
 
         feature = concat_frame(feature, self.left_context_width, self.right_context_width)
-        feature = self.subsampling(feature)
+        feature = subsampling(feature, self.frame_rate)
 
         # if features 长度 > max_input_length,只保留前面部分
         if feature.shape[0] >= self.config.max_input_length:
@@ -130,16 +126,6 @@ class AudioDataset(myDataset):
         for utt_id in featslist:
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
-
-    def subsampling(self, features):
-        if self.frame_rate != 10:
-            interval = int(self.frame_rate / 10)
-            temp_mat = [features[i]
-                        for i in range(0, features.shape[0], interval)]
-            subsampled_features = np.row_stack(temp_mat)
-            return subsampled_features
-        else:
-            return features
 
 
 class LmDataset(myDataset):
