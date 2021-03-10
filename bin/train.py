@@ -174,17 +174,19 @@ def main():
             checkpoint = torch.load(config.training.load_model, map_location='cpu')
         else:
             checkpoint = torch.load(config.training.load_model)
-        print(str(checkpoint.keys()))
+        logger.info("load_checkpoint:"+str(checkpoint.keys()))
         load_model(model, checkpoint)
         logger.info('Loaded model from %s' % config.training.new_model)
     if config.training.load_encoder or config.training.load_decoder:
         if config.training.load_encoder:
             checkpoint = torch.load(config.training.load_encoder)
+            logger.info("load_checkpoint:" + str(checkpoint.keys()))
             model.encoder.load_state_dict(checkpoint['encoder'])
             logger.info('Loaded encoder from %s' %
                         config.training.load_encoder)
         if config.training.load_decoder:
             checkpoint = torch.load(config.training.load_decoder)
+            logger.info("load_checkpoint:" + str(checkpoint.keys()))
             model.decoder.load_state_dict(checkpoint['decoder'])
             logger.info('Loaded decoder from %s' %
                         config.training.load_decoder)
