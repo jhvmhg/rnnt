@@ -9,7 +9,7 @@ from src.ctc import CTC
 from src.utils import Optimizer
 from src.data import LmDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
-from src.utils import AttrDict, init_logger
+from src.utils import AttrDict, init_logger, num_gpus
 from src.utils.checkpoint import save_model, load_model
 
 from train import train, eval
@@ -34,7 +34,7 @@ def main():
     logger.info('Save config info.')
     os.environ["CUDA_VISIBLE_DEVICES"] = config.training.gpus
 
-    config.training.num_gpu = len(config.training.gpus.split(","))
+    config.training.num_gpu = num_gpus(config.training.gpus)
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
 

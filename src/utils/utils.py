@@ -85,6 +85,10 @@ def add_space(path, old_path):
             f_out.write(utt + " " + " ".join(list(txt)) + "\n")
 
 
+def num_gpus(s):
+    return len([int(i) for i in s.strip().split(",") if len(i) > 0])
+
+
 import matplotlib.pyplot as plt
 from pylab import *
 
