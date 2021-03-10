@@ -42,7 +42,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             loss = model(inputs, inputs_length, targets, targets_length)
         except RuntimeError:  # Out of memory
             oom = True
-            logger.warn("CUDA out of memory")
+            logger.warning("CUDA out of memory")
         if oom:
             for i in range(targets_length.shape[0]):
                 loss = model(inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
