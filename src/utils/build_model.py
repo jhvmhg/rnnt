@@ -1,5 +1,5 @@
-from src.rnnt import BaseEncoder, CNN_LSTM
-from src.rnnt import BaseDecoder
+from src.rnnt.encoder import BaseEncoder, CNN_LSTM
+from src.rnnt.decoder import BaseDecoder
 from src.ctc import DeepSpeech
 
 """
