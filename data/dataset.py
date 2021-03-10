@@ -253,8 +253,11 @@ class LmDataset():
         if seq_ids.shape[0] >= self.max_target_length:
             seq_ids = seq_ids[:self.max_target_length]
 
-        input = seq_ids[:-1]
-        targets = seq_ids[1:]
+
+        # input = seq_ids[:-1]
+        # targets = seq_ids[1:]
+        input = np.concatenate((np.array([0]), seq_ids))
+        targets = np.concatenate((seq_ids, np.array([0])))
         if input.shape[0] == 0:
             input = np.array([0])
             targets = np.array([0])
