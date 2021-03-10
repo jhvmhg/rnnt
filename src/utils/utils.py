@@ -95,6 +95,11 @@ from pylab import *
 zhfont1 = matplotlib.font_manager.FontProperties(
     fname="/home1/meichaoyang/workspace/git/kws_ctc_no2/data/SourceHanSansSC-Bold.otf")
 
+"""
+usage:
+    encoder_output, output_lengths=model.get_post(inputs,inputs_length, True)
+    show_ctc_loss(encoder_output[1],targets[1],train_dataset.idx2unit, "exp/png/dnn_0.1.png")
+"""
 
 def show_ctc_loss(utt_prob, target, idx2unit, save_path):
     plt.plot(utt_prob[:, 0].detach().numpy(), linewidth=0.1)
