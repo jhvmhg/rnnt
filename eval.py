@@ -25,12 +25,13 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
 
         if beamctc_decoder:
             results_strings, preds, scores, offsets = beamctc_decoder.decode(inputs, inputs_length)
+            preds = [[j for j in i[0]] for i in preds]
         else:
             preds = model.recognize(inputs, inputs_length)
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
                        for i in range(targets.size(0))]
 
-        dist, num_words = computer_cer([[j for j in i[0]] for i in preds], transcripts)
+        dist, num_words = computer_cer(preds, transcripts)
         total_dist += dist
         total_word += num_words
 
