@@ -5,7 +5,6 @@ import editdistance
 from shutil import move
 
 
-
 class AttrDict(dict):
     """
     Dictionary whose keys can be accessed as attributes.
@@ -75,17 +74,29 @@ def init_parameters(model, type='xnormal'):
 
 
 def add_space(path, old_path):
-
-    with open(path,"r") as f_in:
+    with open(path, "r") as f_in:
         lines = f_in.readlines()
 
     move(path, old_path)
 
-    with open(path,"w") as f_out:
+    with open(path, "w") as f_out:
         for line in lines:
             utt, txt = line.split()
-            f_out.write(utt+" "+" ".join(list(txt))+"\n")
+            f_out.write(utt + " " + " ".join(list(txt)) + "\n")
 
 
+import matplotlib.pyplot as plt
+from pylab import *
+
+zhfont1 = matplotlib.font_manager.FontProperties(
+    fname="/home1/meichaoyang/workspace/git/kws_ctc_no2/data/SourceHanSansSC-Bold.otf")
 
 
+def show_ctc_loss(utt_prob, target, idx2unit, save_path):
+    plt.plot(utt_prob[:, 0].detach().numpy(), linewidth=0.1)
+    for j in target:
+        if j != 0:
+            plt.plot(utt_prob[:, j.item()].detach().numpy(), linewidth=0.5, linestyle="-.", label=idx2unit[j.item()])
+
+    legend(loc='upper right', prop=zhfont1)
+    savefig(save_path, dpi=440)
