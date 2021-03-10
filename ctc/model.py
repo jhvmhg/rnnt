@@ -14,6 +14,7 @@ class CTC(nn.Module):
             nn.Tanh(),
             nn.Linear(self.config.enc.output_size, self.config.vocab_size)
         )
+        self.softmax = nn.Softmax(dim=-1)
 
         self.crit = nn.CTCLoss()
 
@@ -39,8 +40,10 @@ class CTC(nn.Module):
 
         return ans
 
-    def get_post(self, inputs, inputs_length):
+    def get_post(self, inputs, inputs_length, apply_softmax=False):
         enc_states, output_lengths = self.encoder(inputs, inputs_length)
         encoder_output = self.project_layer(enc_states)
+        if apply_softmax:
+            encoder_output = self.softmax(encoder_output)
 
         return encoder_output, output_lengths
