@@ -46,7 +46,7 @@ def pad_np(inputs, max_length):
             pad_zeros_mat[x, :len(inputs[x]), :] = inputs[x]
     else:
         raise AssertionError(
-            'Features in inputs list must be one vector or two dimension matrix! ')
+            'Features in inputs list must be two vector or three dimension matrix! ')
     return pad_zeros_mat
 
 
