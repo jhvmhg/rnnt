@@ -9,7 +9,7 @@ import torch.utils.data
 from rnnt.model import LM, Transducer
 from ctc.model import CTC
 from utils.optim import Optimizer
-from data.dataset import LmDataset, LMDataLoader, Batch_RandomSampler
+from data.dataset import LmDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
 from utils.utils import AttrDict, init_logger
 from utils.checkpoint import save_model, load_model, load_ctc_model, load_language_model
@@ -43,7 +43,7 @@ def main():
     train_dataset = LmDataset(config.data, 'train')
     train_sampler = Batch_RandomSampler(len(train_dataset),
                                         batch_size=batch_size, shuffle=config.data.shuffle)
-    training_data = LMDataLoader(
+    training_data = AudioDataLoader(
         dataset=train_dataset,
         num_workers=num_workers,
         batch_sampler=train_sampler
@@ -53,7 +53,7 @@ def main():
     dev_dataset = LmDataset(config.data, 'dev')
     dev_sampler = Batch_RandomSampler(len(dev_dataset),
                                       batch_size=batch_size, shuffle=config.data.shuffle)
-    validate_data = LMDataLoader(
+    validate_data = AudioDataLoader(
         dataset=dev_dataset,
         num_workers=num_workers,
         batch_sampler=dev_sampler

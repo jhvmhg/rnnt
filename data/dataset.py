@@ -5,7 +5,7 @@ import os
 import kaldiio
 import torch
 from torch.utils.data import Sampler, DataLoader
-from data.utils import pad_np, get_dict_from_scp, cmvn
+from data.utils import pad_np, get_dict_from_scp, cmvn, get_feats_list
 
 
 class myDataset:
@@ -13,16 +13,72 @@ class myDataset:
 
         self.type = dataset_type
         self.name = config.name
+        self.vocab = config.vocab
+
+        # if self.config.encoding:
+        self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
+        self.idx2unit = dict([(i, c) for (i, c) in enumerate(self.unit2idx)])
+
+        self.max_input_length = config.max_input_length
+        self.max_target_length = config.max_target_length
+
+    def __len__(self):
+        raise NotImplementedError
+
+    def get_targets_dict(self, text):
+        targets_dict = {}
+        with codecs.open(text, 'r', encoding='utf-8') as fid:
+            for line in fid:
+                parts = line.strip().split(' ')
+                utt_id = parts[0]
+                contents = parts[1:]
+                # if len(contents) < 0 or len(contents) > self.max_target_length:
+                #     continue
+                # if self.config.encoding:
+                labels = self.encode(contents)
+                # else:
+                #     labels = [int(i) for i in contents]
+                targets_dict[utt_id] = labels
+        return targets_dict
+
+    def encode(self, seq):
+
+        return [self.unit2idx[unit] if unit in self.unit2idx else self.unit2idx['<unk>'] for unit in seq]
+
+    def decode(self, seq, rm_blk=False):
+
+        if rm_blk:
+            return " ".join([self.idx2unit[int(i)] for i in seq if i > 0])
+        return " ".join([self.idx2unit[int(i)] for i in seq])
+
+
+def get_cmvn_dict(cmvnscp):
+    cmvn_stats_dict={}
+    cmvn_reader = kaldiio.load_scp_sequential(cmvnscp)
+
+    for spkid, stats in cmvn_reader:
+        cmvn_stats_dict[spkid] = stats
+
+    return cmvn_stats_dict
+
+
+class AudioDataset(myDataset):
+    def __init__(self, config, dataset_type):
+        super(AudioDataset, self).__init__(config, dataset_type)  # dataset_type :"train", "dev", "test"
+
+        self.config = config
+        self.text = os.path.join(config.__getattr__(dataset_type), 'text')
+        self.targets_dict = self.get_targets_dict(self.text)
+        self.utt2num_frames_txt = os.path.join(config.__getattr__(dataset_type), 'utt2num_frames')
+
+        self.short_first = config.short_first
+
+        self.arkscp = os.path.join(config.__getattr__(dataset_type), 'feats.scp')
+
         self.left_context_width = config.left_context_width if config.left_context_width else 0
         self.right_context_width = config.right_context_width if config.right_context_width else 0
         self.frame_rate = config.frame_rate if config.frame_rate else 10
         self.apply_cmvn = config.apply_cmvn if config.apply_cmvn else False
-
-        self.max_input_length = config.max_input_length
-        self.max_target_length = config.max_target_length
-        self.vocab = config.vocab
-
-        self.arkscp = os.path.join(config.__getattr__(dataset_type), 'feats.scp')
 
         if self.apply_cmvn:
             self.utt2spk = {}
@@ -31,79 +87,9 @@ class myDataset:
                     parts = line.strip().split()
                     self.utt2spk[parts[0]] = parts[1]
             self.cmvnscp = os.path.join(config.__getattr__(dataset_type), 'cmvn.scp')
-            self.cmvn_stats_dict = {}
-            self.get_cmvn_dict()
+            self.cmvn_stats_dict = get_cmvn_dict(self.cmvnscp)
 
-        self.feats_list, self.feats_dict = self.get_feats_list()
-
-    def __len__(self):
-        raise NotImplementedError
-
-    def get_feats_list(self):
-        feats_list = []
-        feats_dict = {}
-        with open(self.arkscp, 'r') as fid:
-            for line in fid:
-                key, path = line.strip().split(' ')
-                feats_list.append(key)
-                feats_dict[key] = path
-        return feats_list, feats_dict
-
-    def get_cmvn_dict(self):
-        cmvn_reader = kaldiio.load_scp_sequential(self.cmvnscp)
-
-        for spkid, stats in cmvn_reader:
-            self.cmvn_stats_dict[spkid] = stats
-
-    def concat_frame(self, features):
-        time_steps, features_dim = features.shape
-        concated_features = np.zeros(
-            shape=[time_steps, features_dim *
-                   (1 + self.left_context_width + self.right_context_width)],
-            dtype=np.float32)
-        # middle part is just the uttarnce
-        concated_features[:, self.left_context_width * features_dim:
-                             (self.left_context_width + 1) * features_dim] = features
-
-        for i in range(self.left_context_width):
-            # add left context
-            concated_features[i + 1:time_steps,
-            (self.left_context_width - i - 1) * features_dim:
-            (self.left_context_width - i) * features_dim] = features[0:time_steps - i - 1, :]
-
-        for i in range(self.right_context_width):
-            # add right context
-            concated_features[0:time_steps - i - 1,
-            (self.right_context_width + i + 1) * features_dim:
-            (self.right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
-
-        return concated_features
-
-    def subsampling(self, features):
-        if self.frame_rate != 10:
-            interval = int(self.frame_rate / 10)
-            temp_mat = [features[i]
-                        for i in range(0, features.shape[0], interval)]
-            subsampled_features = np.row_stack(temp_mat)
-            return subsampled_features
-        else:
-            return features
-
-
-class AudioDataset(myDataset):
-    def __init__(self, config, dataset_type):
-        super(AudioDataset, self).__init__(config, dataset_type)
-
-        self.config = config
-        self.text = os.path.join(config.__getattr__(dataset_type), 'text')
-        self.utt2num_frames_txt = os.path.join(config.__getattr__(dataset_type), 'utt2num_frames')
-
-        self.short_first = config.short_first
-
-        # if self.config.encoding:
-        self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
-        self.idx2unit = dict([(i, c) for (i, c) in enumerate(self.unit2idx)])
-        self.targets_dict = self.get_targets_dict()
+        self.feats_list, self.feats_dict = get_feats_list(self.arkscp)
         self.utt2num_frames_dict = get_dict_from_scp(self.utt2num_frames_txt, lambda x: int(x))
 
         if self.short_first:
@@ -148,37 +134,85 @@ class AudioDataset(myDataset):
     def __len__(self):
         return self.lengths
 
-    def get_targets_dict(self):
-        targets_dict = {}
-        with codecs.open(self.text, 'r', encoding='utf-8') as fid:
-            for line in fid:
-                parts = line.strip().split(' ')
-                utt_id = parts[0]
-                contents = parts[1:]
-                # if len(contents) < 0 or len(contents) > self.max_target_length:
-                #     continue
-                # if self.config.encoding:
-                labels = self.encode(contents)
-                # else:
-                #     labels = [int(i) for i in contents]
-                targets_dict[utt_id] = labels
-        return targets_dict
-
-    def encode(self, seq):
-
-        return [self.unit2idx[unit] if unit in self.unit2idx else self.unit2idx['<unk>'] for unit in seq]
-
-    def decode(self, seq, rm_blk=False):
-
-        if rm_blk:
-            return " ".join([self.idx2unit[int(i)] for i in seq if i > 0])
-        return " ".join([self.idx2unit[int(i)] for i in seq])
-
     def check_speech_and_text(self):
         featslist = copy.deepcopy(self.feats_list)
         for utt_id in featslist:
             if utt_id not in self.targets_dict:
                 self.feats_list.remove(utt_id)
+
+    def concat_frame(self, features):
+        time_steps, features_dim = features.shape
+        concated_features = np.zeros(
+            shape=[time_steps, features_dim *
+                   (1 + self.left_context_width + self.right_context_width)],
+            dtype=np.float32)
+        # middle part is just the uttarnce
+        concated_features[:, self.left_context_width * features_dim:
+                             (self.left_context_width + 1) * features_dim] = features
+
+        for i in range(self.left_context_width):
+            # add left context
+            concated_features[i + 1:time_steps,
+            (self.left_context_width - i - 1) * features_dim:
+            (self.left_context_width - i) * features_dim] = features[0:time_steps - i - 1, :]
+
+        for i in range(self.right_context_width):
+            # add right context
+            concated_features[0:time_steps - i - 1,
+            (self.right_context_width + i + 1) * features_dim:
+            (self.right_context_width + i + 2) * features_dim] = features[i + 1:time_steps, :]
+
+        return concated_features
+
+    def subsampling(self, features):
+        if self.frame_rate != 10:
+            interval = int(self.frame_rate / 10)
+            temp_mat = [features[i]
+                        for i in range(0, features.shape[0], interval)]
+            subsampled_features = np.row_stack(temp_mat)
+            return subsampled_features
+        else:
+            return features
+
+
+class LmDataset(myDataset):
+
+    def __init__(self, config, dataset_type):
+        super(LmDataset, self).__init__(config, dataset_type)
+        self.text = config.__getattr__(dataset_type)
+        self.targets_dict = self.get_targets_dict(self.text)
+        self.max_target_length = config.max_target_length
+        self.short_first = config.short_first
+        if self.short_first:
+            self.sorted_list = sorted(self.targets_dict.items(), key=lambda x: len(x[1]), reverse=False)
+        else:
+            self.sorted_list = list(self.targets_dict)
+
+        self.lengths = len(self.sorted_list)
+
+    def __getitem__(self, index):
+        utt_id = self.sorted_list[index][0]
+
+        seq = self.targets_dict[utt_id]
+        seq_ids = np.array(seq)
+
+        if seq_ids.shape[0] >= self.max_target_length:
+            seq_ids = seq_ids[:self.max_target_length]
+
+        # input = seq_ids[:-1]
+        # targets = seq_ids[1:]
+        input = np.concatenate((np.array([0]), seq_ids[:-1]))
+        targets = seq_ids
+        if input.shape[0] == 0:
+            input = np.array([0])
+            targets = np.array([0])
+        inputs_length = np.array(input.shape[0]).astype(np.int64)
+        targets_length = np.array(targets.shape[0]).astype(np.int64)
+
+        return input, inputs_length, targets, targets_length
+
+    def __len__(self):
+        return self.lengths
 
 
 class AudioDataLoader(DataLoader):
@@ -203,81 +237,6 @@ def _collate_fn(batch):
     targets = pad_np(targets, max_targets_length)
 
     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
-
-class LmDataset():
-
-    def __init__(self, config, txt_path):
-
-        self.vocab = config.vocab
-        self.text = config.__getattr__(txt_path)
-        self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
-        self.idx2unit = dict([(i, c) for (i, c) in enumerate(self.unit2idx)])
-        self.targets_dict = self.get_targets_dict()
-        self.max_target_length = config.max_target_length
-        self.short_first = config.short_first
-        if self.short_first:
-            self.sorted_list = sorted(self.targets_dict.items(), key=lambda x: len(x[1]), reverse=False)
-        else:
-            self.sorted_list = list(self.targets_dict)
-
-        self.lengths = len(self.sorted_list)
-
-
-    def get_targets_dict(self):
-        targets_dict = {}
-        with codecs.open(self.text, 'r', encoding='utf-8') as fid:
-            for line in fid:
-                parts = line.strip().split(' ')
-                utt_id = parts[0]
-                contents = parts[1:]
-
-                labels = self.encode(contents)
-                targets_dict[utt_id] = labels
-        return targets_dict
-
-    def encode(self, seq):
-        return [self.unit2idx[unit] if unit in self.unit2idx else self.unit2idx['<unk>'] for unit in seq]
-
-    def decode(self, seq, rm_blk=False):
-
-        if rm_blk:
-            return " ".join([self.idx2unit[int(i)] for i in seq if i > 0])
-        return " ".join([self.idx2unit[int(i)] for i in seq])
-
-    def __getitem__(self, index):
-        utt_id = self.sorted_list[index][0]
-
-        seq = self.targets_dict[utt_id]
-        seq_ids = np.array(seq)
-
-        if seq_ids.shape[0] >= self.max_target_length:
-            seq_ids = seq_ids[:self.max_target_length]
-
-
-        # input = seq_ids[:-1]
-        # targets = seq_ids[1:]
-        input = np.concatenate((np.array([0]), seq_ids[:-1]))
-        targets = seq_ids
-        if input.shape[0] == 0:
-            input = np.array([0])
-            targets = np.array([0])
-        inputs_length = np.array(input.shape[0]).astype(np.int64)
-        targets_length = np.array(targets.shape[0]).astype(np.int64)
-
-        return input, inputs_length, targets, targets_length
-
-    def __len__(self):
-        return self.lengths
-
-
-class LMDataLoader(DataLoader):
-    def __init__(self, *args, **kwargs):
-        """
-        Creates a data loader for AudioDatasets.
-        """
-        super(LMDataLoader, self).__init__(*args, **kwargs)
-        self.collate_fn = _collate_fn
-
 
 
 class Batch_RandomSampler(Sampler):
@@ -321,4 +280,3 @@ class Batch_RandomSampler(Sampler):
 
     def set_epoch(self, epoch):
         self.epoch = epoch
-

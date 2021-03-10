@@ -65,3 +65,14 @@ def get_dict_from_scp(vocab, func=int):
             idx = func(parts[1])
             unit2idx[unit] = idx
     return unit2idx
+
+
+def get_feats_list(arkscp):
+    feats_list = []
+    feats_dict = {}
+    with open(arkscp, 'r') as fid:
+        for line in fid:
+            key, path = line.strip().split(' ')
+            feats_list.append(key)
+            feats_dict[key] = path
+    return feats_list, feats_dict
