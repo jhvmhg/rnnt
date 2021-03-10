@@ -256,8 +256,8 @@ class LmDataset():
 
         # input = seq_ids[:-1]
         # targets = seq_ids[1:]
-        input = np.concatenate((np.array([0]), seq_ids))
-        targets = np.concatenate((seq_ids, np.array([0])))
+        input = np.concatenate((np.array([0]), seq_ids[:-1]))
+        targets = seq_ids
         if input.shape[0] == 0:
             input = np.array([0])
             targets = np.array([0])
