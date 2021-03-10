@@ -99,6 +99,10 @@ class BeamCTCDecoder(Decoder):
         return results
 
     def convert_tensor(self, offsets, sizes):
+
+        """
+        convert torch.tensor to list
+        """
         # results = [[k.item() for k in j[0][:sizes[i][0]]] for i, j in enumerate(offsets)]
         results = []
         for b, batch in enumerate(offsets):
@@ -121,7 +125,10 @@ class BeamCTCDecoder(Decoder):
                             is the probability of character c at time t
             inputs_length: Size of each sequence in the mini-batch
         Returns:
-            string: sequences of the model's best guess for the transcription
+            results_strings: sequences of the model's n-best guess for the transcription
+                             Shape: batchsize x num_beams x num_timesteps.
+            results_list: sequences of the model's n-best guess for the list(int)
+                          Shape: batchsize x num_beams x num_timesteps.
         """
 
         encoder_output, output_lengths = self.model.get_post(inputs, inputs_length)
@@ -130,9 +137,9 @@ class BeamCTCDecoder(Decoder):
 
         results_strings = self.convert_to_strings(results_tensor, seq_lens)
         offsets = self.convert_tensor(offsets, seq_lens)
-        results_tensor = self.convert_tensor(results_tensor, seq_lens)
+        results_list = self.convert_tensor(results_tensor, seq_lens)
 
-        return results_strings, results_tensor, scores, offsets
+        return results_strings, results_list, scores, offsets
 
 
 class GreedyDecoder(Decoder):
