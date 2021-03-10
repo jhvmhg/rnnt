@@ -106,9 +106,9 @@ class BeamCTCDecoder(Decoder):
             for p, utt in enumerate(batch):
                 size = sizes[b][p]
                 if sizes[b][p] > 0:
-                    utterances.append(utt[0:size])
+                    utterances.append(utt[0:size].cpu().numpy().tolist())
                 else:
-                    utterances.append(torch.tensor([], dtype=torch.int))
+                    utterances.append([])
             results.append(utterances)
         return results
 

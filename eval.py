@@ -30,7 +30,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
                        for i in range(targets.size(0))]
 
-        dist, num_words = computer_cer(preds, transcripts)
+        dist, num_words = computer_cer([[j for j in i[0]] for i in preds], transcripts)
         total_dist += dist
         total_word += num_words
 
