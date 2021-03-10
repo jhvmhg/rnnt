@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from src.utils.build_model import build_encoder, build_decoder
+from src.utils import build_encoder, build_decoder
 from warprnnt_pytorch import RNNTLoss
 
 

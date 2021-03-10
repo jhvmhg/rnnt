@@ -4,13 +4,13 @@ import argparse
 import yaml
 import torch
 import torch.utils.data
-from src.rnnt.model import LM, Transducer
-from src.ctc.model import CTC
-from src.utils.optim import Optimizer
-from src.data.dataset import LmDataset, AudioDataLoader, Batch_RandomSampler
+from src.rnnt import LM, Transducer
+from src.ctc import CTC
+from src.utils import Optimizer
+from src.data import LmDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
-from src.utils.utils import AttrDict, init_logger
-from src.utils.checkpoint import save_model, load_model
+from src.utils import AttrDict, init_logger
+from src.utils import save_model, load_model
 
 from train import train, eval
 

@@ -18,7 +18,7 @@
 import torch
 from six.moves import xrange
 
-from src.data.utils import get_dict_from_scp
+from src.data import get_dict_from_scp
 
 
 class Decoder(object):
