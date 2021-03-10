@@ -67,8 +67,8 @@ def main():
         os.makedirs(exp_name)
     logger = init_logger(os.path.join(exp_name, opt.log))
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = config.training.gpus
-    config.training.num_gpu = len(config.training.gpus.split(","))
+    os.environ["CUDA_VISIBLE_DEVICES"] = config.evaling.gpus
+    config.evaling.num_gpu = len(config.evaling.gpus.split(","))
     num_workers = 6 * (config.evaling.num_gpu if config.evaling.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.evaling.num_gpu if config.evaling.num_gpu > 0 else config.data.batch_size
 
