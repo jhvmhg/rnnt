@@ -18,7 +18,7 @@
 import torch
 from six.moves import xrange
 
-from data.utils import pad_np, get_dict_from_scp, cmvn
+from src.data.utils import get_dict_from_scp
 
 
 class Decoder(object):

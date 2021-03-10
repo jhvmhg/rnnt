@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from utils.build_model import build_encoder
+from src.utils.build_model import build_encoder
 
 
 class CTC(nn.Module):

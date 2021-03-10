@@ -6,13 +6,13 @@ import time
 import torch
 import torch.nn as nn
 import torch.utils.data
-from rnnt.model import Transducer
-from ctc.model import CTC
-from utils.optim import Optimizer
-from data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
+from src.rnnt.model import Transducer
+from src.ctc.model import CTC
+from src.utils.optim import Optimizer
+from src.data.dataset import AudioDataset, AudioDataLoader, Batch_RandomSampler
 from tensorboardX import SummaryWriter
-from utils.utils import AttrDict, init_logger, count_parameters, computer_cer
-from utils.checkpoint import save_model, load_model, load_ctc_model
+from src.utils.utils import AttrDict, init_logger, count_parameters, computer_cer
+from src.utils.checkpoint import save_model, load_model
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):

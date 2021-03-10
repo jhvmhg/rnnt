@@ -5,10 +5,10 @@ import torch
 import torch.utils.data
 import yaml
 
-from ctc.ctc_decoder import build_ctc_beam_decoder
-from data.dataset import AudioDataLoader, Batch_RandomSampler, AudioDataset
-from utils.checkpoint import new_model
-from utils.utils import AttrDict, init_logger, computer_cer
+from src.ctc.ctc_decoder import build_ctc_beam_decoder
+from src.data.dataset import AudioDataLoader, Batch_RandomSampler, AudioDataset
+from src.utils.checkpoint import new_model
+from src.utils.utils import AttrDict, init_logger, computer_cer
 
 
 def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):

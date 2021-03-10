@@ -1,6 +1,6 @@
 import torch
-from rnnt.model import Transducer, LM
-from ctc.model import CTC
+from src.rnnt.model import Transducer, LM
+from src.ctc.model import CTC
 
 
 def save_model(model, optimizer, config, save_name):
