@@ -1,6 +1,6 @@
-from src.rnnt.encoder import BaseEncoder, CNN_LSTM
-from src.rnnt.decoder import BaseDecoder
-from src.ctc.deep_speech import DeepSpeech
+from src.encoder.encoder import BaseEncoder, CNN_LSTM
+from src.decoder.decoder import BaseDecoder
+from src.encoder.deep_speech import DeepSpeech
 
 """
 统一在这里构建细分模型，主要是编码器和解码器
