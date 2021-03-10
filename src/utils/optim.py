@@ -38,7 +38,7 @@ def build_optimizer(parameters, config):
         return optim.Adam(
             parameters,
             lr=config.lr,
-            betas=(0.9, 0.98),
+            betas=(0.9, 0.999),
             eps=1e-08,
             weight_decay=config.weight_decay
         )
