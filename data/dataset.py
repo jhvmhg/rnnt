@@ -279,20 +279,6 @@ class LMDataLoader(DataLoader):
         self.collate_fn = _collate_fn
 
 
-# def _collate_fn_lm(batch):
-#     inputs = [b[0] for b in batch]
-#     inputs_length = np.array([b[1] for b in batch])
-#     targets = [b[2] for b in batch]
-#     targets_length = np.array([b[3] for b in batch])
-#
-#     max_inputs_length = max(inputs_length)
-#     max_targets_length = max(targets_length)
-#
-#     features = pad_np(inputs, max_inputs_length)
-#     targets = pad_np(targets, max_targets_length)
-#
-#     return torch.tensor(features), torch.tensor(inputs_length), torch.tensor(targets), torch.tensor(targets_length)
-
 
 class Batch_RandomSampler(Sampler):
     r"""

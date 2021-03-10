@@ -81,7 +81,7 @@ def main():
             checkpoint = torch.load(config.training.load_model, map_location='cpu')
         else:
             checkpoint = torch.load(config.training.load_model)
-        print(str(checkpoint.keys()))
+        logger.info(str(checkpoint.keys()))
         load_model(model, checkpoint)
         logger.info('Loaded model from %s' % config.training.new_model)
     if config.training.load_encoder or config.training.load_decoder:
