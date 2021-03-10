@@ -70,7 +70,7 @@ def main():
 
     os.environ["CUDA_VISIBLE_DEVICES"] = config.evaling.gpus
     config.evaling.num_gpu = len(config.evaling.gpus.split(","))
-    logger.info('Number of gpu:', config.evaling.num_gpu)
+    logger.info('Number of gpu:'+str(config.evaling.num_gpu))
     num_workers = 6 * (config.evaling.num_gpu if config.evaling.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.evaling.num_gpu if config.evaling.num_gpu > 0 else config.data.batch_size
 
