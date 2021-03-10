@@ -5,7 +5,7 @@ import os
 import kaldiio
 import torch
 from torch.utils.data import Sampler, DataLoader
-from src.data.utils import pad_np, get_dict_from_scp, cmvn, get_feats_list, concat_frame, get_cmvn_dict
+from src.data.utils import *
 
 
 class myDataset:
