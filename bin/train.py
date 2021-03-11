@@ -36,7 +36,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-
+        optimizer.zero_grad()
         # feed inputs to model and catch "CUDA out of memory" error
         oom = False
         try:
