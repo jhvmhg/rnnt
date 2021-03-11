@@ -1,5 +1,6 @@
 import os
 import sys
+
 sys.path.append(".")
 import shutil
 import argparse
@@ -16,6 +17,39 @@ from tensorboardX import SummaryWriter
 from src.utils import AttrDict, init_logger, count_parameters, computer_cer, num_gpus
 from src.utils.checkpoint import save_model, load_model
 
+
+def iter_one_batch(model, optimizer, inputs, inputs_length, targets, targets_length, config, total_loss, logger):
+    global loss
+    optimizer.zero_grad()
+    # feed inputs to model and catch "CUDA out of memory" error
+    oom = False
+    try:
+        loss = model(inputs, inputs_length, targets, targets_length)
+        if config.training.num_gpu > 1:
+            loss = torch.mean(loss)
+        loss.backward()
+        total_loss += loss.item()
+    except RuntimeError:  # Out of memory
+        oom = True
+        logger.warning("CUDA out of memory")
+    if oom:
+        for i in range(targets_length.shape[0]):
+            loss = model(inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
+                         targets[i].unsqueeze(0), targets_length[i].unsqueeze(0))
+            if config.training.num_gpu > 1:
+                loss = torch.mean(loss)
+            loss.backward()
+            total_loss += loss.item() / targets_length.shape[0]
+
+    if config.training.max_grad_norm:
+        grad_norm = nn.utils.clip_grad_norm_(
+            model.parameters(), config.training.max_grad_norm)
+    else:
+        grad_norm = 0
+
+    optimizer.step()
+
+    return loss.item(), grad_norm
 
 
 def train(epoch, config, model, training_data, optimizer, logger, visualizer=None):
@@ -36,39 +70,12 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        optimizer.zero_grad()
-        # feed inputs to model and catch "CUDA out of memory" error
-        oom = False
-        try:
-            loss = model(inputs, inputs_length, targets, targets_length)
-            if config.training.num_gpu > 1:
-                loss = torch.mean(loss)
-            loss.backward()
-            total_loss += loss.item()
-        except RuntimeError:  # Out of memory
-            oom = True
-            logger.warning("CUDA out of memory")
-        if oom:
-            for i in range(targets_length.shape[0]):
-                loss = model(inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
-                             targets[i].unsqueeze(0), targets_length[i].unsqueeze(0))
-                if config.training.num_gpu > 1:
-                    loss = torch.mean(loss)
-                loss.backward()
-                total_loss += loss.item()/targets_length.shape[0]
-
-
-        if config.training.max_grad_norm:
-            grad_norm = nn.utils.clip_grad_norm_(
-                model.parameters(), config.training.max_grad_norm)
-        else:
-            grad_norm = 0
-
-        optimizer.step()
+        loss_val, grad_norm = iter_one_batch(model, optimizer, inputs, inputs_length,
+                                         targets, targets_length, config, total_loss, logger)
 
         avg_loss = total_loss / (step + 1)
         if visualizer is not None:
-            visualizer.add_scalar('train_loss', loss.item(), optimizer.global_step)
+            visualizer.add_scalar('train_loss', loss_val, optimizer.global_step)
             visualizer.add_scalar('learn_rate', optimizer.lr, optimizer.global_step)
             visualizer.add_scalar('avg_loss', avg_loss, optimizer.global_step)
 
@@ -77,7 +84,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             process = step / batch_steps * 100
             logger.info('-Training-Epoch:%d(%.5f%%), Global Step:%d, Learning Rate:%.6f, Grad Norm:%.5f, Loss:%.5f, '
                         'AverageLoss: %.5f, Run Time:%.3f' % (epoch, process, optimizer.global_step, optimizer.lr,
-                                                              grad_norm, loss.item(), avg_loss, end - start))
+                                                              grad_norm, loss_val, avg_loss, end - start))
 
         # break
     end_epoch = time.process_time()
@@ -186,7 +193,7 @@ def main():
             checkpoint = torch.load(config.training.load_model, map_location='cpu')
         else:
             checkpoint = torch.load(config.training.load_model)
-        logger.info("load_checkpoint:"+str(checkpoint.keys()))
+        logger.info("load_checkpoint:" + str(checkpoint.keys()))
         load_model(model, checkpoint)
         logger.info('Loaded model from %s' % config.training.new_model)
     if config.training.load_encoder or config.training.load_decoder:
