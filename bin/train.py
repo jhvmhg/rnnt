@@ -70,8 +70,8 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         if oom:
             for i in range(targets_length.shape[0]):
                 loss_val, grad_norm = iter_one_batch(model, optimizer, config,
-                                                     inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
-                                                     targets[i].unsqueeze(0), targets_length[i].unsqueeze(0))
+                                                     inputs[i][:inputs_length[i]].unsqueeze(0), inputs_length[i].unsqueeze(0),
+                                                     targets[i][:targets_length[i]].unsqueeze(0), targets_length[i].unsqueeze(0))
                 total_loss += loss_val / targets_length.shape[0]
 
         avg_loss = total_loss / (step + 1)
