@@ -62,9 +62,10 @@ def get_dict_from_scp(vocab, func=int):
     with codecs.open(vocab, 'r', encoding='utf-8') as fid:
         for line in fid:
             parts = line.strip().split()
-            unit = parts[0]
-            idx = func(parts[1])
-            unit2idx[unit] = idx
+            if len(parts) == 2:
+                unit = parts[0]
+                idx = func(parts[1])
+                unit2idx[unit] = idx
     return unit2idx
 
 
