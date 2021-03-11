@@ -18,28 +18,14 @@ from src.utils import AttrDict, init_logger, count_parameters, computer_cer, num
 from src.utils.checkpoint import save_model, load_model
 
 
-def iter_one_batch(model, optimizer, inputs, inputs_length, targets, targets_length, config, total_loss, logger):
+def iter_one_batch(model, optimizer, config, inputs, inputs_length, targets, targets_length):
     global loss
     optimizer.zero_grad()
-    # feed inputs to model and catch "CUDA out of memory" error
-    oom = False
-    try:
-        loss = model(inputs, inputs_length, targets, targets_length)
-        if config.training.num_gpu > 1:
-            loss = torch.mean(loss)
-        loss.backward()
-        total_loss += loss.item()
-    except RuntimeError:  # Out of memory
-        oom = True
-        logger.warning("CUDA out of memory")
-    if oom:
-        for i in range(targets_length.shape[0]):
-            loss = model(inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
-                         targets[i].unsqueeze(0), targets_length[i].unsqueeze(0))
-            if config.training.num_gpu > 1:
-                loss = torch.mean(loss)
-            loss.backward()
-            total_loss += loss.item() / targets_length.shape[0]
+
+    loss = model(inputs, inputs_length, targets, targets_length)
+    if config.training.num_gpu > 1:
+        loss = torch.mean(loss)
+    loss.backward()
 
     if config.training.max_grad_norm:
         grad_norm = nn.utils.clip_grad_norm_(
@@ -70,8 +56,23 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
             inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
             targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        loss_val, grad_norm = iter_one_batch(model, optimizer, inputs, inputs_length,
-                                         targets, targets_length, config, total_loss, logger)
+        # feed inputs to model and catch "CUDA out of memory" error
+        oom = False
+        try:
+            loss_val, grad_norm = iter_one_batch(model, optimizer, config,
+                                                 inputs, inputs_length,
+                                                 targets, targets_length)
+            total_loss += loss_val
+        except RuntimeError:  # Out of memory
+            oom = True
+            logger.warning("CUDA out of memory")
+
+        if oom:
+            for i in range(targets_length.shape[0]):
+                loss_val, grad_norm = iter_one_batch(model, optimizer, config,
+                                                     inputs[i].unsqueeze(0), inputs_length[i].unsqueeze(0),
+                                                     targets[i].unsqueeze(0), targets_length[i].unsqueeze(0))
+                total_loss += loss_val / targets_length.shape[0]
 
         avg_loss = total_loss / (step + 1)
         if visualizer is not None:
