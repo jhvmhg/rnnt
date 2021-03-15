@@ -14,8 +14,9 @@ class JointNet(nn.Module):
             nn.Tanh(),
             nn.Linear(inner_dim, vocab_size, bias=True)
         )
+        self.softmax = torch.nn.LogSoftmax(dim=-1)
 
-    def forward(self, enc_state, dec_state):
+    def forward(self, enc_state, dec_state, softmax=False):
         if enc_state.dim() == 3 and dec_state.dim() == 3:
             dec_state = dec_state.unsqueeze(1)
             enc_state = enc_state.unsqueeze(2)
@@ -31,6 +32,8 @@ class JointNet(nn.Module):
         concat_state = torch.cat((enc_state, dec_state), dim=-1)
         del enc_state, dec_state
         outputs = self.mlp(concat_state)
+        if softmax:
+            outputs = self.softmax(outputs)
 
         return outputs
 
