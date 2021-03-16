@@ -29,8 +29,8 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
         if beamctc_decoder:
             results_strings, preds, scores, offsets = beamctc_decoder.decode(inputs, inputs_length)
             preds = [[j for j in i[0]] for i in preds]
-        elif beamrnn_t_decoder:
-            preds = beamrnn_t_decoder(inputs, inputs_length)[0]
+        elif beam_rnnt_decoder:
+            preds = beam_rnnt_decoder(inputs, inputs_length)[0]
         else:
             preds = model.recognize(inputs, inputs_length)
 
