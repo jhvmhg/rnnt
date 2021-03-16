@@ -3,17 +3,16 @@ import torch
 
 class TransducerBeamSearcher(torch.nn.Module):
 
-
     def __init__(
-        self,
-        model,
-        beam_size=4,
-        nbest=5,
-        lm_module=None,
-        blank_id=0,
-        lm_weight=0.0,
-        state_beam=2.3,
-        expand_beam=2.3,
+            self,
+            model,
+            beam_size=4,
+            nbest=5,
+            lm_module=None,
+            blank_id=0,
+            lm_weight=0.0,
+            state_beam=2.3,
+            expand_beam=2.3,
     ):
         super(TransducerBeamSearcher, self).__init__()
         self.model = model
@@ -28,7 +27,7 @@ class TransducerBeamSearcher(torch.nn.Module):
 
         self.state_beam = state_beam
         self.expand_beam = expand_beam
-
+        self.softmax = torch.nn.LogSoftmax(dim=-1)
 
     def forward(self, tn_output):
 
@@ -44,12 +43,12 @@ class TransducerBeamSearcher(torch.nn.Module):
         # prepare BOS = Blank for the Prediction Network (PN)
         hidden = None
         input_PN = (
-            torch.ones(
-                (tn_output.size(0), 1),
-                device=tn_output.device,
-                dtype=torch.int64,
-            )
-            * self.blank_id
+                torch.ones(
+                    (tn_output.size(0), 1),
+                    device=tn_output.device,
+                    dtype=torch.int64,
+                )
+                * self.blank_id
         )
         # First forward-pass on PN
         out_PN, hidden = self.model.decoder(input_PN)
@@ -99,9 +98,7 @@ class TransducerBeamSearcher(torch.nn.Module):
             None,
         )
 
-
     def _get_sentence_to_update(self, selected_sentences, output_PN, hidden):
-
 
         selected_output_PN = output_PN[selected_sentences, :]
         # for LSTM hiddens (hn, hc)
@@ -121,5 +118,3 @@ class TransducerBeamSearcher(torch.nn.Module):
         else:
             hidden[:, selected_sentences, :] = updated_hidden
         return hidden
-
-
