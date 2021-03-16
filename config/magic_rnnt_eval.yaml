@@ -41,7 +41,7 @@ training:
     load_model: False
     seed: 2019
     show_interval: 1
-    save_model: 4blstm_320ctc_gpu2_retrain
+    save_model: 4blstm_320_lstm512_gpu1
 evaling:
     load_model: egs/magic/exp/transducer/4blstm_320_lstm512_gpu1/4blstm_320_lstm512_gpu1.epoch24.chkpt
     beam_size: 8
