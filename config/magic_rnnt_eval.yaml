@@ -34,7 +34,7 @@ training:
     show_interval: 1
     save_model: 4blstm_320ctc_gpu2_retrain
 evaling:
-    load_model: egs/magic/exp/ctc/4blstm_320ctc_gpu2_retrain/4blstm_320ctc_gpu2_retrain.epoch29.chkpt
+    load_model: egs/magic/exp/transducer/4blstm_320_lstm512_gpu1/4blstm_320_lstm512_gpu1.epoch24.chkpt
     beam_size: 8
     nbest: 6
     lm_weight: 0.0
