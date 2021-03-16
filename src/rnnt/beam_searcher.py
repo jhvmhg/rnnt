@@ -172,8 +172,7 @@ class TransducerBeamSearcher(torch.nn.Module):
                     if len(beam_hyps) > 0:
                         b_best_hyp = max(
                             beam_hyps,
-                            key=lambda x: x["logp_score"]
-                                          / len(x["prediction"]),
+                            key=lambda x: x["logp_score"] / len(x["prediction"]),
                         )
                         a_best_prob = a_best_hyp["logp_score"]
                         b_best_prob = b_best_hyp["logp_score"]
@@ -210,7 +209,7 @@ class TransducerBeamSearcher(torch.nn.Module):
                         else logp_targets[1]
                     )
 
-                    # Extend hyp by  selection
+                    # Extend hyp by selection
                     for j in range(logp_targets.size(0)):
 
                         # hyp
@@ -258,3 +257,24 @@ class TransducerBeamSearcher(torch.nn.Module):
             nbest_batch,
             nbest_batch_score,
         )
+
+
+def build_beam_rnnt_decoder(config, model, lm_module=None):
+    beam_rnnt_decoder = None
+    if config.model.type == "transducer":
+        beam_size = config.evaling.beam_size if config.evaling.beam_size else 6
+        nbest = config.evaling.nbest if config.evaling.nbest else 6
+        lm_weight = config.evaling.lm_weight if config.evaling.lm_weight and lm_module else 0.0
+        state_beam = config.evaling.state_beam if config.evaling.state_beam else 2.3
+        expand_beam = config.evaling.expand_beam if config.evaling.expand_beam else 2.3
+
+        beam_rnnt_decoder = TransducerBeamSearcher(model,
+                                                   beam_size=beam_size,
+                                                   nbest=nbest,
+                                                   lm_module=lm_module,
+                                                   blank_id=0,
+                                                   lm_weight=lm_weight,
+                                                   state_beam=state_beam,
+                                                   expand_beam=expand_beam,
+                                                   )
+    return beam_rnnt_decoder

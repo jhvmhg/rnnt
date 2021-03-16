@@ -1,20 +1,20 @@
 import argparse
 import os
 import sys
+
 sys.path.append(".")
 import torch
 import torch.utils.data
 import yaml
 
 from src.ctc import build_ctc_beam_decoder
+from src.rnnt import build_beam_rnnt_decoder
 from src.data import AudioDataLoader, Batch_RandomSampler, AudioDataset
 from src.utils.checkpoint import new_model
 from src.utils import AttrDict, init_logger, computer_cer, num_gpus
 
 
-
-
-def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None):
+def eval(config, model, validating_data, logger, visualizer=None, beamctc_decoder=None, beam_rnnt_decoder=None):
     model.eval()
     total_loss = 0
     total_dist = 0
@@ -29,8 +29,11 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
         if beamctc_decoder:
             results_strings, preds, scores, offsets = beamctc_decoder.decode(inputs, inputs_length)
             preds = [[j for j in i[0]] for i in preds]
+        elif beamrnn_t_decoder:
+            preds = beamrnn_t_decoder(inputs, inputs_length)[0]
         else:
             preds = model.recognize(inputs, inputs_length)
+
         transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
                        for i in range(targets.size(0))]
 
@@ -42,7 +45,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
         if step % config.evaling.show_interval == 0:
             process = step / batch_steps * 100
             logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % (process, cer))
-            logger.info('preds:' + validating_data.dataset.decode(preds[0]))
+            logger.info('predictions:' + validating_data.dataset.decode(preds[0]))
             logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
             logger.info('cer_num:' + str(dist))
 
@@ -99,14 +102,16 @@ def main():
     else:
         checkpoint = torch.load(config.evaling.load_model)
     logger.info(str(checkpoint.keys()))
+
     with torch.no_grad():
         model = new_model(config, checkpoint).eval()
-
+        beam_rnnt_decoder = build_beam_rnnt_decoder(config, model)
         beamctc_decoder = build_ctc_beam_decoder(config, model)
         if config.evaling.num_gpu > 0:
             model = model.cuda()
 
-        _ = eval(config, model, validate_data, logger, beamctc_decoder=beamctc_decoder)
+        _ = eval(config, model, validate_data, logger,
+                 beamctc_decoder=beamctc_decoder, beam_rnnt_decoder=beam_rnnt_decoder)
 
 
 if __name__ == '__main__':

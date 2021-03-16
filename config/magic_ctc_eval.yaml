@@ -1,0 +1,55 @@
+units_type: character
+feature_source: kaldi
+feature_type: fbank
+data:
+    name: magic
+    vocab: egs/aishell/data/magic_aishell_vocab
+    left_context_width: 3
+    right_context_width: 0
+    frame_rate: 30
+    apply_cmvn: False
+    max_input_length: 500
+    max_target_length: 50
+    batch_size: 32
+    short_first: True
+    shuffle: True
+    train: /home1/meichaoyang/dataset/magictang/rnn_t/train
+    test: /home1/meichaoyang/dataset/magictang/rnn_t/dev
+#     test: /home1/meichaoyang/workspace/git/kws/egs/aishell1/data/test_40_bin
+model:
+    type: ctc
+    enc:
+        type: lstm
+        hidden_size: 320
+        output_size: 320
+        n_layers: 4
+        bidirectional: True
+    vocab_size: 5455
+    share_weight: False
+    feature_dim: 160
+    dropout: 0.3
+training:
+    load_model: False
+    seed: 2019
+    show_interval: 1
+    save_model: 4blstm_320ctc_gpu2_retrain
+evaling:
+    load_model: egs/magic/exp/ctc/4blstm_320ctc_gpu2_retrain/4blstm_320ctc_gpu2_retrain.epoch29.chkpt
+    lm_model: "/home1/meichaoyang/dataset/magictang/rnn_t/text_lm.apra"
+#     lm_model: "/home1/meichaoyang/workspace/git/kws/egs/aishell1/data/train/text_lm.apra"
+#     lm_model: "/home1/meichaoyang/dataset/lm/CLMAD/edu.train.lm"
+    alpha: 0.5
+    beta: 1.55
+    beam_decoder_num_processes: 8
+    gpus: "2"
+    show_interval: 10
+    seed: 2019
+optim:
+    type: sgd
+    lr: 0.0008
+    momentum: 0.9
+    decay_ratio: 0.8
+    weight_decay: 0
+    begin_to_adjust_lr: 10
+
+
