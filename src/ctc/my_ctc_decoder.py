@@ -1,6 +1,16 @@
 from collections import defaultdict
 import numpy as np
 
+"""
+参考
+[CTC解码](https://blog.csdn.net/weixin_42615068/article/details/93767781)
+[CTC宝藏](https://zhuanlan.zhihu.com/p/39266552)
+[CTC详细介绍](https://distill.pub/2017/ctc/)
+"""
+
+
+
+
 ninf = float("-inf")
 
 
