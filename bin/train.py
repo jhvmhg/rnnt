@@ -145,9 +145,9 @@ def main():
     if not os.path.isdir(exp_name):
         os.makedirs(exp_name)
     logger = init_logger(os.path.join(exp_name, opt.log))
-
-    shutil.copyfile(opt.config, os.path.join(exp_name, 'config.yaml'))
-    logger.info('Save config info.')
+    if opt.mode != 'continue':
+        shutil.copyfile(opt.config, os.path.join(exp_name, 'config.yaml'))
+        logger.info('Save config info.')
 
     os.environ["CUDA_VISIBLE_DEVICES"] = config.training.gpus
 
