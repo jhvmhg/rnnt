@@ -264,6 +264,6 @@ class Scorer(object):
 
 """
 使用：
-dp_scoree = Scorer(0.5, 0.5, '/home1/meichaoyang/dataset/magictang/rnn_t/text_lm.apra')
+dp_scoree = Scorer(0.5, 4.55, '/home1/meichaoyang/dataset/magictang/rnn_t/text_lm.apra')
 ctc_score = ctc_beam_search_decoder(encoder_output[1], 10, list(dev_dataset.unit2idx),ext_scoring_func=dp_scoree)
 """
