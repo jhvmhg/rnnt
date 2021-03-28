@@ -21,7 +21,7 @@ class BaseEncoder(nn.Module):
 
     def forward(self, inputs, input_lengths):
         assert inputs.dim() == 3
-        total_length = inputs.size(1)
+        total_length = inputs.size(1)  # get the max sequence length
 
         # if input_lengths is not None:
         #     sorted_seq_lengths, indices = torch.sort(input_lengths, descending=True)
@@ -79,5 +79,3 @@ class CNN_LSTM(nn.Module):
         logits = self.output_proj(outputs)
 
         return logits, input_lengths
-
-
