@@ -21,7 +21,7 @@ class BaseEncoder(nn.Module):
 
     def forward(self, inputs, input_lengths):
         assert inputs.dim() == 3
-        total_length = inputs.size(1)  # get the max sequence length
+        # total_length = inputs.size(1)  # get the max sequence length
 
         # if input_lengths is not None:
         #     sorted_seq_lengths, indices = torch.sort(input_lengths, descending=True)
@@ -35,7 +35,7 @@ class BaseEncoder(nn.Module):
         #     _, desorted_indices = torch.sort(indices, descending=False)
         #     outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
         #     outputs = outputs[desorted_indices]
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True, total_length=total_length)
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True) #delete total_length=total_length
         logits = self.output_proj(outputs)
 
         return logits, input_lengths
