@@ -215,7 +215,7 @@ def main():
         model = model.cuda()
         if config.training.num_gpu > 1:
             device_ids = list(range(config.training.num_gpu))
-            model = torch.nn.DataParallel(model, device_ids=device_ids)
+            model = torch.nn.parallel.DistributedDataParallel(model, device_ids=device_ids)
         logger.info('Loaded the model to %d GPUs' % config.training.num_gpu)
 
     n_params, enc, dec = count_parameters(model)
@@ -241,6 +241,8 @@ def main():
     if config.training.visualization:
         visualizer = SummaryWriter(os.path.join(exp_name, 'log'))
         logger.info('Created a visualizer.')
+        visualizer.add_graph(model)
+        visualizer.close()
     else:
         visualizer = None
 
