@@ -241,7 +241,7 @@ def main():
     if config.training.visualization:
         visualizer = SummaryWriter(os.path.join(exp_name, 'log'))
         logger.info('Created a visualizer.')
-        visualizer.add_graph(model)
+        # visualizer.add_graph(model) #fix bug
     else:
         visualizer = None
 
