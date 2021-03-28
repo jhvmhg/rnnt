@@ -242,7 +242,6 @@ def main():
         visualizer = SummaryWriter(os.path.join(exp_name, 'log'))
         logger.info('Created a visualizer.')
         visualizer.add_graph(model)
-        visualizer.close()
     else:
         visualizer = None
 
