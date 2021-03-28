@@ -215,7 +215,7 @@ def main():
     if config.training.num_gpu > 0:
         model = model.cuda()
         if config.training.num_gpu > 1:
-            dist.init_process_group(backend='nccl', world_size=4)
+            dist.init_process_group(backend='nccl', world_size=4, rank=1)
             device_ids = list(range(config.training.num_gpu))
             model = torch.nn.parallel.DistributedDataParallel(model, device_ids=device_ids)
         logger.info('Loaded the model to %d GPUs' % config.training.num_gpu)
