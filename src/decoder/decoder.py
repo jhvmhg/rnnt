@@ -26,7 +26,6 @@ class BaseDecoder(nn.Module):
         embed_inputs = self.embedding(inputs)
 
         if length is not None:
-            # total_length = embed_inputs.size(1)  # get the max sequence length
             sorted_seq_lengths, indices = torch.sort(length, descending=True)
             embed_inputs = embed_inputs[indices]
             embed_inputs = nn.utils.rnn.pack_padded_sequence(
@@ -37,7 +36,7 @@ class BaseDecoder(nn.Module):
 
         if length is not None:
             _, desorted_indices = torch.sort(indices, descending=False)
-            outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True) #, total_length=total_length
+            outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
             outputs = outputs[desorted_indices]
 
         outputs = self.output_proj(outputs)
