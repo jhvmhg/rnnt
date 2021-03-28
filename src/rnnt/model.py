@@ -71,7 +71,7 @@ class Transducer(nn.Module):
             output_length = output_length.int()
 
         dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
-
+        print(dec_state.shape, targets_length)
         logits = self.joint(enc_state, dec_state)
         del enc_state, dec_state
         loss = self.crit(logits, targets.int(), output_length, targets_length.int())
