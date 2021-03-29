@@ -24,6 +24,7 @@ def iter_one_batch(model, config, inputs, inputs_length, targets, targets_length
     loss = model(inputs, inputs_length, targets, targets_length)
     if config.training.num_gpu > 1:
         loss = torch.mean(loss)
+    loss = loss / config.training.accumulation_steps
     loss.backward()
 
     if config.training.max_grad_norm:
@@ -160,6 +161,7 @@ def main():
     config.training.num_gpu = num_gpus(config.training.gpus)
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
+    logger.info('batch_size:'+str(batch_size))
 
     train_dataset = AudioDataset(config.data, 'train')
     train_sampler = Batch_RandomSampler(len(train_dataset),
@@ -219,7 +221,7 @@ def main():
 
     if config.training.num_gpu > 0:
         model = model.cuda()
-        if config.training.num_gpu > 0:
+        if config.training.num_gpu > 1:
             # dist.init_process_group(backend='nccl', world_size=4, rank=1)
             device_ids = list(range(config.training.num_gpu))
             model = torch.nn.DataParallel(model, device_ids=device_ids)
