@@ -95,6 +95,8 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
 
 def eval(epoch, config, model, validating_data, logger, visualizer=None):
+    if isinstance(model, torch.nn.DataParallel):
+        model = model.module
     model.eval()
     with torch.no_grad():
         total_loss, total_dist, total_word = 0, 0, 0
