@@ -20,8 +20,6 @@ from src.utils.checkpoint import save_model, load_model
 
 
 def iter_one_batch(model, optimizer, config, inputs, inputs_length, targets, targets_length):
-    global loss
-    optimizer.zero_grad()
 
     loss = model(inputs, inputs_length, targets, targets_length)
     if config.training.num_gpu > 1:
@@ -34,7 +32,7 @@ def iter_one_batch(model, optimizer, config, inputs, inputs_length, targets, tar
     else:
         grad_norm = 0
 
-    optimizer.step()
+
 
     return loss.item(), grad_norm
 
@@ -75,6 +73,8 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
                                                      targets[i][:targets_length[i]].unsqueeze(0), targets_length[i].unsqueeze(0))
                 total_loss += loss_val / targets_length.shape[0]
 
+        optimizer.step()
+        optimizer.zero_grad()
         avg_loss = total_loss / (step + 1)
         if visualizer is not None:
             visualizer.add_scalar('train_loss', loss_val, optimizer.global_step)
