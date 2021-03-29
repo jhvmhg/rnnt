@@ -4,6 +4,8 @@ from src.ctc import CTC
 
 
 def save_model(model, optimizer, config, save_name):
+    if isinstance(model, torch.nn.DataParallel):
+        model = model.module
     if model.config.type == "transducer":
         save_rnn_t_model(model, optimizer, config, save_name)
     elif model.config.type == "ctc":
