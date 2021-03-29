@@ -58,7 +58,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         # feed inputs to model and catch "CUDA out of memory" error
         oom = False
         try:
-            loss_val, grad_norm = iter_one_batch(model, optimizer, config,
+            loss_val, grad_norm = iter_one_batch(model, config,
                                                  inputs, inputs_length,
                                                  targets, targets_length)
             total_loss += loss_val
@@ -68,7 +68,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         if oom:
             for i in range(targets_length.shape[0]):
-                loss_val, grad_norm = iter_one_batch(model, optimizer, config,
+                loss_val, grad_norm = iter_one_batch(model, config,
                                                      inputs[i][:inputs_length[i]].unsqueeze(0), inputs_length[i].unsqueeze(0),
                                                      targets[i][:targets_length[i]].unsqueeze(0), targets_length[i].unsqueeze(0))
                 total_loss += loss_val / targets_length.shape[0]
