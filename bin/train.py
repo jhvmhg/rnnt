@@ -43,6 +43,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
     start_epoch = time.process_time()
     total_loss = 0
     optimizer.epoch()
+    optimizer.zero_grad()
     batch_steps = len(training_data)
 
     for step, (inputs, inputs_length, targets, targets_length) in enumerate(training_data):
