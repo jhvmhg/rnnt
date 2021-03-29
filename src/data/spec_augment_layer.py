@@ -1,5 +1,7 @@
 import torch as t
-
+"""
+参考：https://zhuanlan.zhihu.com/p/73856668
+"""
 
 class SpecAugment(t.nn.Module):
     def __init__(self, n_time_mask=2, n_freq_mask=2, time_mask_length=80, freq_mask_length=20, p=0.2):
