@@ -19,7 +19,7 @@ from src.utils import AttrDict, init_logger, count_parameters, computer_cer, num
 from src.utils.checkpoint import save_model, load_model
 
 
-def iter_one_batch(model, optimizer, config, inputs, inputs_length, targets, targets_length):
+def iter_one_batch(model, config, inputs, inputs_length, targets, targets_length):
 
     loss = model(inputs, inputs_length, targets, targets_length)
     if config.training.num_gpu > 1:
@@ -72,9 +72,12 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
                                                      inputs[i][:inputs_length[i]].unsqueeze(0), inputs_length[i].unsqueeze(0),
                                                      targets[i][:targets_length[i]].unsqueeze(0), targets_length[i].unsqueeze(0))
                 total_loss += loss_val / targets_length.shape[0]
+        # 梯度累积
+        if ((step + 1) % config.training.accumulation_steps) == 0:
+            # optimizer the net
+            optimizer.step()  # update parameters of net
+            optimizer.zero_grad()  # reset gradient
 
-        optimizer.step()
-        optimizer.zero_grad()
         avg_loss = total_loss / (step + 1)
         if visualizer is not None:
             visualizer.add_scalar('train_loss', loss_val, optimizer.global_step)
