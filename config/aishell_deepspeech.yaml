@@ -43,6 +43,7 @@ training:
     gpus: "1"
     epochs: 60
     max_grad_norm: 200
+    accumulation_steps: 1
     visualization: True
     show_interval: 10
     save_model: 3lstm_320henc_deep_speech
