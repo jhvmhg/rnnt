@@ -13,7 +13,7 @@ class myDataset:
         self.vocab = config.vocab
 
         # if self.config.encoding:
-        self.unit2idx = get_dict_from_scp(self.vocab, int)  # same function as get self.utt2num_frames_dict
+        self.unit2idx = get_dict_from_scp(self.vocab, lambda x: int(x[0]))  # same function as get self.utt2num_frames_dict
         self.idx2unit = dict([(i, c) for (i, c) in enumerate(self.unit2idx)])
 
         self.max_input_length = config.max_input_length
@@ -74,7 +74,7 @@ class AudioDataset(myDataset):
             self.cmvn_stats_dict = get_cmvn_dict(self.cmvnscp)
 
         self.feats_list, self.feats_dict = get_feats_list(self.arkscp)
-        self.utt2num_frames_dict = get_dict_from_scp(self.utt2num_frames_txt, lambda x: int(x))
+        self.utt2num_frames_dict = get_dict_from_scp(self.utt2num_frames_txt, lambda x: int(x[0]))
 
         if self.short_first:
             self.sorted_list = sorted(self.utt2num_frames_dict.items(), key=lambda x: x[1], reverse=False)
