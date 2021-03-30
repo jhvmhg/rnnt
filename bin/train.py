@@ -162,7 +162,8 @@ def main():
     config.training.num_gpu = num_gpus(config.training.gpus)
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
-    logger.info('batch_size:'+str(batch_size))
+    logger.info('batch_size from:'+str(batch_size)
+                + "to=>:" + str(batch_size*config.training.accumulation_steps))
 
     train_dataset = AudioDataset(config.data, 'train')
     train_sampler = Batch_RandomSampler(len(train_dataset),
