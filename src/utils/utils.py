@@ -81,7 +81,9 @@ def add_space(path, old_path):
 
     with open(path, "w") as f_out:
         for line in lines:
-            utt, txt = line.split()
+            data = line.split()
+            utt = data[0]
+            txt = "".join(data[1:])
             f_out.write(utt + " " + " ".join(list(txt)) + "\n")
 
 
