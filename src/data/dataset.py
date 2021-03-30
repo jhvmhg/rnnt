@@ -23,16 +23,17 @@ class myDataset:
         raise NotImplementedError
 
     def get_targets_dict(self, text):
-        targets_dict = {}
-        with codecs.open(text, 'r', encoding='utf-8') as fid:
-            for line in fid:
-                parts = line.strip().split(' ')
-                utt_id = parts[0]
-                contents = parts[1:]
-
-                labels = self.encode(contents)
-
-                targets_dict[utt_id] = labels
+        # targets_dict = {}
+        targets_dict = get_dict_from_scp(text, lambda x: self.encode(x))
+        # with codecs.open(text, 'r', encoding='utf-8') as fid:
+        #     for line in fid:
+        #         parts = line.strip().split(' ')
+        #         utt_id = parts[0]
+        #         contents = parts[1:]
+        #
+        #         labels = self.encode(contents)
+        #
+        #         targets_dict[utt_id] = labels
         return targets_dict
 
     def encode(self, seq):
