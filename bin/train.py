@@ -26,6 +26,9 @@ def iter_one_batch(model, config, logger, inputs, inputs_length, targets, target
     if torch.isnan(loss):
         logger.info("Train loss is nan. Skipping train loss update")
         return 0, 0
+    if torch.isinf(loss):
+        logger.info("Train loss is inf. Skipping train loss update")
+        return 0, 0
     loss = loss / config.training.accumulation_steps
     loss.backward()
 
