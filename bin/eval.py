@@ -44,14 +44,14 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
             total_word += num_words
 
             cer = total_dist / total_word * 100
+            t.postfix[0]["CER"] = "%.5f %%" % (cer)
+            t.update()
             if step % config.evaling.show_interval == 0:
                 process = step / batch_steps * 100
                 logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % (process, cer))
                 logger.info('predictions:' + validating_data.dataset.decode(preds[0]))
                 logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
                 logger.info('cer_num:' + str(dist))
-                t.postfix[0]["CER"] = "%.5f %%" % (process, cer)
-                t.update()
 
     val_loss = total_loss / (step + 1)
     logger.info('-Validation:, AverageLoss:%.5f, AverageCER: %.5f %%' %
