@@ -21,34 +21,37 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
     total_dist = 0
     total_word = 0
     batch_steps = len(validating_data)
-    for step, (inputs, inputs_length, targets, targets_length) in enumerate(tqdm(validating_data)):
+    with tqdm(validating_data, postfix=[dict(cer=100)]) as t:
+        for step, (inputs, inputs_length, targets, targets_length) in enumerate(t):
 
-        if config.evaling.num_gpu > 0:
-            inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
-            targets, targets_length = targets.cuda(), targets_length.cuda()
+            if config.evaling.num_gpu > 0:
+                inputs, inputs_length = inputs.cuda(), inputs_length.cuda()
+                targets, targets_length = targets.cuda(), targets_length.cuda()
 
-        if beamctc_decoder:
-            results_strings, preds, scores, offsets = beamctc_decoder.decode(inputs, inputs_length)
-            preds = [[j for j in i[0]] for i in preds]
-        elif beam_rnnt_decoder:
-            preds = beam_rnnt_decoder(inputs, inputs_length)[0]
-        else:
-            preds = model.recognize(inputs, inputs_length)
+            if beamctc_decoder:
+                results_strings, preds, scores, offsets = beamctc_decoder.decode(inputs, inputs_length)
+                preds = [[j for j in i[0]] for i in preds]
+            elif beam_rnnt_decoder:
+                preds = beam_rnnt_decoder(inputs, inputs_length)[0]
+            else:
+                preds = model.recognize(inputs, inputs_length)
 
-        transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
-                       for i in range(targets.size(0))]
+            transcripts = [targets.cpu().numpy()[i][:targets_length[i].item()]
+                           for i in range(targets.size(0))]
 
-        dist, num_words = computer_cer(preds, transcripts)
-        total_dist += dist
-        total_word += num_words
+            dist, num_words = computer_cer(preds, transcripts)
+            total_dist += dist
+            total_word += num_words
 
-        cer = total_dist / total_word * 100
-        if step % config.evaling.show_interval == 0:
-            process = step / batch_steps * 100
-            logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % (process, cer))
-            logger.info('predictions:' + validating_data.dataset.decode(preds[0]))
-            logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
-            logger.info('cer_num:' + str(dist))
+            cer = total_dist / total_word * 100
+            if step % config.evaling.show_interval == 0:
+                process = step / batch_steps * 100
+                logger.info('-Validation-:(%.5f%%), CER: %.5f %%' % (process, cer))
+                logger.info('predictions:' + validating_data.dataset.decode(preds[0]))
+                logger.info('transcripts:' + validating_data.dataset.decode(transcripts[0]))
+                logger.info('cer_num:' + str(dist))
+                t.postfix[0]["cer"] = cer
+                t.update()
 
     val_loss = total_loss / (step + 1)
     logger.info('-Validation:, AverageLoss:%.5f, AverageCER: %.5f %%' %
