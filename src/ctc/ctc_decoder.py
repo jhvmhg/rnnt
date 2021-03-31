@@ -33,7 +33,7 @@ class Decoder(object):
 
     def __init__(self, vocab, model, blank_index=0):
         self.model = model
-        self.unit2idx = get_dict_from_scp(vocab, int)
+        self.unit2idx = get_dict_from_scp(vocab, lambda x: int(x[0]))
         self.labels = list(self.unit2idx)
         self.int_to_char = dict([(i, c) for (i, c) in enumerate(self.labels)])
         self.blank_index = blank_index
