@@ -9,7 +9,7 @@ import time
 import torch
 import torch.nn as nn
 import torch.utils.data
-import torch.distributed as dist
+# import torch.distributed as dist
 from src.rnnt import Transducer
 from src.ctc import CTC
 from src.utils import Optimizer
@@ -19,11 +19,13 @@ from src.utils import AttrDict, init_logger, count_parameters, computer_cer, num
 from src.utils.checkpoint import save_model, load_model
 
 
-def iter_one_batch(model, config, inputs, inputs_length, targets, targets_length):
-
+def iter_one_batch(model, config, logger, inputs, inputs_length, targets, targets_length):
     loss = model(inputs, inputs_length, targets, targets_length)
     if config.training.num_gpu > 1:
         loss = torch.mean(loss)
+    if torch.isnan(loss):
+        logger.info("Train loss is nan. Skipping train loss update")
+        return 0, 0
     loss = loss / config.training.accumulation_steps
     loss.backward()
 
@@ -32,8 +34,6 @@ def iter_one_batch(model, config, inputs, inputs_length, targets, targets_length
             model.parameters(), config.training.max_grad_norm)
     else:
         grad_norm = 0
-
-
 
     return loss.item(), grad_norm
 
@@ -60,7 +60,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         # feed inputs to model and catch "CUDA out of memory" error
         oom = False
         try:
-            loss_val, grad_norm = iter_one_batch(model, config,
+            loss_val, grad_norm = iter_one_batch(model, config, logger,
                                                  inputs, inputs_length,
                                                  targets, targets_length)
             total_loss += loss_val
@@ -70,9 +70,11 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         if oom:
             for i in range(targets_length.shape[0]):
-                loss_val, grad_norm = iter_one_batch(model, config,
-                                                     inputs[i][:inputs_length[i]].unsqueeze(0), inputs_length[i].unsqueeze(0),
-                                                     targets[i][:targets_length[i]].unsqueeze(0), targets_length[i].unsqueeze(0))
+                loss_val, grad_norm = iter_one_batch(model, config, logger,
+                                                     inputs[i][:inputs_length[i]].unsqueeze(0),
+                                                     inputs_length[i].unsqueeze(0),
+                                                     targets[i][:targets_length[i]].unsqueeze(0),
+                                                     targets_length[i].unsqueeze(0))
                 total_loss += loss_val / targets_length.shape[0]
         # 梯度累积
         if ((step + 1) % config.training.accumulation_steps) == 0:
@@ -162,8 +164,8 @@ def main():
     config.training.num_gpu = num_gpus(config.training.gpus)
     num_workers = 6 * (config.training.num_gpu if config.training.num_gpu > 0 else 1)
     batch_size = config.data.batch_size * config.training.num_gpu if config.training.num_gpu > 0 else config.data.batch_size
-    logger.info('batch_size from:'+str(batch_size)
-                + " to =>:" + str(batch_size*config.training.accumulation_steps))
+    logger.info('batch_size from:' + str(batch_size)
+                + " to =>:" + str(batch_size * config.training.accumulation_steps))
 
     train_dataset = AudioDataset(config.data, 'train')
     train_sampler = Batch_RandomSampler(len(train_dataset),
