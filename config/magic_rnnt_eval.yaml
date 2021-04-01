@@ -33,6 +33,7 @@ model:
     joint:
         input_size: 640
         inner_size: 512
+        type: concat # type [sum | concat]
     vocab_size: 5455
     share_weight: False
     feature_dim: 160

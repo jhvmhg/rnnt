@@ -21,14 +21,14 @@ class JointNet(nn.Module):
 
         Arguments
         ---------
-        enc_state : torch.Tensor (B * T * H)
+        enc_state : torch.Tensor (B * T * H_t) or ([B *] H_t)
            Input from Transcription Network.
 
-        dec_state : torch.Tensor (B * U * H)
+        dec_state : torch.Tensor (B * U * H_p) or ([B *] H_p)
            Input from Prediction Network.
 
         softmax : bool
-            apply softmax for joint output.
+           apply softmax for joint output.
         """
 
         if enc_state.dim() != dec_state.dim():
