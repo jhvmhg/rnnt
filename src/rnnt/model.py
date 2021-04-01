@@ -26,25 +26,26 @@ class JointNet(nn.Module):
 
         dec_state : torch.Tensor
            Input from Prediction Network.
+
+        softmax : bool
+            apply softmax for joint output.
         """
 
         if enc_state.dim() != dec_state.dim():
-            raise ValueError("input_TN and input_PN must be have same size")
+            raise ValueError("input_TN and input_PN must be have same size."
+                             "3 for training, or 1,2 for evaluation")
+
+        if enc_state.dim() == 3 and dec_state.dim() == 3:
+            enc_state = enc_state.unsqueeze(2)
+            dec_state = dec_state.unsqueeze(1)
 
         if self.joint == "sum":
-            if enc_state.dim() == 3 and dec_state.dim() == 3:
-                enc_state = enc_state.unsqueeze(2)
-                dec_state = dec_state.unsqueeze(1)
-            joint = enc_state + dec_state
+            concat_state = enc_state + dec_state
 
         elif self.joint == "concat":
-            if enc_state.dim() == 3 and dec_state.dim() == 3:
-                enc_state = enc_state.unsqueeze(2)
-                dec_state = dec_state.unsqueeze(1)
-
+            if enc_state.dim() == 4 and dec_state.dim() == 4:
                 t = enc_state.size(1)
                 u = dec_state.size(2)
-
                 enc_state = enc_state.repeat([1, 1, u, 1])
                 dec_state = dec_state.repeat([1, t, 1, 1])
             else:
@@ -52,9 +53,13 @@ class JointNet(nn.Module):
 
             concat_state = torch.cat((enc_state, dec_state), dim=-1)
             del enc_state, dec_state
-            joint = self.mlp(concat_state)
-            if softmax:
-                joint = self.softmax(joint)
+
+        else:
+            raise NotImplementedError
+
+        joint = self.mlp(concat_state)
+        if softmax:
+            joint = self.softmax(joint)
 
         return joint
 
