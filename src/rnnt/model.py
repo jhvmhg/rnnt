@@ -64,7 +64,8 @@ class Transducer(nn.Module):
         self.joint = JointNet(
             input_size=config.joint.input_size,
             inner_dim=config.joint.inner_size,
-            vocab_size=config.vocab_size
+            vocab_size=config.vocab_size,
+            joint=config.joint.type if config.joint.type else "concat"
         )
 
         if config.share_embedding:
