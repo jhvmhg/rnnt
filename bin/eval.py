@@ -21,7 +21,7 @@ def eval(config, model, validating_data, logger, visualizer=None, beamctc_decode
     total_dist = 0
     total_word = 0
     batch_steps = len(validating_data)
-    with tqdm(validating_data, postfix=[dict(CER=100)], position=1) as t:
+    with tqdm(validating_data, postfix=[dict(CER=100)]) as t:
         for step, (inputs, inputs_length, targets, targets_length) in enumerate(t):
 
             if config.evaling.num_gpu > 0:
