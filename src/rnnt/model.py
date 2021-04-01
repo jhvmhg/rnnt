@@ -21,10 +21,10 @@ class JointNet(nn.Module):
 
         Arguments
         ---------
-        enc_state : torch.Tensor
+        enc_state : torch.Tensor (B * T * H)
            Input from Transcription Network.
 
-        dec_state : torch.Tensor
+        dec_state : torch.Tensor (B * U * H)
            Input from Prediction Network.
 
         softmax : bool
