@@ -27,13 +27,20 @@ class JointNet(nn.Module):
         dec_state : torch.Tensor
            Input from Prediction Network.
         """
+
+        if enc_state.dim() != dec_state.dim():
+            raise ValueError("input_TN and input_PN must be have same size")
+
         if self.joint == "sum":
+            if enc_state.dim() == 3 and dec_state.dim() == 3:
+                enc_state = enc_state.unsqueeze(2)
+                dec_state = dec_state.unsqueeze(1)
             joint = enc_state + dec_state
 
         elif self.joint == "concat":
             if enc_state.dim() == 3 and dec_state.dim() == 3:
-                dec_state = dec_state.unsqueeze(1)
                 enc_state = enc_state.unsqueeze(2)
+                dec_state = dec_state.unsqueeze(1)
 
                 t = enc_state.size(1)
                 u = dec_state.size(2)
