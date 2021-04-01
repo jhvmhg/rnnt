@@ -103,6 +103,7 @@ usage:
     show_ctc_loss(encoder_output[1],targets[1],train_dataset.idx2unit, "exp/png/dnn_0.1.png")
 """
 
+
 def show_ctc_loss(utt_prob, target, idx2unit, save_path):
     plt.plot(utt_prob[:, 0].detach().numpy(), linewidth=0.1)
     for j in target:
