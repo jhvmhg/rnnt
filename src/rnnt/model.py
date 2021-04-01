@@ -41,7 +41,6 @@ class JointNet(nn.Module):
 
         if self.joint == "sum":
             concat_state = enc_state + dec_state
-
         elif self.joint == "concat":
             if enc_state.dim() == 4 and dec_state.dim() == 4:
                 t = enc_state.size(1)
@@ -52,11 +51,10 @@ class JointNet(nn.Module):
                 assert enc_state.dim() == dec_state.dim()
 
             concat_state = torch.cat((enc_state, dec_state), dim=-1)
-            del enc_state, dec_state
-
         else:
             raise NotImplementedError
 
+        del enc_state, dec_state
         joint = self.mlp(concat_state)
         if softmax:
             joint = self.softmax(joint)
