@@ -6,9 +6,9 @@ from warprnnt_pytorch import RNNTLoss
 
 
 class JointNet(nn.Module):
-    def __init__(self, input_size, inner_dim, vocab_size):
+    def __init__(self, input_size, inner_dim, vocab_size, joint="concat"):
         super(JointNet, self).__init__()
-
+        self.joint = joint
         self.mlp = nn.Sequential(
             nn.Linear(input_size, inner_dim, bias=True),
             nn.Tanh(),
@@ -17,25 +17,39 @@ class JointNet(nn.Module):
         self.softmax = torch.nn.LogSoftmax(dim=-1)
 
     def forward(self, enc_state, dec_state, softmax=False):
-        if enc_state.dim() == 3 and dec_state.dim() == 3:
-            dec_state = dec_state.unsqueeze(1)
-            enc_state = enc_state.unsqueeze(2)
+        """Returns the fusion of inputs tensors.
 
-            t = enc_state.size(1)
-            u = dec_state.size(2)
+        Arguments
+        ---------
+        enc_state : torch.Tensor
+           Input from Transcription Network.
 
-            enc_state = enc_state.repeat([1, 1, u, 1])
-            dec_state = dec_state.repeat([1, t, 1, 1])
-        else:
-            assert enc_state.dim() == dec_state.dim()
+        dec_state : torch.Tensor
+           Input from Prediction Network.
+        """
+        if self.joint == "sum":
+            joint = enc_state + dec_state
 
-        concat_state = torch.cat((enc_state, dec_state), dim=-1)
-        del enc_state, dec_state
-        outputs = self.mlp(concat_state)
-        if softmax:
-            outputs = self.softmax(outputs)
+        elif self.joint == "concat":
+            if enc_state.dim() == 3 and dec_state.dim() == 3:
+                dec_state = dec_state.unsqueeze(1)
+                enc_state = enc_state.unsqueeze(2)
 
-        return outputs
+                t = enc_state.size(1)
+                u = dec_state.size(2)
+
+                enc_state = enc_state.repeat([1, 1, u, 1])
+                dec_state = dec_state.repeat([1, t, 1, 1])
+            else:
+                assert enc_state.dim() == dec_state.dim()
+
+            concat_state = torch.cat((enc_state, dec_state), dim=-1)
+            del enc_state, dec_state
+            joint = self.mlp(concat_state)
+            if softmax:
+                joint = self.softmax(joint)
+
+        return joint
 
 
 class Transducer(nn.Module):
