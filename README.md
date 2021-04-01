@@ -45,3 +45,8 @@ model:
 
 ## Acknowledge
 Thanks to [warp-transducer](https://github.com/HawkAaron/warp-transducer) and [ctc-decoder](https://github.com/parlance/ctcdecode).
+
+## ctc decoder
+
+`alpha`表示语言模型分数的占比（不匹配语料0.2，匹配语料1）
+`beta`表示每增加一个字的奖励，越大字越多（一般取2，字数比较合适）
