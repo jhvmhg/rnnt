@@ -89,11 +89,11 @@ class Transducer(nn.Module):
         self.transducer_loss = RNNTLoss()
 
         # multask learning (loss_decoder and loss_encoder)
-        if config.model.enc.ctc_weight and config.model.enc.ctc_weight > 0.0:
+        if config.enc.ctc_weight and config.enc.ctc_weight > 0.0:
             self.ctc_loss = nn.CTCLoss()
             self.encoder_project_layer = nn.Sequential(nn.Tanh(),
                                                        nn.Linear(self.config.enc.output_size, self.config.vocab_size))
-        if config.model.dec.ce_weight and config.model.dec.ce_weight > 0.0:
+        if config.dec.ce_weight and config.dec.ce_weight > 0.0:
             self.nll_loss = nll_loss
             self.decoder_project_layer = nn.Sequential(nn.Tanh(),
                                                        nn.Linear(self.config.dec.output_size, self.config.vocab_size))
