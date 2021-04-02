@@ -116,7 +116,7 @@ class Transducer(nn.Module):
         loss_transducer = self.transducer_loss(p_transducer, tokens.int(), output_length, tokens_length.int())
 
         # loss_decoder
-        if self.ctc_loss and ctc_weight > 0.0:
+        if hasattr(self, 'ctc_loss') and ctc_weight > 0.0:
             encoder_output = self.encoder_project_layer(enc_state)
             encoder_output = torch.transpose(encoder_output, 0, 1)
             encoder_output = encoder_output.log_softmax(2)
@@ -124,7 +124,7 @@ class Transducer(nn.Module):
             loss_transducer += self.ctc_loss(encoder_output, tokens.int(),
                                              enc_output_lengths, tokens_length.int()) * ctc_weight
         # loss_encoder
-        if self.nll_loss and ce_weight > 0.0:
+        if hasattr(self, 'nll_loss') and ce_weight > 0.0:
             dec_output = self.decoder_project_layer(dec_state)
             dec_output = torch.nn.functional.log_softmax(dec_output, dim=-1)
             loss_transducer += self.nll_loss(dec_output, tokens_with_eos,
