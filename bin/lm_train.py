@@ -141,7 +141,6 @@ def main():
         save_model(model, optimizer, config, save_name)
         logger.info('Epoch %d model has been saved.' % epoch)
 
-
         if config.training.eval_or_not:
             _ = eval(epoch, config, model, validate_data, logger, visualizer)
 

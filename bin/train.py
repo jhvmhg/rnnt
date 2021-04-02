@@ -263,16 +263,15 @@ def main():
 
     logger.info(model)
     for epoch in range(start_epoch, config.training.epochs):
-
         train(epoch, config, model, training_data,
               optimizer, logger, visualizer)
-
-        if config.training.eval_or_not:
-            _ = eval(epoch, config, model, validate_data, logger, visualizer)
 
         save_name = os.path.join(exp_name, '%s.epoch%d.chkpt' % (config.training.save_model, epoch))
         save_model(model, optimizer, config, save_name)
         logger.info('Epoch %d model has been saved.' % epoch)
+
+        if config.training.eval_or_not:
+            _ = eval(epoch, config, model, validate_data, logger, visualizer)
 
         if epoch >= config.optim.begin_to_adjust_lr:
             optimizer.decay_lr()
