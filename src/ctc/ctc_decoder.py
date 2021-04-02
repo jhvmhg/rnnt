@@ -209,7 +209,7 @@ def build_ctc_beam_decoder(config, model):
     beamctc_decoder = None
     if config.model.type == "ctc" and config.evaling.lm_model:
         alpha = config.evaling.alpha if config.evaling.alpha else 0.5
-        beta = config.evaling.beta if config.evaling.beta else 0.5
+        beta = config.evaling.beta if config.evaling.beta else 1.8
         cutoff_top_n = config.evaling.cutoff_top_n if config.evaling.cutoff_top_n else 40
         cutoff_prob = config.evaling.cutoff_prob if config.evaling.cutoff_prob else 1.0
         beam_width = config.evaling.beam_width if config.evaling.beam_width else 20
