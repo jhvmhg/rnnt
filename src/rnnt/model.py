@@ -12,9 +12,11 @@ class JointNet(nn.Module):
         self.joint = joint
         self.forward_layer = nn.Linear(input_size, inner_dim, bias=True)
 
-        self.tanh = nn.Tanh()
-        self.project_layer = nn.Linear(inner_dim, vocab_size, bias=True)
-        self.softmax = torch.nn.LogSoftmax(dim=-1)
+        self.mlp = nn.Sequential(
+            nn.Linear(input_size, inner_dim, bias=True),
+            nn.Tanh(),
+            nn.Linear(inner_dim, vocab_size, bias=True)
+        )
 
     def forward(self, enc_state, dec_state, softmax=False):
         """Returns the fusion of inputs tensors.
@@ -55,10 +57,7 @@ class JointNet(nn.Module):
             raise NotImplementedError
 
         del enc_state, dec_state
-        joint = self.forward_layer(concat_state)
-
-        joint = self.tanh(joint)
-        joint = self.project_layer(joint)
+        joint = self.mlp(concat_state)
         if softmax:
             joint = self.softmax(joint)
 
