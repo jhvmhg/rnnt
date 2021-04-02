@@ -16,10 +16,13 @@ def build_encoder(config):
             dropout=config.dropout,
             bidirectional=config.enc.bidirectional
         )
-    elif config.enc.type == 'cnn_lstm':
+    elif config.enc.type == 'cov1d_lstm':
         return CNN_LSTM(
             input_size=config.feature_dim,
-            hidden_size=config.enc.hidden_size,
+            kernal_size=config.enc.cnn_kernal_size,
+            pad=config.enc.cnn_pad,
+            rnn_input_size=config.enc.rnn_input_size,
+            rnn_hidden_size=config.enc.rnn_hidden_size,
             output_size=config.enc.output_size,
             n_layers=config.enc.n_layers,
             dropout=config.dropout,
