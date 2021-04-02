@@ -3,17 +3,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 from src.utils.build_model import build_encoder, build_decoder
 from warprnnt_pytorch import RNNTLoss
+from src.net.loss import nll_loss
 
 
 class JointNet(nn.Module):
     def __init__(self, input_size, inner_dim, vocab_size, joint="concat"):
         super(JointNet, self).__init__()
         self.joint = joint
-        self.mlp = nn.Sequential(
-            nn.Linear(input_size, inner_dim, bias=True),
-            nn.Tanh(),
-            nn.Linear(inner_dim, vocab_size, bias=True)
-        )
+        self.forward_layer = nn.Linear(input_size, inner_dim, bias=True)
+
+        self.tanh = nn.Tanh()
+        self.project_layer = nn.Linear(inner_dim, vocab_size, bias=True)
         self.softmax = torch.nn.LogSoftmax(dim=-1)
 
     def forward(self, enc_state, dec_state, softmax=False):
@@ -55,7 +55,10 @@ class JointNet(nn.Module):
             raise NotImplementedError
 
         del enc_state, dec_state
-        joint = self.mlp(concat_state)
+        joint = self.forward_layer(concat_state)
+
+        joint = self.tanh(joint)
+        joint = self.project_layer(joint)
         if softmax:
             joint = self.softmax(joint)
 
@@ -65,8 +68,8 @@ class JointNet(nn.Module):
 class Transducer(nn.Module):
     def __init__(self, config):
         super(Transducer, self).__init__()
-        # define encoder
         self.config = config
+        # define encoder
         self.encoder = build_encoder(config)
         # define decoder
         self.decoder = build_decoder(config)
@@ -83,24 +86,53 @@ class Transducer(nn.Module):
                 self.decoder.embedding.weight.size(1), self.joint.project_layer.weight.size(1))
             self.joint.project_layer.weight = self.decoder.embedding.weight
 
-        self.crit = RNNTLoss()
+        self.transducer_loss = RNNTLoss()
 
-    def forward(self, inputs, inputs_length, targets, targets_length):
+        # multask learning (loss_decoder and loss_encoder)
+        if config.model.enc.ctc_weight and config.model.enc.ctc_weight > 0.0:
+            self.ctc_loss = nn.CTCLoss()
+            self.encoder_project_layer = nn.Sequential(nn.Tanh(),
+                                                       nn.Linear(self.config.enc.output_size, self.config.vocab_size))
+        if config.model.dec.ce_weight and config.model.dec.ce_weight > 0.0:
+            self.nll_loss = nll_loss
+            self.decoder_project_layer = nn.Sequential(nn.Tanh(),
+                                                       nn.Linear(self.config.dec.output_size, self.config.vocab_size))
 
-        enc_state, output_length = self.encoder(inputs, inputs_length)
-        concat_targets = F.pad(targets, pad=[1, 0, 0, 0], value=0)
+    def forward(self, inputs, inputs_length, tokens, tokens_length, ctc_weight=0.0, ce_weight=0.0):
+        """
+            ctc_weight and ce_weight for multask learning
+        """
 
+        enc_state, enc_output_lengths = self.encoder(inputs, inputs_length)
+
+        tokens_with_bos, token_with_bos_lens = F.pad(tokens, pad=[1, 0, 0, 0], value=0), tokens_length.add(1)
+        tokens_with_eos, token_with_eos_lens = F.pad(tokens, pad=[0, 1, 0, 0], value=0), tokens_length.add(1)
         if enc_state.is_cuda:
-            output_length, concat_targets = output_length.int().cuda(), concat_targets.cuda()
+            output_length, tokens_with_bos = enc_output_lengths.int().cuda(), tokens_with_bos.cuda()
         else:
-            output_length = output_length.int()
+            output_length = enc_output_lengths.int()
 
-        dec_state, _ = self.decoder(concat_targets, targets_length.add(1))
-        logits = self.joint(enc_state, dec_state)
-        del enc_state, dec_state
-        loss = self.crit(logits, targets.int(), output_length, targets_length.int())
+        # loss_transducer
+        dec_state, _ = self.decoder(tokens_with_bos, tokens_length.add(1))
+        p_transducer = self.joint(enc_state, dec_state)
+        loss_transducer = self.transducer_loss(p_transducer, tokens.int(), output_length, tokens_length.int())
 
-        return loss
+        # loss_decoder
+        if self.ctc_loss and ctc_weight > 0.0:
+            encoder_output = self.encoder_project_layer(enc_state)
+            encoder_output = torch.transpose(encoder_output, 0, 1)
+            encoder_output = encoder_output.log_softmax(2)
+
+            loss_transducer += self.ctc_loss(encoder_output, tokens.int(),
+                                             enc_output_lengths, tokens_length.int()) * ctc_weight
+        # loss_encoder
+        if self.nll_loss and ce_weight > 0.0:
+            dec_output = self.decoder_project_layer(dec_state)
+            dec_output = torch.nn.functional.log_softmax(dec_output, dim=-1)
+            loss_transducer += self.nll_loss(dec_output, tokens_with_eos,
+                                             length=token_with_eos_lens) * ce_weight
+
+        return loss_transducer
 
     def recognize(self, inputs, inputs_length):
 

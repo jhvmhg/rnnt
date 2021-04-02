@@ -19,10 +19,20 @@ from src.utils import AttrDict, init_logger, count_parameters, computer_cer, num
 from src.utils.checkpoint import save_model, load_model
 
 
-def iter_one_batch(model, config, logger, inputs, inputs_length, targets, targets_length):
-    loss = model(inputs, inputs_length, targets, targets_length)
+def iter_one_batch(epoch, model, config, logger, inputs, inputs_length, targets, targets_length):
+    if config.model.type == "transducer":
+        # for transducer, check for ctc_weight and ce_weight
+        ctc_weight, ce_weight = 0.0, 0.0
+        if config.model.enc.number_of_ctc_epochs and epoch < config.model.enc.number_of_ctc_epochs:
+            ctc_weight = config.model.enc.ctc_weight
+        if config.model.dec.number_of_ctc_epochs and epoch < config.model.dec.number_of_ce_epochs:
+            ce_weight = config.model.dec.ce_weight
+        loss = model(inputs, inputs_length, targets, targets_length, ctc_weight, ce_weight)
+    else:
+        loss = model(inputs, inputs_length, targets, targets_length)
+
     if config.training.num_gpu > 1:
-        loss = torch.mean(loss)
+        loss = loss / config.training.num_gpu
     if torch.isnan(loss):
         logger.info("Train loss is nan. Skipping train loss update")
         return 0, 0
@@ -63,7 +73,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
         # feed inputs to model and catch "CUDA out of memory" error
         oom = False
         try:
-            loss_val, grad_norm = iter_one_batch(model, config, logger,
+            loss_val, grad_norm = iter_one_batch(epoch, model, config, logger,
                                                  inputs, inputs_length,
                                                  targets, targets_length)
             total_loss += loss_val
@@ -73,7 +83,7 @@ def train(epoch, config, model, training_data, optimizer, logger, visualizer=Non
 
         if oom:
             for i in range(targets_length.shape[0]):
-                loss_val, grad_norm = iter_one_batch(model, config, logger,
+                loss_val, grad_norm = iter_one_batch(epoch, model, config, logger,
                                                      inputs[i][:inputs_length[i]].unsqueeze(0),
                                                      inputs_length[i].unsqueeze(0),
                                                      targets[i][:targets_length[i]].unsqueeze(0),
