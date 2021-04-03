@@ -29,7 +29,7 @@ class BaseDecoder(nn.Module):
             sorted_seq_lengths, indices = torch.sort(length, descending=True)
             embed_inputs = embed_inputs[indices]
             embed_inputs = nn.utils.rnn.pack_padded_sequence(
-                embed_inputs, sorted_seq_lengths, batch_first=True)
+                embed_inputs, sorted_seq_lengths.cpu(), batch_first=True)
 
         self.lstm.flatten_parameters()
         outputs, hidden = self.lstm(embed_inputs, hidden)

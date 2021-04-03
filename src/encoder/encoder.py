@@ -27,7 +27,8 @@ class BaseEncoder(nn.Module):
         #     sorted_seq_lengths, indices = torch.sort(input_lengths, descending=True)
         #     inputs = inputs[indices]
         #     inputs = nn.utils.rnn.pack_padded_sequence(inputs, sorted_seq_lengths, batch_first=True)
-        inputs = nn.utils.rnn.pack_padded_sequence(inputs, input_lengths, batch_first=True)
+        inputs = nn.utils.rnn.pack_padded_sequence(inputs, input_lengths.cpu(),
+                                                   batch_first=True)  # torch 1.7 need input_lengths.cpu()
         self.lstm.flatten_parameters()
         outputs, hidden = self.lstm(inputs)
 
@@ -35,7 +36,7 @@ class BaseEncoder(nn.Module):
         #     _, desorted_indices = torch.sort(indices, descending=False)
         #     outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)
         #     outputs = outputs[desorted_indices]
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True) #delete total_length=total_length
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs, batch_first=True)  # delete total_length=total_length
         logits = self.output_proj(outputs)
 
         return logits, input_lengths
@@ -66,7 +67,7 @@ class CNN_LSTM(nn.Module):
         if input_lengths is not None:
             sorted_seq_lengths, indices = torch.sort(input_lengths, descending=True)
             inputs = inputs[indices]
-            inputs = nn.utils.rnn.pack_padded_sequence(inputs, sorted_seq_lengths, batch_first=True)
+            inputs = nn.utils.rnn.pack_padded_sequence(inputs, sorted_seq_lengths.cpu(), batch_first=True)
 
         self.lstm.flatten_parameters()
         outputs, hidden = self.lstm(inputs)
